@@ -24,7 +24,7 @@ English and Chinese forms share one searchable subject convention:
 
 Every delivery also contains a sortable Lead ID (`ANNA-YYYYMMDDhhmmss-XXXX`), UTC submission time, language and source page. Required fields are name, company/team, work email, service code, project brief and consent. Native form validation, a hidden honeypot and FormSubmit's default verification reduce junk without adding client-side tracking.
 
-FormSubmit requires a one-time confirmation email for the recipient address. Keep reCAPTCHA enabled, do not add `_captcha=false`, and never place confidential production material in the public enquiry form. Search Gmail with `subject:"[ANNA-LEAD]"` to isolate all website enquiries.
+The production endpoint is activated and uses FormSubmit's random endpoint token instead of exposing the recipient address in the form action. Keep reCAPTCHA enabled, do not add `_captcha=false`, and never place confidential production material in the public enquiry form. Search Gmail with `subject:"[ANNA-LEAD]"` to isolate all website enquiries.
 
 ## Anna Lab cases
 
