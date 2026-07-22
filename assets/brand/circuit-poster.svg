@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" role="img" aria-labelledby="title desc">
+  <title id="title">Abstract semiconductor circuit</title>
+  <desc id="desc">Copper circuit traces and a cyan photon pulse on a graphite silicon surface.</desc>
+  <defs>
+    <radialGradient id="bg" cx="68%" cy="48%" r="75%">
+      <stop offset="0" stop-color="#1b201c"/>
+      <stop offset="0.46" stop-color="#0a0e0c"/>
+      <stop offset="1" stop-color="#030504"/>
+    </radialGradient>
+    <linearGradient id="copper" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#4e2917"/>
+      <stop offset="0.42" stop-color="#d37f3e"/>
+      <stop offset="0.7" stop-color="#7e4627"/>
+      <stop offset="1" stop-color="#eea15c"/>
+    </linearGradient>
+    <linearGradient id="copperDim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9b5b32" stop-opacity=".62"/>
+      <stop offset="1" stop-color="#3b2115" stop-opacity=".18"/>
+    </linearGradient>
+    <radialGradient id="photon">
+      <stop offset="0" stop-color="#e4fff8"/>
+      <stop offset=".14" stop-color="#72f8d7"/>
+      <stop offset=".5" stop-color="#30c8aa" stop-opacity=".45"/>
+      <stop offset="1" stop-color="#30c8aa" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
+      <path d="M80 0H0V80" fill="none" stroke="#edf2e9" stroke-opacity=".045"/>
+      <circle cx="0" cy="0" r="2" fill="#edf2e9" fill-opacity=".08"/>
+    </pattern>
+    <filter id="blur32" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="32"/></filter>
+    <filter id="blur12" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="12"/></filter>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency=".7" numOctaves="3" seed="8"/>
+      <feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 .09 0"/>
+    </filter>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <rect width="1920" height="1080" fill="url(#grid)"/>
+
+  <g opacity=".34" fill="none" stroke="url(#copperDim)" stroke-width="5">
+    <path d="M-40 210H290v158h276v-92h256"/>
+    <path d="M120 990V774h284V642h246"/>
+    <path d="M1510 1110V850h-236V716h-182"/>
+    <path d="M1960 130h-362v180h-302v128h-172"/>
+    <path d="M1920 952h-250V782h-226"/>
+  </g>
+
+  <g transform="translate(952 544) rotate(-8)">
+    <rect x="-660" y="-268" width="1320" height="536" rx="18" fill="#0b100d" stroke="#d0d5cc" stroke-opacity=".14" stroke-width="2"/>
+    <g opacity=".55">
+      <path d="M-650-176h222v-72m-222 184h296v-86m-296 198h176v-54m1126-170H420v-72m230 184H354v-86m296 198H474v-54" fill="none" stroke="url(#copper)" stroke-width="13"/>
+      <g fill="#d57f3f">
+        <circle cx="-428" cy="-248" r="16"/><circle cx="-354" cy="-150" r="16"/><circle cx="-474" cy="-6" r="16"/>
+        <circle cx="420" cy="-248" r="16"/><circle cx="354" cy="-150" r="16"/><circle cx="474" cy="-6" r="16"/>
+      </g>
+    </g>
+    <rect x="-210" y="-126" width="420" height="252" rx="12" fill="#171d18" stroke="#f0a15b" stroke-opacity=".72" stroke-width="4"/>
+    <rect x="-142" y="-74" width="284" height="148" rx="7" fill="#080b09" stroke="#eef2e9" stroke-opacity=".19"/>
+    <g fill="#d17d3e" opacity=".8">
+      <rect x="-116" y="-45" width="32" height="90" rx="3"/><rect x="-56" y="-45" width="32" height="90" rx="3"/>
+      <rect x="4" y="-45" width="32" height="90" rx="3"/><rect x="64" y="-45" width="32" height="90" rx="3"/>
+    </g>
+    <path d="M-660 212h330v-78h218v-62H36v-50h280v-98h344" fill="none" stroke="#62371f" stroke-width="56" stroke-linejoin="round"/>
+    <path d="M-660 212h330v-78h218v-62H36v-50h280v-98h344" fill="none" stroke="url(#copper)" stroke-width="25" stroke-linejoin="round"/>
+    <path d="M-660 212h330v-78h218v-62H36v-50h280v-98h344" fill="none" stroke="#f7be7e" stroke-opacity=".42" stroke-width="3" stroke-linejoin="round"/>
+  </g>
+
+  <ellipse cx="1300" cy="390" rx="180" ry="150" fill="#35d8ba" opacity=".11" filter="url(#blur32)"/>
+  <circle cx="1300" cy="390" r="86" fill="url(#photon)"/>
+  <circle cx="1300" cy="390" r="18" fill="#dffff8" filter="url(#blur12)"/>
+  <circle cx="1300" cy="390" r="7" fill="#effffb"/>
+
+  <g fill="#7ff7da">
+    <circle cx="174" cy="164" r="2" opacity=".45"/><circle cx="354" cy="846" r="1.8" opacity=".32"/>
+    <circle cx="1490" cy="208" r="2.2" opacity=".38"/><circle cx="1702" cy="712" r="1.6" opacity=".28"/>
+    <circle cx="1134" cy="862" r="2" opacity=".33"/><circle cx="688" cy="134" r="1.7" opacity=".26"/>
+  </g>
+  <rect width="1920" height="1080" filter="url(#grain)" opacity=".48"/>
+  <rect width="1920" height="1080" fill="none" stroke="#eef2e9" stroke-opacity=".08" stroke-width="2"/>
+</svg>

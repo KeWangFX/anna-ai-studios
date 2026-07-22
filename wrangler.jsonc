@@ -1,0 +1,8 @@
+{
+  "name": "anna-ai-studios",
+  "pages_build_output_dir": "./cloudflare-release",
+  "compatibility_date": "2026-07-22",
+  "placement": {
+    "mode": "smart"
+  }
+}

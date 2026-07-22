@@ -1,0 +1,7 @@
+node_modules/
+cloudflare-release/
+.playwright-cli/
+.wrangler/
+__pycache__/
+*.pyc
+*.log

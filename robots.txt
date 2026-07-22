@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://anna-ai-studios.pages.dev/sitemap.xml

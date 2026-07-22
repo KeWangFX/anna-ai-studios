@@ -1,0 +1,17 @@
+{
+  "name": "anna-ai-studios",
+  "private": true,
+  "scripts": {
+    "preview": "npx http-server . -p 4174 -c-1",
+    "cf:login": "npx wrangler login",
+    "cf:whoami": "npx wrangler whoami",
+    "cf:build": "python scripts/build_cloudflare_dist.py",
+    "cf:deploy": "python scripts/build_cloudflare_dist.py && npx wrangler pages deploy ./cloudflare-release --project-name anna-ai-studios"
+  },
+  "dependencies": {
+    "@paper-design/shaders-react": "^0.0.72",
+    "framer-motion": "^12.38.0",
+    "lucide-react": "^0.577.0",
+    "three": "^0.183.2"
+  }
+}

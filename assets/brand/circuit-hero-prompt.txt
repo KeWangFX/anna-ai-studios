@@ -1,0 +1,22 @@
+Use case: full-screen website hero, designed for precise scroll scrubbing.
+
+Primary request: A single continuous eight-second cinematic engineering shot moving relentlessly forward from directly above one microscopic transistor gate. The gate resembles a tiny illuminated architectural block inside a physically accurate semiconductor. The camera accelerates along a copper interconnect like a monorail, banks smoothly through cylindrical via holes, descends one layer through crystalline silicon, catches and rides beside a cyan photon pulse bending through a photonic channel, then reaches the edge of the die. The final movement reveals the die as one component in an immense wafer through three clean beats of exponential scale increase. One seamless take, no cuts.
+
+Camera: stabilized probe-macro perspective, strong forward parallax, continuous spatially coherent motion, extreme macro depth transitioning naturally into an immense aerial reveal.
+
+Timing/beats:
+0.0-1.6s - approach and pass above one transistor gate.
+1.6-3.3s - accelerate along a copper trace and bank into a via.
+3.3-5.2s - descend through silicon layers and follow one cyan photon pulse.
+5.2-6.4s - emerge at the die edge.
+6.4-8.0s - three distinct exponential zoom-out beats revealing die, chip grid, then galaxy-scale wafer.
+
+Lighting/mood: controlled industrial darkness, copper-amber reflections, cyan photon emission, subtle warm-white highlights, premium scientific documentary lighting.
+
+Color palette: graphite black, oxidized copper, electric cyan, warm ivory.
+
+Style/format: photorealistic semiconductor materials, physically plausible fabrication geometry, cinematic documentary realism, clean high-frequency detail, restrained natural motion blur.
+
+Constraints: one continuous forward camera journey; preserve material and circuit topology across the full shot; no logos; no text; no people; no cuts; no scene transitions.
+
+Avoid: morphing geometry, melting copper, duplicated components, impossible circuitry, flicker, jitter, exposure pumping, abrupt depth changes, artificial oversharpening, excessive bokeh.
