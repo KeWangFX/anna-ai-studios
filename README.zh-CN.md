@@ -7,12 +7,33 @@
 - `/`：英文主站
 - `/zh/`：简体中文站
 - `styles.css`：共享视觉系统与响应式布局
-- `script.js`：滚动视频映射、导航与内容显现
+- `script.js`：主片滚动映射、信号路径动画、导航与留言表单逻辑
 - `shader-background.js`：Three.js 铜互连和光子叠加层
 - `assets/brand/`：公开品牌资产、Sora 提示词和主视觉媒体
 - `assets/cases/`：已批准并完成网页压缩的 Anna Lab 案例图片
+- `assets/contact/`：公开使用的裁切版微信二维码；手机原始截图不进入发布目录
 
-首版为纯静态站，不使用分析脚本、Cookie、表单或数据库。咨询入口直接使用邮件。
+网站保持纯静态，不使用分析脚本、Cookie 或数据库。结构化留言通过 FormSubmit 转发到 `keke19870699@gmail.com`，并保留邮箱、WhatsApp 和微信直达入口。
+
+## 联系方式与留言命名
+
+中英文表单统一使用以下邮件主题：
+
+```text
+[ANNA-LEAD][SERVICE-CODE][EN|ZH][YYYYMMDD] Company / Name
+```
+
+每条留言同时包含可排序 Lead ID、UTC 提交时间、语言与来源页面。FormSubmit 端点已经激活，保留 reCAPTCHA 与隐藏反垃圾字段。Gmail 可用 `subject:"[ANNA-LEAD]"` 单独筛出网站咨询。
+
+- 邮箱：`keke19870699@gmail.com`
+- WhatsApp：页面显示 `+44 7516 141043`，链接使用 `+447516141043`
+- 微信：`kewangfx`，二维码为 `assets/contact/wechat-kewangfx-qr.png`
+
+国际格式不能写成 `+44 075...`；使用英国国家码后必须去掉本地号码前导 `0`。
+
+## 滚动信号路径
+
+交付方式与案例之间新增一段“唱片沟槽 × 晶圆蚀刻”的程序化视觉。滚动进度映射到 8 秒的捕捉、编排、控制、决策四阶段。Canvas 使用确定性几何、DPR 上限 1.5，并且只在滚动或尺寸变化时重绘；移动端、短视口和减少动态模式使用静态画面与普通纵向内容。
 
 ## Anna Lab 案例
 
@@ -25,8 +46,7 @@
 ## 本地预览
 
 ```powershell
-git clone https://github.com/KeWangFX/anna-ai-studios.git
-cd anna-ai-studios
+cd D:\job\codex\keWang_website
 npm run preview
 ```
 
@@ -45,7 +65,7 @@ npm run cf:build
 npm run cf:deploy
 ```
 
-目标 Cloudflare Pages 项目为 `anna-ai-studios`。构建脚本会清空并重建 `cloudflare-release/`，只发布公司站、品牌资产、精选案例图片、本地 Three.js 和创始人照片；旧作品集、家庭素材和私有制作源文件不包含在此仓库中。
+目标 Cloudflare Pages 项目为 `anna-ai-studios`。构建脚本会清空并重建 `cloudflare-release/`，只发布公司站、品牌与联系资产、精选案例图片、本地 Three.js 和核心成员照片；旧作品集、手机原始截图及家庭素材继续保存在仓库中，但不会公开发布。
 
 ## GitHub Pages 镜像
 

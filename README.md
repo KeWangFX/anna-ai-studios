@@ -7,10 +7,11 @@ Bilingual forward-deployed AI engineering website for a London-based independent
 - `/` — English site
 - `/zh/` — Simplified Chinese site
 - `styles.css` — shared visual system and responsive layout
-- `script.js` — scroll-to-video mapping, navigation and reveal behavior
+- `script.js` — hero scrubbing, the procedural signal journey, navigation and form behavior
 - `shader-background.js` — Three.js copper-trace and photon overlay
 - `assets/brand/` — public brand artwork, hero prompt and optimized hero media
 - `assets/cases/` — approved, web-compressed Anna Lab case-study frames
+- `assets/contact/` — the cropped public WeChat QR code only; source phone screenshots stay private
 
 The site remains static and has no analytics, cookies or database binding. Its contact form posts directly to FormSubmit, which forwards a structured email to `keke19870699@gmail.com`; the email fallback remains available if the form service is unreachable.
 
@@ -25,6 +26,18 @@ English and Chinese forms share one searchable subject convention:
 Every delivery also contains a sortable Lead ID (`ANNA-YYYYMMDDhhmmss-XXXX`), UTC submission time, language and source page. Required fields are name, company/team, work email, service code, project brief and consent. Native form validation, a hidden honeypot and FormSubmit's default verification reduce junk without adding client-side tracking.
 
 The production endpoint is activated and uses FormSubmit's random endpoint token instead of exposing the recipient address in the form action. Keep reCAPTCHA enabled, do not add `_captcha=false`, and never place confidential production material in the public enquiry form. Search Gmail with `subject:"[ANNA-LEAD]"` to isolate all website enquiries.
+
+Direct contact fallbacks are published alongside the form:
+
+- Email: `keke19870699@gmail.com`
+- WhatsApp: display `+44 7516 141043`, E.164/`wa.me` value `+447516141043`
+- WeChat: `kewangfx`, with `assets/contact/wechat-kewangfx-qr.png`
+
+Do not replace the WhatsApp link with the UK local form (`+44 075...`); the leading zero must be removed after the country code.
+
+## Scroll-mapped signal study
+
+The delivery-to-lab interlude procedurally combines record-groove waveform geometry with wafer etching. Scroll progress maps to an eight-second Capture → Structure → Control → Decide sequence. It uses Canvas 2D with deterministic geometry, caps DPR at 1.5 and redraws only on scroll or resize. Mobile, short-viewport and reduced-motion layouts use one static frame and ordinary vertical content.
 
 ## Anna Lab cases
 
@@ -74,7 +87,7 @@ npm run cf:build
 npm run cf:deploy
 ```
 
-Deployment target: `anna-ai-studios` (`https://anna-ai-studios.pages.dev`). The build script starts from a clean `cloudflare-release/` directory and copies only the company site, brand assets, curated case frames, local Three.js runtime and the approved founder portrait. Legacy portfolio and family media remain in the repository but are not published.
+Deployment target: `anna-ai-studios` (`https://anna-ai-studios.pages.dev`). The build script starts from a clean `cloudflare-release/` directory and copies only the company site, brand/contact assets, curated case frames, local Three.js runtime and the approved core-team portrait. Legacy portfolio, source screenshots and family media remain in the repository but are not published.
 
 ## GitHub Pages mirror
 
@@ -85,5 +98,6 @@ The standalone source repository is `KeWangFX/anna-ai-studios`. Pushes to `main`
 - Verify English and Chinese routes, metadata and `hreflang` links.
 - Test 375, 768, 1024 and 1440 px layouts.
 - Test with reduced motion and WebGL disabled.
+- Open the WeChat disclosure, verify the QR loads, and check the WhatsApp URL uses `447516141043`.
 - Confirm the release directory contains no legacy portfolio data or media.
 - Keep HTML/CSS/JS revalidated and fingerprinted media immutable.

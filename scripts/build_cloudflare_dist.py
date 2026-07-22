@@ -26,6 +26,7 @@ PUBLIC_TREES = (
     (ROOT / "zh", DIST / "zh"),
     # Only curated web derivatives are public; production source folders stay outside the release.
     (ROOT / "assets" / "cases", DIST / "assets" / "cases"),
+    (ROOT / "assets" / "contact", DIST / "assets" / "contact"),
 )
 
 PUBLIC_FILES = (
@@ -35,6 +36,7 @@ PUBLIC_FILES = (
             DIST / "assets" / "brand" / name,
         )
         for name in (
+            "anna-ai-studios-logo.jpg",
             "circuit-poster.svg",
             "circuit-poster.webp",
             "circuit-poster.avif",

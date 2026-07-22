@@ -1,7 +1,21 @@
-node_modules/
-cloudflare-release/
 .playwright-cli/
+generated-posters/
+output/
+tmp_resume_page_*.png
+cloudflare-dist/
+cloudflare-release/
+github-source-release/
+tmp-http-server*.log
+tmp-localtunnel*.log
+cloudflare/site.config.cloudflare.js
+node_modules/
 .wrangler/
 __pycache__/
 *.pyc
 *.log
+
+# Large media files must stay out of vanilla GitHub history.
+assets/videos/ke-wang-showreel-2024.mp4
+assets/videos/tutorial-flip-river-waterfalls.mp4
+assets/videos/tutorial-prepare-collision-geometry.mp4
+assets/videos/tutorial-waterfalls.mp4

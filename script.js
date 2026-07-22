@@ -90,6 +90,263 @@ function initDeliveryProgress() {
   requestUpdate();
 }
 
+function initSignalJourney() {
+  const section = document.querySelector("[data-signal-journey]");
+  const canvas = section?.querySelector("[data-signal-canvas]");
+  const visual = section?.querySelector(".signal-journey__visual");
+  const steps = section ? [...section.querySelectorAll("[data-signal-step]")] : [];
+  const stateElement = section?.querySelector("[data-signal-state]");
+  const timeElement = section?.querySelector("[data-signal-time]");
+  if (!section || !(canvas instanceof HTMLCanvasElement) || !visual) return;
+
+  const context = canvas.getContext("2d", { alpha: false, desynchronized: true });
+  if (!context) return;
+
+  const isChinese = document.documentElement.lang.toLowerCase().startsWith("zh");
+  const stateLabels = isChinese ? ["捕捉", "编排", "控制", "决策"] : ["CAPTURE", "STRUCTURE", "CONTROL", "DECIDE"];
+  const thresholds = [0, 0.24, 0.52, 0.74];
+  const staticLayoutQuery = window.matchMedia("(max-width: 780px), (max-height: 680px)");
+
+  let progress = 0;
+  let activeStep = -1;
+  let sectionVisible = true;
+  let drawFrame = 0;
+  let failed = false;
+
+  const mix = (from, to, amount) => from + (to - from) * amount;
+  const smoothstep = (start, end, value) => {
+    const normalized = clamp((value - start) / Math.max(0.0001, end - start));
+    return normalized * normalized * (3 - 2 * normalized);
+  };
+
+  const usesStaticLayout = () => reducedMotionQuery.matches || staticLayoutQuery.matches;
+
+  const setActiveStep = (index) => {
+    if (index === activeStep) return;
+    activeStep = index;
+    steps.forEach((step, candidate) => step.classList.toggle("is-active", candidate === index));
+    if (stateElement) stateElement.textContent = stateLabels[index] || stateLabels[0];
+  };
+
+  const updateProgress = () => {
+    if (usesStaticLayout()) {
+      // The static composition shows the final human-review state without requiring motion.
+      progress = 0.82;
+    } else {
+      const rect = section.getBoundingClientRect();
+      const scrollSpan = Math.max(1, section.offsetHeight - window.innerHeight);
+      progress = clamp(-rect.top / scrollSpan);
+    }
+
+    let nextStep = 0;
+    thresholds.forEach((threshold, index) => {
+      if (progress >= threshold) nextStep = index;
+    });
+    setActiveStep(nextStep);
+    if (timeElement) timeElement.textContent = `${(progress * 8).toFixed(1).padStart(4, "0")} / 08.0`;
+  };
+
+  const sizeCanvas = () => {
+    // A capped DPR keeps the procedural line work sharp without multiplying scroll-time fill cost.
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    const width = Math.max(1, visual.clientWidth);
+    const height = Math.max(1, visual.clientHeight);
+    const pixelWidth = Math.max(1, Math.round(width * dpr));
+    const pixelHeight = Math.max(1, Math.round(height * dpr));
+    if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
+      canvas.width = pixelWidth;
+      canvas.height = pixelHeight;
+    }
+    context.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return { width, height };
+  };
+
+  const drawReviewRoom = (width, height, amount) => {
+    if (amount <= 0.001) return;
+    const left = width * 0.08;
+    const top = height * 0.1;
+    const roomWidth = width * 0.82;
+    const roomHeight = height * 0.78;
+    const vanishingX = width * 0.46;
+    const vanishingY = height * 0.48;
+
+    context.save();
+    context.globalAlpha = amount;
+    context.strokeStyle = "rgba(242, 239, 230, 0.24)";
+    context.lineWidth = 1;
+    context.strokeRect(left, top, roomWidth, roomHeight);
+
+    for (let column = 0; column <= 6; column += 1) {
+      const x = left + (roomWidth * column) / 6;
+      context.beginPath();
+      context.moveTo(vanishingX, vanishingY);
+      context.lineTo(x, top + roomHeight);
+      context.stroke();
+    }
+
+    for (let row = 1; row <= 5; row += 1) {
+      const eased = (row / 5) ** 1.7;
+      const y = mix(vanishingY, top + roomHeight, eased);
+      context.beginPath();
+      context.moveTo(left, y);
+      context.lineTo(left + roomWidth, y);
+      context.stroke();
+    }
+
+    context.strokeStyle = "rgba(105, 245, 212, 0.58)";
+    context.strokeRect(width * 0.35, height * 0.31, width * 0.22, height * 0.2);
+    context.strokeStyle = "rgba(240, 167, 95, 0.52)";
+    context.strokeRect(width * 0.62, height * 0.22, width * 0.16, height * 0.12);
+    context.restore();
+  };
+
+  const drawGrooves = (width, height) => {
+    const roomReveal = smoothstep(0.72, 0.98, progress);
+    const outerRadius = mix(Math.max(width, height) * 0.96, Math.min(width, height) * 0.42, roomReveal);
+    const centerX = mix(width * 0.43, width * 0.44, roomReveal);
+    const centerY = mix(height * 0.58, height * 0.52, roomReveal);
+    const discGradient = context.createRadialGradient(centerX, centerY, outerRadius * 0.06, centerX, centerY, outerRadius);
+    discGradient.addColorStop(0, "#151a17");
+    discGradient.addColorStop(0.55, "#0a0d0b");
+    discGradient.addColorStop(1, "#030504");
+
+    context.save();
+    context.fillStyle = discGradient;
+    context.beginPath();
+    context.arc(centerX, centerY, outerRadius * 1.03, 0, Math.PI * 2);
+    context.fill();
+
+    // Deterministic waveform displacement preserves topology while the scroll position changes scale.
+    const grooveCount = 22;
+    const sampleCount = 112;
+    for (let groove = 0; groove < grooveCount; groove += 1) {
+      const radius = outerRadius * (0.29 + groove * 0.033);
+      const amplitude = Math.max(0.7, outerRadius * (0.0018 + (groove % 4) * 0.00034));
+      context.beginPath();
+      for (let sample = 0; sample <= sampleCount; sample += 1) {
+        const angle = (sample / sampleCount) * Math.PI * 2;
+        const waveform =
+          Math.sin(angle * 5 + groove * 0.63) * 0.5 +
+          Math.sin(angle * 13 - groove * 0.28) * 0.3 +
+          Math.sin(angle * 29 + groove * 0.11) * 0.2;
+        const displacedRadius = radius + waveform * amplitude;
+        const x = centerX + Math.cos(angle) * displacedRadius;
+        const y = centerY + Math.sin(angle) * displacedRadius;
+        if (sample === 0) context.moveTo(x, y);
+        else context.lineTo(x, y);
+      }
+      const intensity = 0.12 + ((groove + 1) % 5) * 0.025;
+      context.strokeStyle = `rgba(240, 167, 95, ${intensity})`;
+      context.lineWidth = groove % 5 === 0 ? 1.35 : 0.75;
+      context.stroke();
+    }
+
+    const signalRadius = outerRadius * mix(0.58, 0.23, smoothstep(0.18, 0.68, progress));
+    const signalAngle = -2.5 + progress * Math.PI * 2.35;
+    const signalX = centerX + Math.cos(signalAngle) * signalRadius;
+    const signalY = centerY + Math.sin(signalAngle) * signalRadius;
+
+    context.strokeStyle = "rgba(105, 245, 212, 0.74)";
+    context.lineWidth = 1.8;
+    context.beginPath();
+    context.arc(centerX, centerY, signalRadius, signalAngle - 0.38, signalAngle + 0.03);
+    context.stroke();
+
+    const glow = context.createRadialGradient(signalX, signalY, 0, signalX, signalY, 30);
+    glow.addColorStop(0, "rgba(105, 245, 212, 1)");
+    glow.addColorStop(0.2, "rgba(105, 245, 212, 0.72)");
+    glow.addColorStop(1, "rgba(105, 245, 212, 0)");
+    context.fillStyle = glow;
+    context.beginPath();
+    context.arc(signalX, signalY, 30, 0, Math.PI * 2);
+    context.fill();
+
+    const gateAmount = smoothstep(0.48, 0.6, progress) * (1 - smoothstep(0.73, 0.84, progress));
+    if (gateAmount > 0.001) {
+      context.globalAlpha = gateAmount;
+      context.strokeStyle = "rgba(242, 239, 230, 0.78)";
+      context.lineWidth = 1;
+      context.strokeRect(signalX - 46, signalY - 34, 92, 68);
+      context.beginPath();
+      context.moveTo(signalX - 62, signalY);
+      context.lineTo(signalX + 62, signalY);
+      context.moveTo(signalX, signalY - 50);
+      context.lineTo(signalX, signalY + 50);
+      context.stroke();
+      context.globalAlpha = 1;
+    }
+
+    const needleLift = smoothstep(0.78, 1, progress);
+    const armX = width * 0.92;
+    const armY = height * 0.08;
+    const tipX = mix(signalX, width * 0.72, needleLift);
+    const tipY = mix(signalY, height * 0.19, needleLift);
+    context.strokeStyle = "rgba(242, 239, 230, 0.78)";
+    context.lineWidth = Math.max(2, Math.min(width, height) * 0.004);
+    context.beginPath();
+    context.moveTo(armX, armY);
+    context.lineTo(tipX, tipY);
+    context.stroke();
+    context.fillStyle = "#f0a75f";
+    context.beginPath();
+    context.arc(tipX, tipY, 5, 0, Math.PI * 2);
+    context.fill();
+
+    if (roomReveal > 0.5) {
+      context.fillStyle = "rgba(3, 5, 4, 0.86)";
+      context.beginPath();
+      context.arc(centerX, centerY, outerRadius * 0.115, 0, Math.PI * 2);
+      context.fill();
+      context.strokeStyle = "rgba(242, 239, 230, 0.44)";
+      context.lineWidth = 1;
+      context.stroke();
+    }
+    context.restore();
+  };
+
+  const draw = () => {
+    drawFrame = 0;
+    if (failed || !sectionVisible || document.hidden) return;
+    try {
+      updateProgress();
+      const { width, height } = sizeCanvas();
+      context.fillStyle = "#050706";
+      context.fillRect(0, 0, width, height);
+      drawReviewRoom(width, height, smoothstep(0.72, 0.98, progress));
+      drawGrooves(width, height);
+      section.classList.add("has-canvas");
+    } catch {
+      failed = true;
+      section.classList.remove("has-canvas");
+    }
+  };
+
+  const requestDraw = () => {
+    if (drawFrame || failed) return;
+    drawFrame = window.requestAnimationFrame(draw);
+  };
+
+  if ("IntersectionObserver" in window) {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        sectionVisible = entry.isIntersecting;
+        if (sectionVisible) requestDraw();
+      },
+      { rootMargin: "120px" }
+    );
+    observer.observe(section);
+  }
+
+  window.addEventListener("scroll", requestDraw, { passive: true });
+  window.addEventListener("resize", requestDraw);
+  staticLayoutQuery.addEventListener?.("change", requestDraw);
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) requestDraw();
+  });
+  updateProgress();
+  requestDraw();
+}
+
 function initJourney() {
   const journey = document.querySelector("[data-journey]");
   const video = document.querySelector("[data-journey-video]");
@@ -390,14 +647,47 @@ function initLeadReference() {
   reference.textContent = leadId;
 }
 
+function initBrandLogos() {
+  const isChinesePath = window.location.pathname.replace(/\\/g, "/").includes("/zh/");
+  const logoSrc = isChinesePath ? "../assets/brand/anna-ai-studios-logo.jpg" : "assets/brand/anna-ai-studios-logo.jpg";
+  const brandLinks = [...document.querySelectorAll(".brand")];
+
+  brandLinks.forEach((link) => {
+    if (!(link instanceof HTMLElement) || link.querySelector(".brand__logo")) return;
+
+    const image = document.createElement("img");
+    image.className = "brand__logo";
+    image.src = logoSrc;
+    image.width = 1536;
+    image.height = 1024;
+    image.alt = "";
+    image.decoding = "async";
+    image.loading = link.classList.contains("brand--footer") ? "lazy" : "eager";
+
+    link.classList.add("brand--image");
+    link.querySelector(".brand__mark")?.remove();
+    link.querySelector(".brand__type")?.remove();
+    link.prepend(image);
+
+    if (!link.querySelector(".sr-only")) {
+      const label = document.createElement("span");
+      label.className = "sr-only";
+      label.textContent = "Anna AI Studios";
+      link.append(label);
+    }
+  });
+}
+
 function init() {
   document.documentElement.classList.add("has-js");
   document.querySelectorAll("[data-year]").forEach((node) => {
     node.textContent = String(new Date().getFullYear());
   });
+  initBrandLogos();
   initHeader();
   initReveal();
   initDeliveryProgress();
+  initSignalJourney();
   initJourney();
   initContactForms();
   initLeadReference();
