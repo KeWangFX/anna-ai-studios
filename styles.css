@@ -747,6 +747,155 @@ h3 {
   font-size: 16px;
 }
 
+.growth-services {
+  position: relative;
+  isolation: isolate;
+  margin-top: clamp(72px, 9vw, 132px);
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  background:
+    linear-gradient(rgba(105, 245, 212, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(105, 245, 212, 0.045) 1px, transparent 1px),
+    rgba(7, 11, 9, 0.82);
+  background-size: 48px 48px, 48px 48px, auto;
+}
+
+.growth-services::before {
+  position: absolute;
+  z-index: -1;
+  inset: -25% 44% 35% -12%;
+  border-radius: 50%;
+  background: rgba(105, 245, 212, 0.055);
+  filter: blur(72px);
+  content: "";
+}
+
+.growth-services__header {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.55fr);
+  align-items: end;
+  gap: clamp(36px, 6vw, 96px);
+  padding: clamp(36px, 5vw, 72px);
+  border-bottom: 1px solid var(--line-strong);
+  background: rgba(6, 8, 7, 0.72);
+}
+
+.growth-services__header .eyebrow {
+  margin-bottom: 20px;
+  color: var(--cyan);
+}
+
+.growth-services__header h3 {
+  max-width: 850px;
+  font-size: clamp(38px, 4.8vw, 72px);
+  font-weight: 480;
+  line-height: 0.98;
+  letter-spacing: -0.05em;
+}
+
+[lang="zh-Hans"] .growth-services__header h3 {
+  line-height: 1.08;
+  letter-spacing: -0.045em;
+}
+
+.growth-services__header > p {
+  max-width: 520px;
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.growth-service {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) minmax(240px, 0.5fr);
+  align-items: center;
+  min-height: 210px;
+  gap: clamp(28px, 4vw, 64px);
+  padding: clamp(30px, 4vw, 56px) clamp(32px, 5vw, 72px);
+  border-bottom: 1px solid var(--line-strong);
+  background: rgba(6, 8, 7, 0.28);
+  transition: background-color 220ms ease;
+}
+
+.growth-service:last-child {
+  border-bottom: 0;
+}
+
+.growth-service:hover {
+  background: rgba(105, 245, 212, 0.035);
+}
+
+.growth-service__signal {
+  display: grid;
+  justify-items: start;
+  gap: 18px;
+  color: var(--copper-bright);
+  font-family: var(--font-mono);
+}
+
+.growth-service__signal svg {
+  width: 30px;
+  height: 30px;
+  overflow: visible;
+  fill: var(--cyan);
+  filter: drop-shadow(0 0 9px rgba(105, 245, 212, 0.42));
+}
+
+.growth-service__signal small {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
+.growth-service__body h4 {
+  margin-bottom: 14px;
+  color: var(--cyan);
+  font-size: clamp(28px, 3vw, 45px);
+  font-weight: 520;
+  line-height: 1.04;
+  letter-spacing: -0.04em;
+}
+
+[lang="zh-Hans"] .growth-service__body h4 {
+  line-height: 1.12;
+  letter-spacing: -0.035em;
+}
+
+.growth-service__body p {
+  max-width: 720px;
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+.growth-service__meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.growth-service__meta li {
+  border: 1px solid var(--line-strong);
+  padding: 8px 10px;
+  color: var(--text-muted);
+  background: rgba(6, 8, 7, 0.64);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.055em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+[lang="zh-Hans"] .growth-service__meta li {
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
 .delivery {
   overflow: hidden;
   border-top: 1px solid var(--line);
@@ -1822,6 +1971,20 @@ a.contact-channel:hover strong {
     max-width: 760px;
   }
 
+  .growth-services__header {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .growth-service {
+    grid-template-columns: 64px minmax(0, 1fr);
+  }
+
+  .growth-service__meta {
+    grid-column: 2;
+    justify-content: flex-start;
+  }
+
   .contact h2 {
     font-size: clamp(56px, 8vw, 88px);
   }
@@ -2021,6 +2184,27 @@ a.contact-channel:hover strong {
     min-height: auto;
   }
 
+  .growth-services__header {
+    padding: 38px 28px;
+  }
+
+  .growth-service {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    gap: 22px;
+    padding: 34px 28px;
+  }
+
+  .growth-service__signal {
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .growth-service__meta {
+    grid-column: 1;
+  }
+
   .card-topline {
     margin-bottom: 58px;
   }
@@ -2131,6 +2315,11 @@ a.contact-channel:hover strong {
   .capability-card,
   .case-study__copy {
     padding: 28px;
+  }
+
+  .growth-services__header,
+  .growth-service {
+    padding-inline: 22px;
   }
 
   .case-study__media,

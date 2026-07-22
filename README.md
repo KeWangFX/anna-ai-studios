@@ -47,6 +47,14 @@ The delivery-to-lab interlude procedurally combines record-groove waveform geome
 
 Only approved web derivatives belong in `assets/cases/`. Keep production source directories private, strip unnecessary metadata, and leave packaging or product claims behind manual approval.
 
+## Client growth services
+
+- `AI receptionist` — inbound call handling, intent capture, appointment booking and explicit human handoff.
+- `Automated review management` — review requests, response drafting and approval-gated publication.
+- `Revenue-ready websites` — accessible, conversion-focused web delivery with an explicit measurement plan.
+
+These offers appear in both languages and use stable service codes in the contact form: `AI-RECEPTIONIST`, `REVIEW-AUTOMATION` and `REVENUE-WEBSITE`.
+
 ## Local preview
 
 ```powershell

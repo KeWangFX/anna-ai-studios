@@ -26,7 +26,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="preload" href="assets/brand/circuit-poster.webp" as="image" type="image/webp" />
-    <link rel="stylesheet" href="styles.css?v=20260722h" />
+    <link rel="stylesheet" href="styles.css?v=20260722i" />
     <script defer src="script.js?v=20260722g"></script>
     <script type="module" src="shader-background.js?v=20260722a"></script>
     <script type="application/ld+json">
@@ -71,7 +71,7 @@
       </button>
 
       <nav class="site-nav" id="site-nav" aria-label="Main navigation" data-site-nav>
-        <a href="#capabilities">Capabilities</a>
+        <a href="#services">Services</a>
         <a href="#delivery">Delivery</a>
         <a href="#lab">Lab</a>
         <a href="#studio">Studio</a>
@@ -125,7 +125,7 @@
               </p>
               <div class="button-row">
                 <a class="button button--copper" href="#contact">Start an AI delivery</a>
-                <a class="text-link" href="#capabilities">See how we work <span aria-hidden="true">↓</span></a>
+                <a class="text-link" href="#capabilities">See what we build <span aria-hidden="true">↓</span></a>
               </div>
             </div>
 
@@ -181,9 +181,9 @@
 
       <section class="section section--ruled shell" id="capabilities" aria-labelledby="capabilities-title">
         <div class="section-heading reveal">
-          <p class="section-index">02 — Capabilities</p>
-          <h2 id="capabilities-title">From model capability<br />to production advantage.</h2>
-          <p>Focused technical delivery for teams whose work is visual, complex and already in motion.</p>
+          <p class="section-index">02 — Services</p>
+          <h2 id="capabilities-title">Systems we design,<br />build and operate.</h2>
+          <p>Core AI engineering for complex production work, plus focused customer systems that can be deployed on their own.</p>
         </div>
 
         <div class="capability-grid">
@@ -212,6 +212,60 @@
             <p>Task-level evaluation, failure visibility, provenance and approval gates built into the system from day one.</p>
           </article>
         </div>
+
+        <section class="growth-services reveal" id="services" aria-labelledby="growth-services-title">
+          <div class="growth-services__header">
+            <div>
+              <p class="eyebrow">Client growth systems</p>
+              <h3 id="growth-services-title">Three practical systems for the front line of the business.</h3>
+            </div>
+            <p>Configured to the operating environment—not sold as off-the-shelf software. Deploy them separately or connect all three into a measurable acquisition, booking and follow-up workflow.</p>
+          </div>
+
+          <div class="growth-services__list">
+            <article class="growth-service">
+              <div class="growth-service__signal" aria-hidden="true">
+                <svg viewBox="0 0 48 48"><path d="M24 2c1.8 12.7 8.3 19.2 21 21-12.7 1.8-19.2 8.3-21 21-1.8-12.7-8.3-19.2-21-21C15.7 21.2 22.2 14.7 24 2Z" /></svg>
+                <small>01</small>
+              </div>
+              <div class="growth-service__body">
+                <h4>AI receptionist</h4>
+                <p>Answers inbound calls from approved business information, captures the context your team needs and books appointments when the team is busy or offline, with explicit human-handoff rules.</p>
+              </div>
+              <ul class="growth-service__meta" aria-label="AI receptionist functions">
+                <li>Approved knowledge</li><li>Call qualification</li><li>Appointment booking</li>
+              </ul>
+            </article>
+
+            <article class="growth-service">
+              <div class="growth-service__signal" aria-hidden="true">
+                <svg viewBox="0 0 48 48"><path d="M24 2c1.8 12.7 8.3 19.2 21 21-12.7 1.8-19.2 8.3-21 21-1.8-12.7-8.3-19.2-21-21C15.7 21.2 22.2 14.7 24 2Z" /></svg>
+                <small>02</small>
+              </div>
+              <div class="growth-service__body">
+                <h4>Automated review management</h4>
+                <p>Brings review requests, incoming feedback and response drafting into one traceable workflow. It classifies feedback and flags sensitive cases; publication follows your approval rules and each platform’s policies.</p>
+              </div>
+              <ul class="growth-service__meta" aria-label="Review management functions">
+                <li>Review workflows</li><li>Response drafts</li><li>Approval trail</li>
+              </ul>
+            </article>
+
+            <article class="growth-service">
+              <div class="growth-service__signal" aria-hidden="true">
+                <svg viewBox="0 0 48 48"><path d="M24 2c1.8 12.7 8.3 19.2 21 21-12.7 1.8-19.2 8.3-21 21-1.8-12.7-8.3-19.2-21-21C15.7 21.2 22.2 14.7 24 2Z" /></svg>
+                <small>03</small>
+              </div>
+              <div class="growth-service__body">
+                <h4>Revenue-ready websites</h4>
+                <p>Fast, accessible websites designed around a defined enquiry, booking or purchase journey. Clear offers, focused calls to action and a measurement plan make the path observable without promising a commercial result.</p>
+              </div>
+              <ul class="growth-service__meta" aria-label="Revenue website functions">
+                <li>Conversion journey</li><li>Accessible build</li><li>Measurement plan</li>
+              </ul>
+            </article>
+          </div>
+        </section>
       </section>
 
       <section class="section delivery" id="delivery" aria-labelledby="delivery-title">
@@ -444,6 +498,9 @@
                 <label for="anna-service-en">Project type <span aria-hidden="true">*</span><span class="sr-only"> (required)</span></label>
                 <select id="anna-service-en" name="service_code" required aria-describedby="anna-service-error-en">
                   <option value="" selected disabled>Select one</option>
+                  <option value="AI-RECEPTIONIST">AI receptionist</option>
+                  <option value="REVIEW-AUTOMATION">Automated review management</option>
+                  <option value="REVENUE-WEBSITE">Revenue-ready website</option>
                   <option value="AI-DISCOVERY">AI opportunity &amp; production diagnosis</option>
                   <option value="AI-FILM">AI filmmaking &amp; visual production</option>
                   <option value="WORKFLOW-AUTOMATION">Workflow integration &amp; automation</option>
