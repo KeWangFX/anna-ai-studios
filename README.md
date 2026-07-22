@@ -9,7 +9,7 @@ Bilingual forward-deployed AI engineering website for a London-based independent
 - `styles.css` — shared visual system and responsive layout
 - `script.js` — hero scrubbing, the procedural signal journey, navigation and form behavior
 - `shader-background.js` — Three.js copper-trace and photon overlay
-- `assets/brand/` — public brand artwork, hero prompt and optimized hero media
+- `assets/brand/` — public brand artwork, optimized Anna AI Studios logo, hero prompt and hero media
 - `assets/cases/` — approved, web-compressed Anna Lab case-study frames
 - `assets/contact/` — the cropped public WeChat QR code only; source phone screenshots stay private
 
@@ -59,6 +59,8 @@ Open `http://localhost:4174/` and `http://localhost:4174/zh/`.
 ## Hero media workflow
 
 The production prompt lives at `assets/brand/circuit-hero-prompt.txt`.
+
+The production lockup is `assets/brand/logo-anna-ai-studios-horizontal-full-color.webp`. It is a web-optimized crop of the approved source artwork; preserve its aspect ratio and built-in glow, and create a new filename whenever the artwork changes because brand assets ship with immutable caching.
 
 Expected public files:
 

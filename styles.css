@@ -191,12 +191,10 @@ h3 {
 
 .brand__logo {
   display: block;
-  width: auto;
-  height: 54px;
-  max-width: min(240px, 42vw);
+  width: 112px;
+  height: auto;
+  max-width: min(112px, 38vw);
   object-fit: contain;
-  border-radius: 12px;
-  filter: drop-shadow(0 10px 24px rgba(112, 77, 255, 0.22));
 }
 
 .brand__type {
@@ -1683,6 +1681,11 @@ a.contact-channel:hover strong,
   margin-bottom: clamp(56px, 9vw, 96px);
 }
 
+.thank-you-shell .brand__logo {
+  width: 180px;
+  max-width: min(180px, 60vw);
+}
+
 .thank-you-shell h1 {
   margin-bottom: 26px;
   font-size: clamp(48px, 8vw, 84px);
@@ -1743,9 +1746,8 @@ a.contact-channel:hover strong,
 }
 
 .brand--footer .brand__logo {
-  height: 46px;
-  max-width: min(210px, 34vw);
-  filter: drop-shadow(0 8px 18px rgba(112, 77, 255, 0.16));
+  width: 104px;
+  max-width: min(104px, 34vw);
 }
 
 .reveal {
@@ -1900,9 +1902,9 @@ a.contact-channel:hover strong,
   }
 
   .brand__logo {
-    height: 42px;
-    max-width: min(180px, 46vw);
-    border-radius: 10px;
+    width: 96px;
+    height: auto;
+    max-width: min(96px, 42vw);
   }
 
   .brand__mark {

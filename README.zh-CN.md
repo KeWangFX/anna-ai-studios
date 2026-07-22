@@ -9,7 +9,7 @@
 - `styles.css`：共享视觉系统与响应式布局
 - `script.js`：主片滚动映射、信号路径动画、导航与留言表单逻辑
 - `shader-background.js`：Three.js 铜互连和光子叠加层
-- `assets/brand/`：公开品牌资产、Sora 提示词和主视觉媒体
+- `assets/brand/`：公开品牌资产、网页优化版 Anna AI Studios Logo、Sora 提示词和主视觉媒体
 - `assets/cases/`：已批准并完成网页压缩的 Anna Lab 案例图片
 - `assets/contact/`：公开使用的裁切版微信二维码；手机原始截图不进入发布目录
 
@@ -55,6 +55,8 @@ npm run preview
 ## 主视觉媒体
 
 正式提示词保存在 `assets/brand/circuit-hero-prompt.txt`。仓库当前包含一条由晶圆 poster 生成的 8 秒轻量动态占位片；Sora 成片通过后可直接同名替换。当视频文件不存在、加载失败或设备开启减少动态效果时，页面自动使用晶圆 poster 与 WebGL 降级效果。
+
+正式 Logo 使用 `assets/brand/logo-anna-ai-studios-horizontal-full-color.webp`。该文件仅裁掉获批原图四周空画布，保留原始比例与内置光效；品牌资产启用 immutable 缓存，后续修改视觉时必须使用新文件名。
 
 短 GOP 编码用于提升滚动拖帧响应，具体命令见英文 README。
 

@@ -36,7 +36,7 @@ PUBLIC_FILES = (
             DIST / "assets" / "brand" / name,
         )
         for name in (
-            "anna-ai-studios-logo.jpg",
+            "logo-anna-ai-studios-horizontal-full-color.webp",
             "circuit-poster.svg",
             "circuit-poster.webp",
             "circuit-poster.avif",
