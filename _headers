@@ -29,5 +29,11 @@
 /index.html
   Cache-Control: public, max-age=0, must-revalidate
 
+/thanks.html
+  Cache-Control: public, max-age=0, must-revalidate
+
 /zh/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/zh/thanks.html
   Cache-Control: public, max-age=0, must-revalidate

@@ -26,8 +26,8 @@
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="preload" href="assets/brand/circuit-poster.webp" as="image" type="image/webp" />
-    <link rel="stylesheet" href="styles.css?v=20260722a" />
-    <script defer src="script.js?v=20260722a"></script>
+    <link rel="stylesheet" href="styles.css?v=20260722b" />
+    <script defer src="script.js?v=20260722b"></script>
     <script type="module" src="shader-background.js?v=20260722a"></script>
     <script type="application/ld+json">
       {
@@ -76,7 +76,7 @@
 
       <div class="header-actions">
         <a class="language-link" href="zh/" lang="zh-Hans" hreflang="zh-Hans">中文</a>
-        <a class="button button--small button--copper" href="mailto:keke19870699@gmail.com?subject=Anna%20AI%20Studios%20consultation">
+        <a class="button button--small button--copper" href="#contact">
           Start a project
         </a>
       </div>
@@ -119,7 +119,7 @@
                 Anna AI Studios embeds with creative and technical teams to design, integrate and operate AI systems that move from prototype to daily work.
               </p>
               <div class="button-row">
-                <a class="button button--copper" href="mailto:keke19870699@gmail.com?subject=Anna%20AI%20Studios%20consultation">Start an AI delivery</a>
+                <a class="button button--copper" href="#contact">Start an AI delivery</a>
                 <a class="text-link" href="#capabilities">See how we work <span aria-hidden="true">↓</span></a>
               </div>
             </div>
@@ -331,13 +331,103 @@
 
       <section class="contact section shell" id="contact" aria-labelledby="contact-title">
         <div class="contact__frame reveal">
-          <p class="section-index">06 — Start here</p>
-          <h2 id="contact-title">Bring us the workflow<br />that should work better.</h2>
-          <p>We will start with the operating reality, identify the smallest valuable system and tell you directly what is—and is not—worth building.</p>
-          <a class="button button--large button--copper" href="mailto:keke19870699@gmail.com?subject=Anna%20AI%20Studios%20consultation">
-            Start a conversation <span aria-hidden="true">↗</span>
-          </a>
-          <a class="contact__email" href="mailto:keke19870699@gmail.com">keke19870699@gmail.com</a>
+          <div class="contact__intro">
+            <p class="section-index">06 — Start here</p>
+            <h2 id="contact-title">Bring us the workflow<br />that should work better.</h2>
+            <p>Share the operating reality, the constraint and the outcome you need. We will identify the smallest valuable system and tell you directly what is—and is not—worth building.</p>
+            <div class="contact__promise" aria-label="Response process">
+              <span>01 / Structured intake</span>
+              <span>02 / Direct review</span>
+              <span>03 / Reply within 2 working days</span>
+            </div>
+          </div>
+
+          <form
+            class="contact-form"
+            action="https://formsubmit.co/keke19870699@gmail.com"
+            method="POST"
+            data-contact-form
+            data-language="EN"
+            data-success-url="https://anna-ai-studios.pages.dev/thanks.html"
+            novalidate
+          >
+            <input type="hidden" name="_subject" value="[ANNA-LEAD][NEW][EN]" data-subject-field />
+            <input type="hidden" name="_next" value="https://anna-ai-studios.pages.dev/thanks.html" data-next-field />
+            <input type="hidden" name="_template" value="table" />
+            <input type="hidden" name="_autoresponse" value="Thank you for contacting Anna AI Studios. Your project brief has been received. We will review it and respond within two working days. Please do not reply to this automated receipt." />
+            <input type="hidden" name="_replyto" value="" data-replyto-field />
+            <input type="hidden" name="lead_id" value="" data-lead-id-field />
+            <input type="hidden" name="submitted_at_utc" value="" data-submitted-at-field />
+            <input type="hidden" name="source_page" value="" data-source-field />
+            <input type="hidden" name="language" value="EN" />
+            <div class="form-honeypot" aria-hidden="true">
+              <label for="anna-company-site-en">Leave this field empty</label>
+              <input id="anna-company-site-en" type="text" name="_honey" tabindex="-1" autocomplete="off" />
+            </div>
+
+            <div class="form-status" role="status" aria-live="polite" data-form-status></div>
+            <div class="contact-form__grid">
+              <div class="form-field" data-form-field>
+                <label for="anna-name-en">Name <span aria-hidden="true">*</span><span class="sr-only"> (required)</span></label>
+                <input id="anna-name-en" name="name" type="text" minlength="2" maxlength="80" autocomplete="name" required aria-describedby="anna-name-error-en" />
+                <span class="form-field__error" id="anna-name-error-en" data-field-error></span>
+              </div>
+              <div class="form-field" data-form-field>
+                <label for="anna-company-en">Company / team <span aria-hidden="true">*</span><span class="sr-only"> (required)</span></label>
+                <input id="anna-company-en" name="company" type="text" minlength="2" maxlength="120" autocomplete="organization" required aria-describedby="anna-company-error-en" />
+                <span class="form-field__error" id="anna-company-error-en" data-field-error></span>
+              </div>
+              <div class="form-field" data-form-field>
+                <label for="anna-email-en">Work email <span aria-hidden="true">*</span><span class="sr-only"> (required)</span></label>
+                <input id="anna-email-en" name="email" type="email" maxlength="254" inputmode="email" autocomplete="email" required aria-describedby="anna-email-error-en" />
+                <span class="form-field__error" id="anna-email-error-en" data-field-error></span>
+              </div>
+              <div class="form-field" data-form-field>
+                <label for="anna-service-en">Project type <span aria-hidden="true">*</span><span class="sr-only"> (required)</span></label>
+                <select id="anna-service-en" name="service_code" required aria-describedby="anna-service-error-en">
+                  <option value="" selected disabled>Select one</option>
+                  <option value="AI-DISCOVERY">AI opportunity &amp; production diagnosis</option>
+                  <option value="AI-FILM">AI filmmaking &amp; visual production</option>
+                  <option value="WORKFLOW-AUTOMATION">Workflow integration &amp; automation</option>
+                  <option value="MULTIMODAL-QA">Multimodal review &amp; continuity QA</option>
+                  <option value="AGENT-INTEGRATION">Knowledge agent &amp; system integration</option>
+                  <option value="BRAND-LAB">AI brand &amp; campaign system</option>
+                  <option value="OTHER">Other production challenge</option>
+                </select>
+                <span class="form-field__error" id="anna-service-error-en" data-field-error></span>
+              </div>
+              <div class="form-field form-field--wide" data-form-field>
+                <label for="anna-timeline-en">Target timing</label>
+                <select id="anna-timeline-en" name="timeline">
+                  <option value="NOT-SPECIFIED" selected>Not fixed yet</option>
+                  <option value="NOW">Immediate / active production issue</option>
+                  <option value="0-4-WEEKS">Within 4 weeks</option>
+                  <option value="1-3-MONTHS">Within 1–3 months</option>
+                  <option value="EXPLORING">Exploratory</option>
+                </select>
+              </div>
+              <div class="form-field form-field--wide" data-form-field>
+                <label for="anna-message-en">Project brief <span aria-hidden="true">*</span><span class="sr-only"> (required)</span></label>
+                <textarea id="anna-message-en" name="message" rows="7" minlength="30" maxlength="2500" required aria-describedby="anna-message-hint-en anna-message-error-en"></textarea>
+                <span class="form-field__hint" id="anna-message-hint-en">Current workflow, constraint, desired outcome and any deadline. Do not include confidential production assets.</span>
+                <span class="form-field__error" id="anna-message-error-en" data-field-error></span>
+              </div>
+            </div>
+
+            <div class="form-consent form-field" data-form-field>
+              <input id="anna-consent-en" name="privacy_consent" type="checkbox" value="Agreed" required aria-describedby="anna-consent-error-en" />
+              <label for="anna-consent-en">I agree that my details will be emailed to Anna AI Studios through FormSubmit solely to respond to this enquiry. <span aria-hidden="true">*</span><span class="sr-only"> (required)</span></label>
+              <span class="form-field__error" id="anna-consent-error-en" data-field-error></span>
+            </div>
+
+            <div class="contact-form__footer">
+              <button class="button button--large button--copper" type="submit" data-submit-button>
+                <span data-submit-label>Send project brief</span><span aria-hidden="true">↗</span>
+              </button>
+              <p>Protected by verification and a hidden spam trap. A structured copy is delivered to Ke’s inbox.</p>
+            </div>
+            <p class="contact-form__privacy">Form delivery is handled by <a href="https://formsubmit.co/privacy.pdf" target="_blank" rel="noreferrer">FormSubmit</a>. Prefer email? <a href="mailto:keke19870699@gmail.com?subject=%5BANNA-LEAD%5D%5BEMAIL%5D%5BEN%5D%20Project%20enquiry">keke19870699@gmail.com</a></p>
+          </form>
         </div>
       </section>
     </main>

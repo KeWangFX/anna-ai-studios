@@ -234,6 +234,162 @@ function initJourney() {
   mediaFrame = window.requestAnimationFrame(renderMedia);
 }
 
+function createLeadId(date) {
+  const timestamp = date.toISOString().replace(/\D/g, "").slice(0, 14);
+  const bytes = new Uint8Array(2);
+  if (window.crypto?.getRandomValues) {
+    window.crypto.getRandomValues(bytes);
+  } else {
+    // The timestamp still keeps the reference sortable; this fallback only supports older browsers.
+    bytes[0] = Math.floor(Math.random() * 256);
+    bytes[1] = Math.floor(Math.random() * 256);
+  }
+  const suffix = [...bytes].map((byte) => byte.toString(16).padStart(2, "0")).join("").toUpperCase();
+  return `ANNA-${timestamp}-${suffix}`;
+}
+
+function sanitizeSubjectPart(value, fallback, maxLength) {
+  const normalized = String(value || "")
+    .replace(/[\r\n<>\[\]]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, maxLength);
+  return normalized || fallback;
+}
+
+function initContactForms() {
+  const forms = [...document.querySelectorAll("[data-contact-form]")];
+  if (!forms.length) return;
+
+  const copy = {
+    EN: {
+      required: "This field is required.",
+      email: "Enter a valid email address.",
+      tooShort: "Add a little more detail before sending.",
+      summary: "Check the highlighted fields, then send again.",
+      pending: "Opening secure verification…",
+    },
+    ZH: {
+      required: "此项为必填。",
+      email: "请输入有效的邮箱地址。",
+      tooShort: "请补充更多信息后再发送。",
+      summary: "请检查标记的字段，然后重新发送。",
+      pending: "正在打开安全验证…",
+    },
+  };
+
+  forms.forEach((form) => {
+    const language = form.dataset.language === "ZH" ? "ZH" : "EN";
+    const messages = copy[language];
+    const status = form.querySelector("[data-form-status]");
+    const submitButton = form.querySelector("[data-submit-button]");
+    const submitLabel = form.querySelector("[data-submit-label]");
+    const defaultSubmitLabel = submitLabel?.textContent || "Submit";
+    const controls = [...form.querySelectorAll("[data-form-field] input, [data-form-field] select, [data-form-field] textarea")];
+
+    const errorFor = (control) => {
+      if (control.validity.valueMissing) return messages.required;
+      if (control.validity.typeMismatch) return messages.email;
+      if (control.validity.tooShort) return messages.tooShort;
+      return "";
+    };
+
+    const validateControl = (control) => {
+      const wrapper = control.closest("[data-form-field]");
+      const error = wrapper?.querySelector("[data-field-error]");
+      const message = errorFor(control);
+      if (message) {
+        control.setAttribute("aria-invalid", "true");
+      } else {
+        control.removeAttribute("aria-invalid");
+      }
+      if (error) error.textContent = message;
+      return !message;
+    };
+
+    controls.forEach((control) => {
+      control.addEventListener("blur", () => validateControl(control));
+      control.addEventListener("change", () => validateControl(control));
+      control.addEventListener("input", () => {
+        if (control.getAttribute("aria-invalid") === "true") validateControl(control);
+      });
+    });
+
+    const resetSubmitState = () => {
+      form.classList.remove("is-submitting");
+      form.removeAttribute("aria-busy");
+      if (submitButton) submitButton.disabled = false;
+      if (submitLabel) submitLabel.textContent = defaultSubmitLabel;
+    };
+
+    form.addEventListener("submit", (event) => {
+      let firstInvalid = null;
+      controls.forEach((control) => {
+        if (!validateControl(control) && !firstInvalid) firstInvalid = control;
+      });
+      if (firstInvalid) {
+        event.preventDefault();
+        if (status) {
+          status.textContent = messages.summary;
+          status.classList.add("is-error");
+        }
+        firstInvalid.focus();
+        return;
+      }
+
+      const honeypot = form.querySelector('input[name="_honey"]');
+      if (honeypot?.value) {
+        // Silently stop scripted submissions without disclosing the trap.
+        event.preventDefault();
+        form.reset();
+        return;
+      }
+
+      const now = new Date();
+      const leadId = createLeadId(now);
+      const service = sanitizeSubjectPart(form.elements.service_code?.value, "OTHER", 28);
+      const company = sanitizeSubjectPart(form.elements.company?.value, "Independent", 36);
+      const name = sanitizeSubjectPart(form.elements.name?.value, "Contact", 28);
+      const date = now.toISOString().slice(0, 10).replace(/-/g, "");
+      const subject = `[ANNA-LEAD][${service}][${language}][${date}] ${company} / ${name}`;
+
+      form.querySelector("[data-subject-field]").value = subject;
+      form.querySelector("[data-replyto-field]").value = form.elements.email.value;
+      form.querySelector("[data-lead-id-field]").value = leadId;
+      form.querySelector("[data-submitted-at-field]").value = now.toISOString();
+      form.querySelector("[data-source-field]").value = window.location.href;
+
+      const successUrl = new URL(form.dataset.successUrl, window.location.href);
+      successUrl.searchParams.set("ref", leadId);
+      form.querySelector("[data-next-field]").value = successUrl.href;
+
+      if (status) {
+        status.textContent = messages.pending;
+        status.classList.remove("is-error");
+      }
+      form.classList.add("is-submitting");
+      form.setAttribute("aria-busy", "true");
+      if (submitButton) submitButton.disabled = true;
+      if (submitLabel) submitLabel.textContent = messages.pending;
+    });
+
+    // Back-forward cache can restore a disabled submit button after returning from verification.
+    window.addEventListener("pageshow", resetSubmitState);
+  });
+}
+
+function initLeadReference() {
+  const reference = document.querySelector("[data-lead-reference]");
+  if (!reference) return;
+  const leadId = new URLSearchParams(window.location.search).get("ref") || "";
+  if (!/^ANNA-\d{14}-[A-F0-9]{4}$/.test(leadId)) {
+    reference.closest(".lead-reference")?.setAttribute("hidden", "");
+    return;
+  }
+  // textContent prevents a query-string value from ever becoming executable markup.
+  reference.textContent = leadId;
+}
+
 function init() {
   document.documentElement.classList.add("has-js");
   document.querySelectorAll("[data-year]").forEach((node) => {
@@ -243,6 +399,8 @@ function init() {
   initReveal();
   initDeliveryProgress();
   initJourney();
+  initContactForms();
+  initLeadReference();
 }
 
 if (document.readyState === "loading") {

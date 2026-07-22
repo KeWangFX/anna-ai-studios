@@ -12,7 +12,19 @@ Bilingual forward-deployed AI engineering website for a London-based independent
 - `assets/brand/` — public brand artwork, hero prompt and optimized hero media
 - `assets/cases/` — approved, web-compressed Anna Lab case-study frames
 
-The site is intentionally static. It has no analytics, cookies, contact form or database binding. The primary conversion path is email.
+The site remains static and has no analytics, cookies or database binding. Its contact form posts directly to FormSubmit, which forwards a structured email to `keke19870699@gmail.com`; the email fallback remains available if the form service is unreachable.
+
+## Contact delivery
+
+English and Chinese forms share one searchable subject convention:
+
+```text
+[ANNA-LEAD][SERVICE-CODE][EN|ZH][YYYYMMDD] Company / Name
+```
+
+Every delivery also contains a sortable Lead ID (`ANNA-YYYYMMDDhhmmss-XXXX`), UTC submission time, language and source page. Required fields are name, company/team, work email, service code, project brief and consent. Native form validation, a hidden honeypot and FormSubmit's default verification reduce junk without adding client-side tracking.
+
+FormSubmit requires a one-time confirmation email for the recipient address. Keep reCAPTCHA enabled, do not add `_captcha=false`, and never place confidential production material in the public enquiry form. Search Gmail with `subject:"[ANNA-LEAD]"` to isolate all website enquiries.
 
 ## Anna Lab cases
 
@@ -25,8 +37,7 @@ Only approved web derivatives belong in `assets/cases/`. Keep production source 
 ## Local preview
 
 ```powershell
-git clone https://github.com/KeWangFX/anna-ai-studios.git
-cd anna-ai-studios
+cd D:\job\codex\keWang_website
 npm run preview
 ```
 
@@ -63,7 +74,7 @@ npm run cf:build
 npm run cf:deploy
 ```
 
-Deployment target: `anna-ai-studios` (`https://anna-ai-studios.pages.dev`). The build script starts from a clean `cloudflare-release/` directory and copies only the company site, brand assets, curated case frames, local Three.js runtime and the approved founder portrait. Legacy portfolio, family media and private production sources are not included in this repository.
+Deployment target: `anna-ai-studios` (`https://anna-ai-studios.pages.dev`). The build script starts from a clean `cloudflare-release/` directory and copies only the company site, brand assets, curated case frames, local Three.js runtime and the approved founder portrait. Legacy portfolio and family media remain in the repository but are not published.
 
 ## GitHub Pages mirror
 

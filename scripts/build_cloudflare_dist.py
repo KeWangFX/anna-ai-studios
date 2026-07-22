@@ -11,6 +11,7 @@ DIST = ROOT / "cloudflare-release"
 
 ROOT_FILES = (
     "index.html",
+    "thanks.html",
     "404.html",
     "styles.css",
     "script.js",
