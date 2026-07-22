@@ -100,6 +100,6 @@ The standalone source repository is `KeWangFX/anna-ai-studios`. Pushes to `main`
 - Verify English and Chinese routes, metadata and `hreflang` links.
 - Test 375, 768, 1024 and 1440 px layouts.
 - Test with reduced motion and WebGL disabled.
-- Open the WeChat disclosure, verify the QR loads, and check the WhatsApp URL uses `447516141043`.
+- Verify the WeChat QR is always visible, loads at desktop and mobile widths, and check the WhatsApp URL uses `447516141043`.
 - Confirm the release directory contains no legacy portfolio data or media.
 - Keep HTML/CSS/JS revalidated and fingerprinted media immutable.
