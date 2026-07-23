@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+<title id="title">Anna AI Studios favicon</title>
+<desc id="desc">Pixel-safe orbital A icon on graphite.</desc>
+
+<rect width="512" height="512" rx="104" fill="#060807" />
+<g transform="translate(40 40) scale(2.7)">
+<g id="anna-orbit-mark">
+  <path d="M19 96C17 64 58 43 104 47C131 49 149 62 145 80"
+        fill="none" stroke="#8F572A" stroke-width="8"
+        stroke-linecap="round" />
+  <path d="M80 16L137 140H109L95 107H64L51 140H23Z M71 88H89L80 64Z"
+        fill="#F2EFE6" fill-rule="evenodd" />
+  <path d="M145 80C140 110 91 132 47 125C27 122 18 111 19 96"
+        fill="none" stroke="#F0A75F" stroke-width="8"
+        stroke-linecap="round" />
+  <circle cx="137" cy="62" r="10" fill="#69F5D4" />
+</g>
+</g>
+</svg>

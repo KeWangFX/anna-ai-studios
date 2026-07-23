@@ -5,17 +5,8 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
   Cross-Origin-Opener-Policy: same-origin
 
-/assets/brand/*
-  Cache-Control: public, max-age=31536000, immutable
-
-/assets/cases/*
-  Cache-Control: public, max-age=31536000, immutable
-
-/assets/images/*
-  Cache-Control: public, max-age=31536000, immutable
-
-/assets/vendor/*
-  Cache-Control: public, max-age=31536000, immutable
+/assets/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
 
 /styles.css
   Cache-Control: public, max-age=0, must-revalidate

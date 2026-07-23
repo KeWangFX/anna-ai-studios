@@ -9,7 +9,7 @@ Bilingual forward-deployed AI engineering website for a London-based independent
 - `styles.css` — shared visual system and responsive layout
 - `script.js` — hero scrubbing, the procedural signal journey, navigation and form behavior
 - `shader-background.js` — Three.js copper-trace and photon overlay
-- `assets/brand/` — public brand artwork, optimized Anna AI Studios logo, hero prompt and hero media
+- `assets/brand/` — public brand artwork, responsive Anna AI Studios logo variants, social card and hero media
 - `assets/cases/` — approved, web-compressed Anna Lab case-study frames
 - `assets/contact/` — the cropped public WeChat QR code only; source phone screenshots stay private
 
@@ -53,7 +53,7 @@ Only approved web derivatives belong in `assets/cases/`. Keep production source 
 - `Automated review management` — review requests, response drafting and approval-gated publication.
 - `Revenue-ready websites` — accessible, conversion-focused web delivery with an explicit measurement plan.
 
-These offers appear in both languages and use stable service codes in the contact form: `AI-RECEPTIONIST`, `REVIEW-AUTOMATION` and `REVENUE-WEBSITE`.
+These offers appear in both languages and use stable service codes in the contact form: `AI-RECEPTIONIST`, `REVIEW-AUTOMATION` and `REVENUE-WEBSITE`. Each service CTA preselects its code, while core FDE project types remain first in the form.
 
 ## Local preview
 
@@ -68,7 +68,14 @@ Open `http://localhost:4174/` and `http://localhost:4174/zh/`.
 
 The production prompt lives at `assets/brand/circuit-hero-prompt.txt`.
 
-The production lockup is `assets/brand/logo-anna-ai-studios-horizontal-full-color.webp`. It is a web-optimized crop of the approved source artwork; preserve its aspect ratio and built-in glow, and create a new filename whenever the artwork changes because brand assets ship with immutable caching.
+Header, mobile mark, footer and social sharing use separate exports from the Anna AI Studios brand system:
+
+- `anna-ai-studios-header-desktop-primary-dark-320x80-v1.webp`
+- `anna-ai-studios-header-mobile-primary-dark-72x72-v1.webp`
+- `anna-ai-studios-footer-primary-dark-288x72-v1.webp`
+- `anna-ai-studios-open-graph-primary-dark-1200x630-v1.webp`
+
+Increase the version suffix when artwork changes. Public media uses a one-day browser cache with stale revalidation because the circuit and case-study filenames are not content hashed.
 
 Expected public files:
 
@@ -76,7 +83,6 @@ Expected public files:
 - `assets/brand/circuit-hero-1080.mp4`
 - `assets/brand/circuit-hero-720.mp4`
 - `assets/brand/circuit-poster.webp`
-- `assets/brand/circuit-poster.avif`
 
 The checked-in video is a lightweight eight-second motion fallback generated from the approved circuit poster. Replace it in place after the Sora master is approved. If video is unavailable, the page falls back again to the poster plus the WebGL circuit layer. Reduced-motion users receive a static, normally scrolling page.
 
@@ -88,7 +94,7 @@ ffmpeg -i circuit-master.mp4 -an -c:v libx264 -crf 25 -preset slow -movflags +fa
 ffmpeg -i circuit-master.mp4 -an -vf scale=-2:720 -c:v libx264 -crf 27 -preset slow -movflags +faststart -g 12 -pix_fmt yuv420p assets/brand/circuit-hero-720.mp4
 ```
 
-Short GOPs are intentional: scroll scrubbing needs nearby keyframes more than maximum compression efficiency.
+Short GOPs are intentional: scroll scrubbing needs nearby keyframes more than maximum compression efficiency. Video sources are attached only when motion is allowed and data-saver mode is off. Three.js is loaded after first paint on desktop only; mobile, reduced-motion and data-saver paths keep the poster and avoid the WebGL transfer.
 
 ## Cloudflare build and deploy
 
@@ -107,7 +113,7 @@ The standalone source repository is `KeWangFX/anna-ai-studios`. Pushes to `main`
 
 - Verify English and Chinese routes, metadata and `hreflang` links.
 - Test 375, 768, 1024 and 1440 px layouts.
-- Test with reduced motion and WebGL disabled.
+- Test with reduced motion, data-saver mode and WebGL disabled; reduced motion must not request video or Three.js.
 - Verify the WeChat QR is always visible, loads at desktop and mobile widths, and check the WhatsApp URL uses `447516141043`.
 - Confirm the release directory contains no legacy portfolio data or media.
 - Keep HTML/CSS/JS revalidated and fingerprinted media immutable.

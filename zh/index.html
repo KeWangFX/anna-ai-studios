@@ -13,25 +13,37 @@
     <link rel="alternate" hreflang="x-default" href="https://anna-ai-studios.pages.dev/" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Anna AI Studios" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:locale:alternate" content="en_GB" />
     <meta property="og:title" content="让 AI 真正进入生产现场。" />
     <meta property="og:description" content="面向创意与技术团队的前沿部署式 AI 工程。" />
     <meta property="og:url" content="https://anna-ai-studios.pages.dev/zh/" />
-    <meta property="og:image" content="https://anna-ai-studios.pages.dev/assets/brand/circuit-poster.webp" />
+    <meta property="og:image" content="https://anna-ai-studios.pages.dev/assets/brand/anna-ai-studios-open-graph-primary-dark-1200x630-v1.webp" />
+    <meta property="og:image:type" content="image/webp" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Anna AI Studios——前沿部署式 AI 工程" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <meta name="twitter:title" content="让 AI 真正进入生产现场。" />
+    <meta name="twitter:description" content="面向创意与技术团队的前沿部署式 AI 工程。" />
+    <meta name="twitter:image" content="https://anna-ai-studios.pages.dev/assets/brand/anna-ai-studios-open-graph-primary-dark-1200x630-v1.webp" />
+    <meta name="twitter:image:alt" content="Anna AI Studios——前沿部署式 AI 工程" />
+    <link rel="icon" href="../favicon-v1.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="../assets/brand/anna-ai-studios-apple-touch-icon-180x180-v1.png" />
     <link rel="preload" href="../assets/brand/circuit-poster.webp" as="image" type="image/webp" />
-    <link rel="stylesheet" href="../styles.css?v=20260722i" />
-    <script defer src="../script.js?v=20260722g"></script>
-    <script type="module" src="../shader-background.js?v=20260722a"></script>
+    <link rel="stylesheet" href="../styles.css?v=20260723b" />
+    <script defer src="../script.js?v=20260723b"></script>
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "ProfessionalService",
+        "@id": "https://anna-ai-studios.pages.dev/#organization",
         "name": "Anna AI Studios",
         "url": "https://anna-ai-studios.pages.dev/zh/",
-        "logo": "https://anna-ai-studios.pages.dev/assets/brand/logo-anna-ai-studios-horizontal-full-color.webp",
+        "logo": "https://anna-ai-studios.pages.dev/assets/brand/anna-ai-studios-header-desktop-primary-dark-320x80-v1.webp",
         "description": "位于伦敦、为创意与技术团队构建生产级 AI 系统的独立 AI 交付工作室。",
-        "email": "mailto:keke19870699@gmail.com",
+        "email": "keke19870699@gmail.com",
+        "telephone": "+447516141043",
         "areaServed": "Worldwide",
         "member": {
           "@type": "Person",
@@ -47,14 +59,17 @@
 
     <header class="site-header" data-header>
       <a class="brand brand--image" href="#top" aria-label="Anna AI Studios 首页">
-        <img class="brand__logo" src="../assets/brand/logo-anna-ai-studios-horizontal-full-color.webp" width="928" height="448" alt="" loading="eager" decoding="async" />
+        <picture>
+          <source media="(max-width: 780px)" srcset="../assets/brand/anna-ai-studios-header-mobile-primary-dark-72x72-v1.webp" />
+          <img class="brand__logo" src="../assets/brand/anna-ai-studios-header-desktop-primary-dark-320x80-v1.webp" width="320" height="80" alt="" fetchpriority="high" decoding="async" />
+        </picture>
         <span class="sr-only">Anna AI Studios</span>
       </a>
       <button class="menu-toggle" type="button" aria-controls="site-nav" aria-expanded="false" data-menu-toggle>
         <span class="sr-only">打开导航</span><span></span><span></span>
       </button>
       <nav class="site-nav" id="site-nav" aria-label="主导航" data-site-nav>
-        <a href="#services">服务</a><a href="#delivery">交付方式</a><a href="#lab">Anna Lab</a><a href="#studio">工作室</a><a href="#contact">联系</a><a class="mobile-language-link" href="../" lang="en" hreflang="en">EN</a>
+        <a href="#services">服务</a><a href="#delivery">交付方式</a><a href="#lab">Anna Lab</a><a href="#studio">工作室</a><a href="#contact">联系</a><a class="mobile-language-link" href="../" lang="en" hreflang="en">EN</a><a class="mobile-project-link" href="#contact">发起合作</a>
       </nav>
       <div class="header-actions">
         <a class="language-link" href="../" lang="en" hreflang="en">EN</a>
@@ -67,29 +82,29 @@
         <div class="journey__stage">
           <div class="journey__media" aria-hidden="true">
             <img class="journey__poster" src="../assets/brand/circuit-poster.webp" width="1920" height="1080" alt="" fetchpriority="high" />
-            <video class="journey__video" muted playsinline preload="metadata" poster="../assets/brand/circuit-poster.webp" data-journey-video tabindex="-1">
-              <source src="../assets/brand/circuit-hero-720.mp4" type="video/mp4" media="(max-width: 780px)" />
-              <source src="../assets/brand/circuit-hero-1080.webm" type="video/webm" />
-              <source src="../assets/brand/circuit-hero-1080.mp4" type="video/mp4" />
+            <video class="journey__video" muted playsinline preload="none" poster="../assets/brand/circuit-poster.webp" data-journey-video tabindex="-1">
+              <source data-src="../assets/brand/circuit-hero-720.mp4" type="video/mp4" media="(max-width: 780px)" />
+              <source data-src="../assets/brand/circuit-hero-1080.webm" type="video/webm" />
+              <source data-src="../assets/brand/circuit-hero-1080.mp4" type="video/mp4" />
             </video>
             <canvas class="journey__canvas" data-circuit-canvas></canvas>
             <div class="journey__scrim"></div>
           </div>
           <div class="journey__hud shell">
-            <div class="journey__intro" data-journey-intro>
+            <div class="journey__intro" data-journey-intro aria-hidden="false">
               <p class="eyebrow"><span>前沿部署式工程</span><span>伦敦 / 全球交付</span></p>
               <h1>让 AI 真正进入<br /><em>生产现场。</em></h1>
               <p class="journey__lead">Anna AI Studios 与创意和技术团队并肩工作，把 AI 从演示原型推进到可持续运行的生产系统。</p>
               <div class="button-row">
                 <a class="button button--copper" href="#contact">发起 AI 落地合作</a>
-                <a class="text-link" href="#capabilities">查看我们构建的系统 <span aria-hidden="true">↓</span></a>
+                <a class="text-link" href="#capabilities">跳到服务内容 <span aria-hidden="true">↓</span></a>
               </div>
             </div>
             <div class="journey__chapters" aria-live="off">
-              <article class="journey__chapter" data-journey-panel="0" data-start="0.14"><p class="chapter-index">01 / 发现</p><h2>先找到真正的约束。</h2><p>梳理人员、数据、工具和决策，识别 AI 能否产生业务价值的关键条件。</p></article>
-              <article class="journey__chapter" data-journey-panel="1" data-start="0.34"><p class="chapter-index">02 / 构建</p><h2>工程化真正可用的系统。</h2><p>把模型接入生产数据、操作界面和审核闭环，而不是交付一个孤立的演示。</p></article>
-              <article class="journey__chapter" data-journey-panel="2" data-start="0.57"><p class="chapter-index">03 / 部署</p><h2>把它放进真实工作流。</h2><p>围绕可观测性、人工控制和日常运行所需的纪律完成上线。</p></article>
-              <article class="journey__chapter" data-journey-panel="3" data-start="0.79"><p class="chapter-index">04 / 扩展</p><h2>把学习转化为杠杆。</h2><p>衡量结果、吸收反馈，只在系统已经证明价值的地方继续扩展。</p></article>
+              <article class="journey__chapter" data-journey-panel="0" data-start="0.14" aria-hidden="true"><p class="chapter-index">01 / 发现</p><h2>先找到真正的约束。</h2><p>梳理人员、数据、工具和决策，识别 AI 能否产生业务价值的关键条件。</p></article>
+              <article class="journey__chapter" data-journey-panel="1" data-start="0.34" aria-hidden="true"><p class="chapter-index">02 / 构建</p><h2>工程化真正可用的系统。</h2><p>把模型接入生产数据、操作界面和审核闭环，而不是交付一个孤立的演示。</p></article>
+              <article class="journey__chapter" data-journey-panel="2" data-start="0.57" aria-hidden="true"><p class="chapter-index">03 / 部署</p><h2>把它放进真实工作流。</h2><p>围绕可观测性、人工控制和日常运行所需的纪律完成上线。</p></article>
+              <article class="journey__chapter" data-journey-panel="3" data-start="0.79" aria-hidden="true"><p class="chapter-index">04 / 扩展</p><h2>把学习转化为杠杆。</h2><p>衡量结果、吸收反馈，只在系统已经证明价值的地方继续扩展。</p></article>
             </div>
             <div class="journey__progress-wrap">
               <p><span data-journey-label>进入系统</span><span data-journey-time>00.0 / 08.0</span></p>
@@ -100,16 +115,22 @@
         </div>
       </section>
 
-      <section class="manifesto section shell reveal" aria-labelledby="manifesto-title">
+      <section class="manifesto section shell reveal" id="manifesto" aria-labelledby="manifesto-title">
         <p class="section-index">01 — 前沿部署</p>
         <div class="manifesto__grid">
           <h2 id="manifesto-title">不是另一份 AI 战略 PPT。</h2>
           <div><p class="lead-copy">我们进入真实运行环境，直到系统可用、被采用，并能够被衡量。</p><p>这意味着与实际执行工作的人一起梳理流程，接入他们已经依赖的工具，并承担从精彩原型到可靠生产系统之间最困难的那段距离。</p></div>
         </div>
+        <div class="evidence-strip" aria-label="生产证据">
+          <div><span>01 / 规划</span><strong>465 镜头生产计划</strong><small>《无名神》</small></div>
+          <div><span>02 / 血缘</span><strong>SHA 追踪资产历史</strong><small>《烟花》</small></div>
+          <div><span>03 / 控制</span><strong>人工审批门禁</strong><small>贯穿 AI 工作流</small></div>
+          <a href="#lab"><span>04 / 证据</span><strong>查看 Anna Lab</strong><small>检查真实系统 <span aria-hidden="true">↓</span></small></a>
+        </div>
       </section>
 
       <section class="section section--ruled shell" id="capabilities" aria-labelledby="capabilities-title">
-        <div class="section-heading reveal"><p class="section-index">02 — 服务</p><h2 id="capabilities-title">我们设计、构建并<br />持续运行的系统。</h2><p>既交付复杂生产场景中的核心 AI 工程，也提供可独立部署的客户增长系统。</p></div>
+        <div class="section-heading reveal"><p class="section-index">02 — 核心能力</p><h2 id="capabilities-title">我们设计、构建并<br />持续运行的系统。</h2><p>既交付复杂生产场景中的核心 AI 工程，也提供可独立部署的客户增长系统。</p></div>
         <div class="capability-grid">
           <article class="capability-card reveal"><div class="card-topline"><span>01</span><span>系统</span></div><svg viewBox="0 0 96 64" aria-hidden="true"><path d="M4 48h20V30h20V14h20v22h28"/><circle cx="24" cy="30" r="4"/><circle cx="64" cy="36" r="4"/><circle cx="92" cy="36" r="3"/></svg><h3>多模态生产系统</h3><p>把图像、视频、音频和语言模型组装为可控制、可重复的生产工作流。</p></article>
           <article class="capability-card reveal"><div class="card-topline"><span>02</span><span>智能体</span></div><svg viewBox="0 0 96 64" aria-hidden="true"><path d="M8 16h24v32H8zm56 0h24v32H64zM32 24h32M32 40h32"/><circle cx="48" cy="24" r="4"/><circle cx="48" cy="40" r="4"/></svg><h3>知识与工作流智能体</h3><p>让智能体基于正确上下文、连接真实工具，并受到明确人工决策的约束。</p></article>
@@ -117,7 +138,7 @@
           <article class="capability-card reveal"><div class="card-topline"><span>04</span><span>控制</span></div><svg viewBox="0 0 96 64" aria-hidden="true"><path d="M48 6 82 18v20c0 10-12 18-34 22C26 56 14 48 14 38V18L48 6Z"/><path d="m33 33 10 9 20-21"/></svg><h3>评估与安全护栏</h3><p>从第一天开始构建任务级评估、失败可见性、来源追踪和审批节点。</p></article>
         </div>
 
-        <section class="growth-services reveal" id="services" aria-labelledby="growth-services-title-zh">
+        <section class="growth-services" id="services" aria-labelledby="growth-services-title-zh">
           <div class="growth-services__header">
             <div><p class="eyebrow">客户增长系统</p><h3 id="growth-services-title-zh">三套面向业务一线的实用系统。</h3></div>
             <p>根据真实运行环境配置，不作为开箱即用的软件产品销售。可独立部署，也可连接成可度量的获客、预约与跟进流程。</p>
@@ -125,17 +146,17 @@
           <div class="growth-services__list">
             <article class="growth-service">
               <div class="growth-service__signal" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 2c1.8 12.7 8.3 19.2 21 21-12.7 1.8-19.2 8.3-21 21-1.8-12.7-8.3-19.2-21-21C15.7 21.2 22.2 14.7 24 2Z" /></svg><small>01</small></div>
-              <div class="growth-service__body"><h4>AI 电话前台</h4><p>依据获准的业务信息接听来电，收集团队需要的咨询背景，并在团队忙碌或离线时安排预约；需要时按明确规则转交人工。</p></div>
+              <div class="growth-service__body"><h4>AI 电话前台</h4><p>依据获准的业务信息接听来电，收集团队需要的咨询背景，并在团队忙碌或离线时安排预约；需要时按明确规则转交人工。</p><a class="growth-service__cta" href="#contact" data-service-select="AI-RECEPTIONIST">评估这套系统 <span aria-hidden="true">↗</span></a></div>
               <ul class="growth-service__meta" aria-label="AI 电话前台功能"><li>受控业务知识</li><li>来电筛选</li><li>自动预约</li></ul>
             </article>
             <article class="growth-service">
               <div class="growth-service__signal" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 2c1.8 12.7 8.3 19.2 21 21-12.7 1.8-19.2 8.3-21 21-1.8-12.7-8.3-19.2-21-21C15.7 21.2 22.2 14.7 24 2Z" /></svg><small>02</small></div>
-              <div class="growth-service__body"><h4>自动化评价管理</h4><p>把评价邀请、客户反馈和回复拟稿集中到一条可追踪流程中。系统分类反馈并标记敏感情况；最终发布遵循你的审批规则和各平台政策。</p></div>
+              <div class="growth-service__body"><h4>自动化评价管理</h4><p>把评价邀请、客户反馈和回复拟稿集中到一条可追踪流程中。系统分类反馈并标记敏感情况；最终发布遵循你的审批规则和各平台政策。</p><a class="growth-service__cta" href="#contact" data-service-select="REVIEW-AUTOMATION">评估这套系统 <span aria-hidden="true">↗</span></a></div>
               <ul class="growth-service__meta" aria-label="自动化评价管理功能"><li>评价工作流</li><li>回复草稿</li><li>审批记录</li></ul>
             </article>
             <article class="growth-service">
               <div class="growth-service__signal" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 2c1.8 12.7 8.3 19.2 21 21-12.7 1.8-19.2 8.3-21 21-1.8-12.7-8.3-19.2-21-21C15.7 21.2 22.2 14.7 24 2Z" /></svg><small>03</small></div>
-              <div class="growth-service__body"><h4>获客型网站</h4><p>围绕明确的咨询、预约或购买路径构建快速、易用的网站。清晰的服务表达、聚焦的行动入口和衡量方案，让转化路径可观察，但不预设商业结果。</p></div>
+              <div class="growth-service__body"><h4>获客型网站</h4><p>围绕明确的咨询、预约或购买路径构建快速、易用的网站。清晰的服务表达、聚焦的行动入口和衡量方案，让转化路径可观察，但不预设商业结果。</p><a class="growth-service__cta" href="#contact" data-service-select="REVENUE-WEBSITE">评估这套系统 <span aria-hidden="true">↗</span></a></div>
               <ul class="growth-service__meta" aria-label="获客型网站功能"><li>转化路径</li><li>无障碍构建</li><li>衡量方案</li></ul>
             </article>
           </div>
@@ -143,7 +164,7 @@
       </section>
 
       <section class="section delivery" id="delivery" aria-labelledby="delivery-title"><div class="shell">
-        <div class="section-heading section-heading--split reveal"><div><p class="section-index">03 — 交付方式</p><h2 id="delivery-title">一条连续的<br />生产落地路径。</h2></div><p>小型资深团队，直接沟通，从第一张流程图到生产系统持续承担清晰的技术责任。</p></div>
+        <div class="section-heading section-heading--split reveal"><div><p class="section-index">03 — 交付方式</p><h2 id="delivery-title">一条连续的<br />生产落地路径。</h2></div><p>由资深实践者直接负责交付。从第一张流程图到生产系统，持续承担清晰的技术责任。</p></div>
         <ol class="delivery-track">
           <li class="delivery-step reveal"><span class="delivery-step__number">01</span><div><p class="eyebrow">发现</p><h3>现场洞察</h3><p>观察真实工作，识别高摩擦决策，定义边界清晰的生产结果。</p></div></li>
           <li class="delivery-step reveal"><span class="delivery-step__number">02</span><div><p class="eyebrow">构建</p><h3>端到端垂直切片</h3><p>交付最小可行的完整系统，同时验证数据、模型与界面行为。</p></div></li>
@@ -264,9 +285,9 @@
           <div class="form-status" role="status" aria-live="polite" data-form-status></div>
           <div class="contact-form__grid">
             <div class="form-field" data-form-field><label for="anna-name-zh">姓名 <span aria-hidden="true">*</span><span class="sr-only">（必填）</span></label><input id="anna-name-zh" name="name" type="text" minlength="2" maxlength="80" autocomplete="name" required aria-describedby="anna-name-error-zh" /><span class="form-field__error" id="anna-name-error-zh" data-field-error></span></div>
-            <div class="form-field" data-form-field><label for="anna-company-zh">公司 / 团队 <span aria-hidden="true">*</span><span class="sr-only">（必填）</span></label><input id="anna-company-zh" name="company" type="text" minlength="2" maxlength="120" autocomplete="organization" required aria-describedby="anna-company-error-zh" /><span class="form-field__error" id="anna-company-error-zh" data-field-error></span></div>
+            <div class="form-field" data-form-field><label for="anna-company-zh">公司 / 团队 <span class="form-field__optional">（选填）</span></label><input id="anna-company-zh" name="company" type="text" minlength="2" maxlength="120" autocomplete="organization" aria-describedby="anna-company-error-zh" /><span class="form-field__error" id="anna-company-error-zh" data-field-error></span></div>
             <div class="form-field" data-form-field><label for="anna-email-zh">工作邮箱 <span aria-hidden="true">*</span><span class="sr-only">（必填）</span></label><input id="anna-email-zh" name="email" type="email" maxlength="254" inputmode="email" autocomplete="email" required aria-describedby="anna-email-error-zh" /><span class="form-field__error" id="anna-email-error-zh" data-field-error></span></div>
-            <div class="form-field" data-form-field><label for="anna-service-zh">项目类型 <span aria-hidden="true">*</span><span class="sr-only">（必填）</span></label><select id="anna-service-zh" name="service_code" required aria-describedby="anna-service-error-zh"><option value="" selected disabled>请选择</option><option value="AI-RECEPTIONIST">AI 电话前台</option><option value="REVIEW-AUTOMATION">自动化评价管理</option><option value="REVENUE-WEBSITE">获客型网站</option><option value="AI-DISCOVERY">AI 机会识别与生产诊断</option><option value="AI-FILM">AI 影视与视觉生产</option><option value="WORKFLOW-AUTOMATION">工作流集成与自动化</option><option value="MULTIMODAL-QA">多模态审片与连续性 QA</option><option value="AGENT-INTEGRATION">知识智能体与系统集成</option><option value="BRAND-LAB">AI 品牌与宣传系统</option><option value="OTHER">其他生产问题</option></select><span class="form-field__error" id="anna-service-error-zh" data-field-error></span></div>
+            <div class="form-field" data-form-field><label for="anna-service-zh">项目类型 <span aria-hidden="true">*</span><span class="sr-only">（必填）</span></label><select id="anna-service-zh" name="service_code" required aria-describedby="anna-service-error-zh"><option value="" selected disabled>请选择</option><option value="AI-DISCOVERY">AI 机会识别与生产诊断</option><option value="AI-FILM">AI 影视与视觉生产</option><option value="WORKFLOW-AUTOMATION">工作流集成与自动化</option><option value="MULTIMODAL-QA">多模态审片与连续性 QA</option><option value="AGENT-INTEGRATION">知识智能体与系统集成</option><option value="BRAND-LAB">AI 品牌与宣传系统</option><option value="AI-RECEPTIONIST">AI 电话前台</option><option value="REVIEW-AUTOMATION">自动化评价管理</option><option value="REVENUE-WEBSITE">获客型网站</option><option value="OTHER">其他生产问题</option></select><span class="form-field__error" id="anna-service-error-zh" data-field-error></span></div>
             <div class="form-field form-field--wide" data-form-field><label for="anna-timeline-zh">期望时间</label><select id="anna-timeline-zh" name="timeline"><option value="NOT-SPECIFIED" selected>尚未确定</option><option value="NOW">立即 / 正在发生的生产问题</option><option value="0-4-WEEKS">四周内</option><option value="1-3-MONTHS">一至三个月内</option><option value="EXPLORING">探索阶段</option></select></div>
             <div class="form-field form-field--wide" data-form-field><label for="anna-message-zh">项目说明 <span aria-hidden="true">*</span><span class="sr-only">（必填）</span></label><textarea id="anna-message-zh" name="message" rows="7" minlength="20" maxlength="2500" required aria-describedby="anna-message-hint-zh anna-message-error-zh"></textarea><span class="form-field__hint" id="anna-message-hint-zh">请写明当前流程、主要约束、目标结果和时间要求。不要上传或粘贴保密制作素材。</span><span class="form-field__error" id="anna-message-error-zh" data-field-error></span></div>
           </div>
@@ -280,7 +301,7 @@
     </main>
 
     <footer class="site-footer shell">
-      <a class="brand brand--image brand--footer" href="#top" aria-label="Anna AI Studios 首页"><img class="brand__logo" src="../assets/brand/logo-anna-ai-studios-horizontal-full-color.webp" width="928" height="448" alt="" loading="lazy" decoding="async" /><span class="sr-only">Anna AI Studios</span></a>
+      <a class="brand brand--image brand--footer" href="#top" aria-label="Anna AI Studios 首页"><img class="brand__logo" src="../assets/brand/anna-ai-studios-footer-primary-dark-288x72-v1.webp" width="288" height="72" alt="" loading="lazy" decoding="async" /><span class="sr-only">Anna AI Studios</span></a>
       <p>位于伦敦的独立 AI 交付工作室。</p><p>© <span data-year>2026</span> Anna AI Studios.</p>
     </footer>
   </body>

@@ -7,39 +7,104 @@ function initHeader() {
   const nav = document.querySelector("[data-site-nav]");
   if (!header || !menuButton || !nav) return;
 
+  const menuQuery = window.matchMedia("(max-width: 1120px)");
+  const menuLabel = menuButton.querySelector(".sr-only");
+  const pageRegions = [document.querySelector("main"), document.querySelector("footer")]
+    .filter((region) => region instanceof HTMLElement);
+  const isChinese = document.documentElement.lang.toLowerCase().startsWith("zh");
+  const menuCopy = isChinese
+    ? { open: "打开导航", close: "关闭导航" }
+    : { open: "Open navigation", close: "Close navigation" };
+
   const setHeaderState = () => {
     header.classList.toggle("is-scrolled", window.scrollY > 16);
   };
 
-  const closeMenu = () => {
-    menuButton.setAttribute("aria-expanded", "false");
-    nav.classList.remove("is-open");
-    header.classList.remove("is-open");
+  const setMenuState = (open) => {
+    const expanded = Boolean(open && menuQuery.matches);
+    menuButton.setAttribute("aria-expanded", String(expanded));
+    nav.classList.toggle("is-open", expanded);
+    header.classList.toggle("is-open", expanded);
+    document.body.classList.toggle("is-menu-open", expanded);
+    pageRegions.forEach((region) => region.toggleAttribute("inert", expanded));
+    nav.toggleAttribute("inert", menuQuery.matches && !expanded);
+    if (menuQuery.matches && !expanded) {
+      nav.setAttribute("aria-hidden", "true");
+    } else {
+      nav.removeAttribute("aria-hidden");
+    }
+    if (menuLabel) menuLabel.textContent = expanded ? menuCopy.close : menuCopy.open;
   };
 
   menuButton.addEventListener("click", () => {
     const open = menuButton.getAttribute("aria-expanded") !== "true";
-    menuButton.setAttribute("aria-expanded", String(open));
-    nav.classList.toggle("is-open", open);
-    header.classList.toggle("is-open", open);
+    setMenuState(open);
   });
 
   nav.addEventListener("click", (event) => {
-    if (event.target instanceof HTMLAnchorElement) closeMenu();
+    const link = event.target instanceof Element ? event.target.closest("a") : null;
+    if (!(link instanceof HTMLAnchorElement)) return;
+
+    const shouldMoveFocus = event.detail === 0 && link.hash;
+    const focusTarget = shouldMoveFocus ? document.querySelector(link.hash) : null;
+    setMenuState(false);
+
+    if (focusTarget instanceof HTMLElement) {
+      window.requestAnimationFrame(() => {
+        const heading = focusTarget.matches("section")
+          ? focusTarget.querySelector("h2, h3")
+          : focusTarget;
+        if (!(heading instanceof HTMLElement)) return;
+        heading.setAttribute("tabindex", "-1");
+        heading.focus({ preventScroll: true });
+      });
+    }
   });
 
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
-      closeMenu();
+    if (event.key === "Escape" && menuButton.getAttribute("aria-expanded") === "true") {
+      setMenuState(false);
       menuButton.focus();
     }
   });
 
   window.addEventListener("scroll", setHeaderState, { passive: true });
   window.addEventListener("resize", () => {
-    if (window.innerWidth > 1120) closeMenu();
+    if (!menuQuery.matches) setMenuState(false);
   });
+  menuQuery.addEventListener?.("change", () => setMenuState(false));
+  setMenuState(false);
   setHeaderState();
+}
+
+function initSectionNavigation() {
+  const links = [...document.querySelectorAll('.site-nav a[href^="#"]:not(.mobile-project-link)')];
+  const sections = links
+    .map((link) => document.querySelector(link.getAttribute("href")))
+    .filter((section) => section instanceof HTMLElement);
+  if (!links.length || !sections.length || !("IntersectionObserver" in window)) return;
+
+  const setCurrent = (id) => {
+    links.forEach((link) => {
+      if (link.getAttribute("href") === `#${id}`) {
+        link.setAttribute("aria-current", "location");
+      } else {
+        link.removeAttribute("aria-current");
+      }
+    });
+  };
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      const visible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+      if (visible[0]?.target.id) setCurrent(visible[0].target.id);
+    },
+    { rootMargin: "-24% 0px -64%", threshold: [0, 0.1, 0.35] }
+  );
+
+  sections.forEach((section) => observer.observe(section));
 }
 
 function initReveal() {
@@ -88,6 +153,25 @@ function initDeliveryProgress() {
   window.addEventListener("scroll", requestUpdate, { passive: true });
   window.addEventListener("resize", requestUpdate);
   requestUpdate();
+}
+
+function initDeferredSignalJourney() {
+  const section = document.querySelector("[data-signal-journey]");
+  if (!section || reducedMotionQuery.matches || !("IntersectionObserver" in window)) return;
+
+  const desktopSignalQuery = window.matchMedia("(min-width: 781px) and (min-height: 681px)");
+  if (!desktopSignalQuery.matches) return;
+
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      if (!entry.isIntersecting) return;
+      observer.disconnect();
+      initSignalJourney();
+    },
+    { rootMargin: "500px 0px" }
+  );
+
+  observer.observe(section);
 }
 
 function initSignalJourney() {
@@ -358,6 +442,9 @@ function initJourney() {
   const timeElement = document.querySelector("[data-journey-time]");
   if (!journey || !video || !progressElement) return;
 
+  const videoSources = [...video.querySelectorAll("source[data-src]")];
+  const saveData = Boolean(navigator.connection?.saveData);
+  const allowMotionMedia = !reducedMotionQuery.matches && !saveData;
   const isChinese = document.documentElement.lang.toLowerCase().startsWith("zh");
   const labels = isChinese
     ? ["晶体管 / 发现", "铜互连 / 构建", "硅层 / 部署", "晶圆 / 扩展"]
@@ -372,13 +459,29 @@ function initJourney() {
   let scrollFrameRequested = false;
   let mediaFrame = 0;
   let sectionVisible = true;
+  let videoActivated = false;
 
   const setActivePanel = (nextIndex) => {
     if (nextIndex === activePanel) return;
     activePanel = nextIndex;
-    panels.forEach((panel, index) => panel.classList.toggle("is-active", index === nextIndex));
+    panels.forEach((panel, index) => {
+      const active = index === nextIndex;
+      panel.classList.toggle("is-active", active);
+      panel.setAttribute("aria-hidden", String(!active));
+    });
     steps.forEach((step, index) => step.classList.toggle("is-active", index <= nextIndex));
     if (labelElement) labelElement.textContent = nextIndex >= 0 ? labels[nextIndex] : isChinese ? "进入系统" : "System entry";
+  };
+
+  const activateVideo = () => {
+    if (!allowMotionMedia || videoActivated) return;
+    videoActivated = true;
+    videoSources.forEach((source) => {
+      const sourceUrl = source.dataset.src;
+      if (sourceUrl) source.src = sourceUrl;
+    });
+    video.preload = "auto";
+    video.load();
   };
 
   const findPanel = (progress) => {
@@ -398,6 +501,11 @@ function initJourney() {
 
     journey.style.setProperty("--journey-progress", currentProgress.toFixed(4));
     journey.classList.toggle("has-progress", currentProgress > 0.025);
+    if (intro) {
+      const introHidden = currentProgress > 0.025;
+      intro.setAttribute("aria-hidden", String(introHidden));
+      intro.toggleAttribute("inert", introHidden);
+    }
     progressElement.setAttribute("aria-valuenow", String(Math.round(currentProgress * 100)));
     if (timeElement) timeElement.textContent = `${targetTime.toFixed(1).padStart(4, "0")} / 08.0`;
     setActivePanel(findPanel(currentProgress));
@@ -414,7 +522,10 @@ function initJourney() {
   };
 
   const renderMedia = () => {
-    if (!reducedMotionQuery.matches && sectionVisible && video.readyState >= 2) {
+    mediaFrame = 0;
+    if (!allowMotionMedia || !sectionVisible) return;
+
+    if (allowMotionMedia && sectionVisible && video.readyState >= 2) {
       // Seek only when the delta is visually meaningful; this prevents decode queues building up on fast scroll.
       if (!video.seeking && Math.abs(targetTime - renderedTime) > 0.035) {
         const safeTime = Math.min(Math.max(0, targetTime), Math.max(0, duration - 0.02));
@@ -426,6 +537,11 @@ function initJourney() {
         }
       }
     }
+    mediaFrame = window.requestAnimationFrame(renderMedia);
+  };
+
+  const startMediaLoop = () => {
+    if (!allowMotionMedia || !sectionVisible || mediaFrame) return;
     mediaFrame = window.requestAnimationFrame(renderMedia);
   };
 
@@ -452,24 +568,27 @@ function initJourney() {
     journey.classList.add("is-video-unavailable");
   });
 
-  if ("IntersectionObserver" in window) {
+  if (allowMotionMedia && "IntersectionObserver" in window) {
     const observer = new IntersectionObserver(
       ([entry]) => {
         sectionVisible = entry.isIntersecting;
-        if (sectionVisible && video.preload !== "auto") {
-          video.preload = "auto";
-          video.load();
+        if (sectionVisible) {
+          activateVideo();
+          startMediaLoop();
         }
       },
       { rootMargin: "100px" }
     );
     observer.observe(journey);
+  } else if (allowMotionMedia) {
+    activateVideo();
   }
 
   window.addEventListener("scroll", requestScrollUpdate, { passive: true });
   window.addEventListener("resize", requestScrollUpdate);
   document.addEventListener("visibilitychange", () => {
     sectionVisible = !document.hidden && journey.getBoundingClientRect().bottom > 0 && journey.getBoundingClientRect().top < window.innerHeight;
+    startMediaLoop();
   });
 
   reducedMotionQuery.addEventListener?.("change", () => window.location.reload());
@@ -482,13 +601,20 @@ function initJourney() {
   );
 
   if (reducedMotionQuery.matches) {
-    if (intro) intro.style.opacity = "1";
-    panels.forEach((panel) => panel.classList.remove("is-active"));
+    if (intro) {
+      intro.style.opacity = "1";
+      intro.setAttribute("aria-hidden", "false");
+      intro.removeAttribute("inert");
+    }
+    panels.forEach((panel) => {
+      panel.classList.remove("is-active");
+      panel.setAttribute("aria-hidden", "true");
+    });
     return;
   }
 
   updateScrollState();
-  mediaFrame = window.requestAnimationFrame(renderMedia);
+  startMediaLoop();
 }
 
 function createLeadId(date) {
@@ -512,6 +638,26 @@ function sanitizeSubjectPart(value, fallback, maxLength) {
     .trim()
     .slice(0, maxLength);
   return normalized || fallback;
+}
+
+function initServiceSelection() {
+  const form = document.querySelector("[data-contact-form]");
+  const serviceSelect = form?.querySelector('select[name="service_code"]');
+  const links = [...document.querySelectorAll("[data-service-select]")];
+  if (!(serviceSelect instanceof HTMLSelectElement) || !links.length) return;
+
+  links.forEach((link) => {
+    link.addEventListener("click", () => {
+      const serviceCode = link.dataset.serviceSelect || "";
+      const optionExists = [...serviceSelect.options].some((option) => option.value === serviceCode);
+      if (!optionExists) return;
+
+      serviceSelect.value = serviceCode;
+      serviceSelect.removeAttribute("aria-invalid");
+      serviceSelect.closest("[data-form-field]")?.querySelector("[data-field-error]")?.replaceChildren();
+      serviceSelect.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+  });
 }
 
 function initContactForms() {
@@ -647,35 +793,30 @@ function initLeadReference() {
   reference.textContent = leadId;
 }
 
-function initBrandLogos() {
-  const isChinesePath = window.location.pathname.replace(/\\/g, "/").includes("/zh/");
-  const logoSrc = isChinesePath ? "../assets/brand/anna-ai-studios-logo.jpg" : "assets/brand/anna-ai-studios-logo.jpg";
-  const brandLinks = [...document.querySelectorAll(".brand")];
+function initOptionalShader() {
+  const desktopQuery = window.matchMedia("(min-width: 781px) and (min-height: 681px)");
+  const saveData = Boolean(navigator.connection?.saveData);
+  let requested = false;
 
-  brandLinks.forEach((link) => {
-    if (!(link instanceof HTMLElement) || link.querySelector(".brand__logo")) return;
+  const requestShader = () => {
+    if (requested || reducedMotionQuery.matches || saveData || !desktopQuery.matches) return;
+    requested = true;
 
-    const image = document.createElement("img");
-    image.className = "brand__logo";
-    image.src = logoSrc;
-    image.width = 1536;
-    image.height = 1024;
-    image.alt = "";
-    image.decoding = "async";
-    image.loading = link.classList.contains("brand--footer") ? "lazy" : "eager";
+    const load = () => {
+      import("./shader-background.js?v=20260723b").catch(() => {
+        document.querySelector("[data-journey]")?.classList.add("is-webgl-unavailable");
+      });
+    };
 
-    link.classList.add("brand--image");
-    link.querySelector(".brand__mark")?.remove();
-    link.querySelector(".brand__type")?.remove();
-    link.prepend(image);
-
-    if (!link.querySelector(".sr-only")) {
-      const label = document.createElement("span");
-      label.className = "sr-only";
-      label.textContent = "Anna AI Studios";
-      link.append(label);
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(load, { timeout: 1400 });
+    } else {
+      window.setTimeout(load, 120);
     }
-  });
+  };
+
+  requestShader();
+  desktopQuery.addEventListener?.("change", requestShader);
 }
 
 function init() {
@@ -683,12 +824,14 @@ function init() {
   document.querySelectorAll("[data-year]").forEach((node) => {
     node.textContent = String(new Date().getFullYear());
   });
-  initBrandLogos();
   initHeader();
+  initSectionNavigation();
   initReveal();
   initDeliveryProgress();
-  initSignalJourney();
+  initDeferredSignalJourney();
   initJourney();
+  initOptionalShader();
+  initServiceSelection();
   initContactForms();
   initLeadReference();
 }

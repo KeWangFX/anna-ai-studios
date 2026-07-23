@@ -16,34 +16,49 @@ ROOT_FILES = (
     "styles.css",
     "script.js",
     "shader-background.js",
-    "favicon.svg",
+    "favicon-v1.svg",
     "_headers",
     "robots.txt",
     "sitemap.xml",
 )
 
-PUBLIC_TREES = (
-    (ROOT / "zh", DIST / "zh"),
-    # Only curated web derivatives are public; production source folders stay outside the release.
-    (ROOT / "assets" / "cases", DIST / "assets" / "cases"),
-    (ROOT / "assets" / "contact", DIST / "assets" / "contact"),
-)
-
 PUBLIC_FILES = (
+    (ROOT / "zh" / "index.html", DIST / "zh" / "index.html"),
+    (ROOT / "zh" / "thanks.html", DIST / "zh" / "thanks.html"),
     *(
         (
             ROOT / "assets" / "brand" / name,
             DIST / "assets" / "brand" / name,
         )
         for name in (
-            "logo-anna-ai-studios-horizontal-full-color.webp",
-            "circuit-poster.svg",
+            "anna-ai-studios-header-desktop-primary-dark-320x80-v1.webp",
+            "anna-ai-studios-header-mobile-primary-dark-72x72-v1.webp",
+            "anna-ai-studios-footer-primary-dark-288x72-v1.webp",
+            "anna-ai-studios-open-graph-primary-dark-1200x630-v1.webp",
+            "anna-ai-studios-apple-touch-icon-180x180-v1.png",
             "circuit-poster.webp",
-            "circuit-poster.avif",
             "circuit-hero-1080.webm",
             "circuit-hero-1080.mp4",
             "circuit-hero-720.mp4",
         )
+    ),
+    *(
+        (
+            ROOT / "assets" / "cases" / name,
+            DIST / "assets" / "cases" / name,
+        )
+        for name in (
+            "nameless-god-character.webp",
+            "nameless-god-storyboard.webp",
+            "fireworks-keyframe.webp",
+            "fireworks-lookdev.webp",
+            "tangxi-brand-system.webp",
+            "tangxi-campaign.webp",
+        )
+    ),
+    (
+        ROOT / "assets" / "contact" / "wechat-kewangfx-qr.png",
+        DIST / "assets" / "contact" / "wechat-kewangfx-qr.png",
     ),
     (
         ROOT / "assets" / "vendor" / "three.module.min.js",
@@ -83,10 +98,28 @@ def copy_file(source: Path, target: Path) -> None:
     shutil.copy2(source, target)
 
 
-def copy_tree(source: Path, target: Path) -> None:
-    if not source.is_dir():
-        raise FileNotFoundError(f"Required public directory is missing: {source}")
-    shutil.copytree(source, target)
+def validate_dist() -> list[Path]:
+    """Fail closed if a future edit expands the public bundle beyond the approved site."""
+    public_files = [path for path in DIST.rglob("*") if path.is_file()]
+    allowed_suffixes = {".html", ".css", ".js", ".svg", ".webp", ".png", ".jpg", ".mp4", ".webm", ".txt", ".xml"}
+    forbidden_terms = {"resume", "family", "showreel", "portfolio", "analytics", "rollingai"}
+
+    unexpected_types = [path for path in public_files if path.suffix.lower() not in allowed_suffixes and path.name != "_headers"]
+    forbidden_paths = [
+        path for path in public_files
+        if any(term in path.relative_to(DIST).as_posix().lower() for term in forbidden_terms)
+    ]
+    total_bytes = sum(path.stat().st_size for path in public_files)
+
+    if unexpected_types:
+        raise RuntimeError(f"Unexpected public file types: {unexpected_types}")
+    if forbidden_paths:
+        raise RuntimeError(f"Forbidden public paths: {forbidden_paths}")
+    if total_bytes > 6 * 1024 * 1024:
+        raise RuntimeError(f"Public bundle exceeds 6 MiB: {total_bytes} bytes")
+
+    print(f"Public bundle size: {total_bytes} bytes")
+    return public_files
 
 
 def main() -> None:
@@ -95,13 +128,10 @@ def main() -> None:
     for name in ROOT_FILES:
         copy_file(ROOT / name, DIST / name)
 
-    for source, target in PUBLIC_TREES:
-        copy_tree(source, target)
-
     for source, target in PUBLIC_FILES:
         copy_file(source, target)
 
-    public_files = [path for path in DIST.rglob("*") if path.is_file()]
+    public_files = validate_dist()
     print(f"Anna AI Studios build prepared at: {DIST}")
     print(f"Public files: {len(public_files)}")
 

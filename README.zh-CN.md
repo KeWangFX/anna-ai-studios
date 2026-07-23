@@ -9,7 +9,7 @@
 - `styles.css`：共享视觉系统与响应式布局
 - `script.js`：主片滚动映射、信号路径动画、导航与留言表单逻辑
 - `shader-background.js`：Three.js 铜互连和光子叠加层
-- `assets/brand/`：公开品牌资产、网页优化版 Anna AI Studios Logo、Sora 提示词和主视觉媒体
+- `assets/brand/`：公开品牌资产、响应式 Logo、社交分享卡、Sora 提示词和主视觉媒体
 - `assets/cases/`：已批准并完成网页压缩的 Anna Lab 案例图片
 - `assets/contact/`：公开使用的裁切版微信二维码；手机原始截图不进入发布目录
 
@@ -43,6 +43,14 @@
 
 `assets/cases/` 只保存已批准的网页派生图，不复制原始制作目录。包装信息和产品声明继续保留人工生产门禁。
 
+## 客户增长系统
+
+- `AI 电话前台`
+- `自动化评价管理`
+- `获客型网站`
+
+三个服务 CTA 会把稳定服务代码自动带入咨询表单；核心 FDE 项目类型仍排在下拉选项前部。
+
 ## 本地预览
 
 ```powershell
@@ -54,11 +62,11 @@ npm run preview
 
 ## 主视觉媒体
 
-正式提示词保存在 `assets/brand/circuit-hero-prompt.txt`。仓库当前包含一条由晶圆 poster 生成的 8 秒轻量动态占位片；Sora 成片通过后可直接同名替换。当视频文件不存在、加载失败或设备开启减少动态效果时，页面自动使用晶圆 poster 与 WebGL 降级效果。
+正式提示词保存在 `assets/brand/circuit-hero-prompt.txt`。仓库当前包含一条由晶圆 poster 生成的 8 秒轻量动态占位片；Sora 成片通过后可直接同名替换。
 
-正式 Logo 使用 `assets/brand/logo-anna-ai-studios-horizontal-full-color.webp`。该文件仅裁掉获批原图四周空画布，保留原始比例与内置光效；品牌资产启用 immutable 缓存，后续修改视觉时必须使用新文件名。
+Header、移动端标记、页脚与社交分享分别使用品牌系统的独立 v1 导出。后续修改必须提升版本号。由于电路主片和案例文件还没有内容哈希，公开媒体采用一天缓存加后台重新验证，不再对未哈希路径使用一年 immutable。
 
-短 GOP 编码用于提升滚动拖帧响应，具体命令见英文 README。
+短 GOP 编码用于提升滚动拖帧响应，具体命令见英文 README。视频只会在允许动态且未开启省流量模式时挂载；Three.js 在桌面端首屏完成后按需加载。移动端、减少动态和省流量路径不会下载 WebGL 依赖。
 
 ## 构建与部署
 

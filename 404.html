@@ -6,8 +6,25 @@
     <meta name="robots" content="noindex" />
     <meta name="theme-color" content="#060807" />
     <title>Not found | Anna AI Studios</title>
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="/styles.css?v=20260722i" />
+    <script>
+      (() => {
+        const base = location.hostname.endsWith("github.io") ? "/anna-ai-studios/" : "/";
+        const icon = document.createElement("link");
+        icon.rel = "icon";
+        icon.type = "image/svg+xml";
+        icon.href = `${base}favicon-v1.svg`;
+        document.head.append(icon);
+
+        const stylesheet = document.createElement("link");
+        stylesheet.rel = "stylesheet";
+        stylesheet.href = `${base}styles.css?v=20260723b`;
+        document.head.append(stylesheet);
+
+        window.addEventListener("DOMContentLoaded", () => {
+          document.querySelector("[data-home-link]")?.setAttribute("href", base);
+        }, { once: true });
+      })();
+    </script>
   </head>
   <body>
     <main class="contact section shell" style="min-height:100dvh;display:grid;place-items:center">
@@ -15,7 +32,7 @@
         <p class="section-index">404 — Open circuit</p>
         <h1 style="font-size:clamp(56px,9vw,132px);line-height:.9;letter-spacing:-.06em">This route<br />ends here.</h1>
         <p>Return to the production path.</p>
-        <a class="button button--copper" href="/">Back to Anna AI Studios</a>
+        <a class="button button--copper" href="/" data-home-link>Back to Anna AI Studios</a>
       </div>
     </main>
   </body>

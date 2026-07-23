@@ -4,10 +4,12 @@
     <loc>https://anna-ai-studios.pages.dev/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://anna-ai-studios.pages.dev/" />
     <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://anna-ai-studios.pages.dev/zh/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://anna-ai-studios.pages.dev/" />
   </url>
   <url>
     <loc>https://anna-ai-studios.pages.dev/zh/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://anna-ai-studios.pages.dev/" />
     <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://anna-ai-studios.pages.dev/zh/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://anna-ai-studios.pages.dev/" />
   </url>
 </urlset>
