@@ -11,6 +11,7 @@
 - `shader-background.js`：Three.js 铜互连和光子叠加层
 - `assets/brand/`：公开品牌资产、响应式 Logo、社交分享卡、Sora 提示词和主视觉媒体
 - `assets/cases/`：已批准并完成网页压缩的 Anna Lab 案例图片
+- `assets/products/`：已版本化并完成网页压缩的 DateLens 与 FrameFetch 宣传图
 - `assets/contact/`：公开使用的裁切版微信二维码；手机原始截图不进入发布目录
 
 网站保持纯静态，不使用分析脚本、Cookie 或数据库。结构化留言通过 FormSubmit 转发到 `keke19870699@gmail.com`，并保留邮箱、WhatsApp 和微信直达入口。
@@ -42,6 +43,13 @@
 - 汤喜馄饨：AI 辅助双语品牌识别与宣传物料交付。
 
 `assets/cases/` 只保存已批准的网页派生图，不复制原始制作目录。包装信息和产品声明继续保留人工生产门禁。
+
+## 产品
+
+- `DateLens`：注重隐私的媒体证据产品预览；卡片会根据真实服务状态明确标注实时分析是否可用。
+- `FrameFetch`：解析已获授权的公开视频链接、选择可用清晰度，并通过浏览器或桌面助手交付媒体。
+
+两张产品卡只使用经过核实的正式网址、功能边界和状态文案。产品可用性、价格或能力变化时，必须同步更新状态说明并提升宣传图版本。
 
 ## 客户增长系统
 
@@ -75,7 +83,7 @@ npm run cf:build
 npm run cf:deploy
 ```
 
-目标 Cloudflare Pages 项目为 `anna-ai-studios`。构建脚本会清空并重建 `cloudflare-release/`，只发布公司站、品牌与联系资产、精选案例图片、本地 Three.js 和核心成员照片；旧作品集、手机原始截图及家庭素材继续保存在仓库中，但不会公开发布。
+目标 Cloudflare Pages 项目为 `anna-ai-studios`。构建脚本会清空并重建 `cloudflare-release/`，只发布公司站、品牌与联系资产、精选产品和案例图片、本地 Three.js 和核心成员照片；旧作品集、手机原始截图及家庭素材继续保存在仓库中，但不会公开发布。
 
 ## GitHub Pages 镜像
 

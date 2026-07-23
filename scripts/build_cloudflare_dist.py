@@ -56,6 +56,16 @@ PUBLIC_FILES = (
             "tangxi-campaign.webp",
         )
     ),
+    *(
+        (
+            ROOT / "assets" / "products" / name,
+            DIST / "assets" / "products" / name,
+        )
+        for name in (
+            "datelens-product-v1.webp",
+            "framefetch-product-v1.webp",
+        )
+    ),
     (
         ROOT / "assets" / "contact" / "wechat-kewangfx-qr.png",
         DIST / "assets" / "contact" / "wechat-kewangfx-qr.png",

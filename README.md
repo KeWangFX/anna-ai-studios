@@ -11,6 +11,7 @@ Bilingual forward-deployed AI engineering website for a London-based independent
 - `shader-background.js` — Three.js copper-trace and photon overlay
 - `assets/brand/` — public brand artwork, responsive Anna AI Studios logo variants, social card and hero media
 - `assets/cases/` — approved, web-compressed Anna Lab case-study frames
+- `assets/products/` — versioned, web-compressed DateLens and FrameFetch promotional artwork
 - `assets/contact/` — the cropped public WeChat QR code only; source phone screenshots stay private
 
 The site remains static and has no analytics, cookies or database binding. Its contact form posts directly to FormSubmit, which forwards a structured email to `keke19870699@gmail.com`; the email fallback remains available if the form service is unreachable.
@@ -23,7 +24,7 @@ English and Chinese forms share one searchable subject convention:
 [ANNA-LEAD][SERVICE-CODE][EN|ZH][YYYYMMDD] Company / Name
 ```
 
-Every delivery also contains a sortable Lead ID (`ANNA-YYYYMMDDhhmmss-XXXX`), UTC submission time, language and source page. Required fields are name, company/team, work email, service code, project brief and consent. Native form validation, a hidden honeypot and FormSubmit's default verification reduce junk without adding client-side tracking.
+Every delivery also contains a sortable Lead ID (`ANNA-YYYYMMDDhhmmss-XXXX`), UTC submission time, language and source page. Required fields are name, work email, service code, project brief and consent; company/team is optional. Native form validation, a hidden honeypot and FormSubmit's default verification reduce junk without adding client-side tracking.
 
 The production endpoint is activated and uses FormSubmit's random endpoint token instead of exposing the recipient address in the form action. Keep reCAPTCHA enabled, do not add `_captcha=false`, and never place confidential production material in the public enquiry form. Search Gmail with `subject:"[ANNA-LEAD]"` to isolate all website enquiries.
 
@@ -46,6 +47,13 @@ The delivery-to-lab interlude procedurally combines record-groove waveform geome
 - `Tangxi Wonton Club` — AI-assisted bilingual identity and campaign delivery.
 
 Only approved web derivatives belong in `assets/cases/`. Keep production source directories private, strip unnecessary metadata, and leave packaging or product claims behind manual approval.
+
+## Products
+
+- `DateLens` — a public product preview for privacy-conscious media evidence. The card links to the live preview and clearly states when real-time analysis is paused.
+- `FrameFetch` — a live tool for inspecting authorised public video links, choosing available output quality and using browser or desktop-companion delivery.
+
+Both product cards use exact external URLs, truthful status labels, clear legal boundaries and versioned promotional WebP assets. Update the status copy and asset version whenever a product's availability, pricing or capabilities change.
 
 ## Client growth services
 
@@ -103,7 +111,7 @@ npm run cf:build
 npm run cf:deploy
 ```
 
-Deployment target: `anna-ai-studios` (`https://anna-ai-studios.pages.dev`). The build script starts from a clean `cloudflare-release/` directory and copies only the company site, brand/contact assets, curated case frames, local Three.js runtime and the approved core-team portrait. Legacy portfolio, source screenshots and family media remain in the repository but are not published.
+Deployment target: `anna-ai-studios` (`https://anna-ai-studios.pages.dev`). The build script starts from a clean `cloudflare-release/` directory and copies only the company site, brand/contact assets, curated product and case artwork, local Three.js runtime and the approved core-team portrait. Legacy portfolio, source screenshots and family media remain in the repository but are not published.
 
 ## GitHub Pages mirror
 
@@ -116,4 +124,4 @@ The standalone source repository is `KeWangFX/anna-ai-studios`. Pushes to `main`
 - Test with reduced motion, data-saver mode and WebGL disabled; reduced motion must not request video or Three.js.
 - Verify the WeChat QR is always visible, loads at desktop and mobile widths, and check the WhatsApp URL uses `447516141043`.
 - Confirm the release directory contains no legacy portfolio data or media.
-- Keep HTML/CSS/JS revalidated and fingerprinted media immutable.
+- Keep HTML/CSS/JS revalidated and version public media whenever its content changes.

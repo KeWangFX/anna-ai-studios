@@ -803,7 +803,7 @@ function initOptionalShader() {
     requested = true;
 
     const load = () => {
-      import("./shader-background.js?v=20260723b").catch(() => {
+      import("./shader-background.js?v=20260723c").catch(() => {
         document.querySelector("[data-journey]")?.classList.add("is-webgl-unavailable");
       });
     };

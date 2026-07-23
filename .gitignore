@@ -10,6 +10,7 @@ tmp-localtunnel*.log
 cloudflare/site.config.cloudflare.js
 node_modules/
 .wrangler/
+.media/
 __pycache__/
 *.pyc
 *.log
