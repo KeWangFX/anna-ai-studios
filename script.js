@@ -131,6 +131,229 @@ function initReveal() {
   elements.forEach((element) => observer.observe(element));
 }
 
+function initProductVault() {
+  const section = document.querySelector("[data-product-vault]");
+  const track = section?.querySelector("[data-product-track]");
+  const stage = section?.querySelector("[data-product-stage]");
+  const tabsContainer = section?.querySelector("[data-product-tabs]");
+  const tabs = section ? [...section.querySelectorAll("[data-product-tab]")] : [];
+  const panels = section ? [...section.querySelectorAll("[data-product-panel]")] : [];
+  const counter = section?.querySelector("[data-product-counter]");
+  if (
+    !(section instanceof HTMLElement) ||
+    !(track instanceof HTMLElement) ||
+    !(stage instanceof HTMLElement) ||
+    !(tabsContainer instanceof HTMLElement) ||
+    tabs.length !== 2 ||
+    panels.length !== 2
+  ) {
+    return;
+  }
+
+  const desktopQuery = window.matchMedia("(min-width: 1121px) and (min-height: 720px)");
+  const pointerQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
+  const saveData = Boolean(navigator.connection?.saveData);
+  let enabled = false;
+  let activeIndex = -1;
+  let scrollFrame = 0;
+  let pointerFrame = 0;
+  let stageRect = null;
+  let pointerX = 0;
+  let pointerY = 0;
+  let headerHeight = 0;
+  let scrollTravel = 1;
+
+  const updateMeasurements = () => {
+    headerHeight =
+      Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--header-height")) || 0;
+    scrollTravel = Math.max(1, track.offsetHeight - stage.offsetHeight);
+  };
+
+  const resetPointer = () => {
+    if (pointerFrame) {
+      window.cancelAnimationFrame(pointerFrame);
+      pointerFrame = 0;
+    }
+    stageRect = null;
+    section.classList.remove("is-product-interacting");
+    section.style.setProperty("--pointer-rotate-x", "0deg");
+    section.style.setProperty("--pointer-rotate-y", "0deg");
+    section.style.setProperty("--pointer-light-x", "50%");
+    section.style.setProperty("--pointer-light-y", "42%");
+  };
+
+  const setActiveProduct = (nextIndex) => {
+    const index = clamp(Math.round(nextIndex), 0, panels.length - 1);
+    if (index === activeIndex) return;
+    activeIndex = index;
+    section.dataset.activeProduct = String(index);
+    if (counter) counter.textContent = String(index + 1).padStart(2, "0");
+
+    panels.forEach((panel, panelIndex) => {
+      const selected = panelIndex === index;
+      panel.classList.toggle("is-active", selected);
+      panel.toggleAttribute("inert", enabled && !selected);
+      if (enabled) {
+        panel.setAttribute("role", "tabpanel");
+        panel.setAttribute("aria-hidden", String(!selected));
+        panel.setAttribute("aria-labelledby", tabs[panelIndex].id);
+      }
+    });
+
+    tabs.forEach((tab, tabIndex) => {
+      const selected = tabIndex === index;
+      tab.setAttribute("aria-selected", String(selected));
+      tab.tabIndex = selected ? 0 : -1;
+    });
+  };
+
+  const clearEnhancedSemantics = () => {
+    panels.forEach((panel, panelIndex) => {
+      panel.classList.remove("is-active");
+      panel.removeAttribute("inert");
+      panel.removeAttribute("role");
+      panel.removeAttribute("aria-hidden");
+      panel.setAttribute("aria-labelledby", panelIndex === 0 ? "datelens-title" : "framefetch-title");
+    });
+    tabsContainer.hidden = true;
+    activeIndex = -1;
+  };
+
+  const getScrollTarget = (index) => {
+    updateMeasurements();
+    const trackTop = window.scrollY + track.getBoundingClientRect().top;
+    const phase = index === 0 ? 0.12 : 0.74;
+    return Math.max(0, trackTop - headerHeight + scrollTravel * phase);
+  };
+
+  const selectFromControl = (index) => {
+    if (!enabled) return;
+    setActiveProduct(index);
+    window.scrollTo({
+      top: getScrollTarget(index),
+      behavior: "auto",
+    });
+    requestScrollUpdate();
+  };
+
+  tabs.forEach((tab, tabIndex) => {
+    tab.addEventListener("click", () => selectFromControl(tabIndex));
+    tab.addEventListener("keydown", (event) => {
+      let nextIndex = null;
+      if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+        nextIndex = (tabIndex - 1 + tabs.length) % tabs.length;
+      } else if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+        nextIndex = (tabIndex + 1) % tabs.length;
+      } else if (event.key === "Home") {
+        nextIndex = 0;
+      } else if (event.key === "End") {
+        nextIndex = tabs.length - 1;
+      }
+      if (nextIndex === null) return;
+      event.preventDefault();
+      tabs[nextIndex].focus();
+      selectFromControl(nextIndex);
+    });
+  });
+
+  const updateScrollState = () => {
+    scrollFrame = 0;
+    if (!enabled) return;
+
+    const rect = track.getBoundingClientRect();
+    const progress = clamp((headerHeight - rect.top) / scrollTravel);
+    const transitionProgress = clamp((progress - 0.34) / 0.32);
+    const shift = transitionProgress * transitionProgress * (3 - 2 * transitionProgress);
+
+    section.style.setProperty("--product-progress", progress.toFixed(4));
+    section.style.setProperty("--vault-shift", shift.toFixed(4));
+    section.style.setProperty("--vault-inverse", (1 - shift).toFixed(4));
+
+    setActiveProduct(progress < 0.5 ? 0 : 1);
+  };
+
+  const requestScrollUpdate = () => {
+    if (!enabled || scrollFrame) return;
+    scrollFrame = window.requestAnimationFrame(updateScrollState);
+  };
+
+  const configureEnhancement = () => {
+    const shouldEnable = desktopQuery.matches && !reducedMotionQuery.matches && !saveData;
+    if (shouldEnable === enabled) {
+      if (enabled) requestScrollUpdate();
+      return;
+    }
+
+    enabled = shouldEnable;
+    section.classList.toggle("is-product-enhanced", enabled);
+    resetPointer();
+
+    if (!enabled) {
+      clearEnhancedSemantics();
+      section.style.setProperty("--product-progress", "0");
+      section.style.setProperty("--vault-shift", "0");
+      section.style.setProperty("--vault-inverse", "1");
+      return;
+    }
+
+    tabsContainer.hidden = false;
+    updateMeasurements();
+    setActiveProduct(0);
+    requestScrollUpdate();
+  };
+
+  stage.addEventListener("pointerenter", () => {
+    if (!enabled || !pointerQuery.matches || reducedMotionQuery.matches) return;
+    stageRect = stage.getBoundingClientRect();
+    section.classList.add("is-product-interacting");
+  });
+
+  stage.addEventListener("pointermove", (event) => {
+    if (!enabled || !pointerQuery.matches || !stageRect) return;
+    pointerX = event.clientX;
+    pointerY = event.clientY;
+    if (pointerFrame) return;
+    pointerFrame = window.requestAnimationFrame(() => {
+      pointerFrame = 0;
+      if (!stageRect) return;
+      const normalizedX = clamp((pointerX - stageRect.left) / stageRect.width, 0, 1);
+      const normalizedY = clamp((pointerY - stageRect.top) / stageRect.height, 0, 1);
+      const rotateY = (normalizedX - 0.5) * 6;
+      const rotateX = (0.5 - normalizedY) * 5;
+      section.style.setProperty("--pointer-rotate-x", `${rotateX.toFixed(2)}deg`);
+      section.style.setProperty("--pointer-rotate-y", `${rotateY.toFixed(2)}deg`);
+      section.style.setProperty("--pointer-light-x", `${(normalizedX * 100).toFixed(1)}%`);
+      section.style.setProperty("--pointer-light-y", `${(normalizedY * 100).toFixed(1)}%`);
+    });
+  });
+
+  stage.addEventListener("pointerleave", resetPointer);
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) resetPointer();
+  });
+
+  if ("IntersectionObserver" in window) {
+    const visibilityObserver = new IntersectionObserver(
+      ([entry]) => section.classList.toggle("is-product-visible", entry.isIntersecting),
+      { rootMargin: "180px 0px", threshold: 0 }
+    );
+    visibilityObserver.observe(section);
+  } else {
+    section.classList.add("is-product-visible");
+  }
+
+  window.addEventListener("scroll", requestScrollUpdate, { passive: true });
+  window.addEventListener("resize", () => {
+    resetPointer();
+    updateMeasurements();
+    requestScrollUpdate();
+  });
+  desktopQuery.addEventListener?.("change", configureEnhancement);
+  reducedMotionQuery.addEventListener?.("change", configureEnhancement);
+  pointerQuery.addEventListener?.("change", resetPointer);
+  configureEnhancement();
+}
+
 function initDeliveryProgress() {
   const track = document.querySelector(".delivery-track");
   if (!track || reducedMotionQuery.matches) return;
@@ -803,7 +1026,7 @@ function initOptionalShader() {
     requested = true;
 
     const load = () => {
-      import("./shader-background.js?v=20260723c").catch(() => {
+      import("./shader-background.js?v=20260726a").catch(() => {
         document.querySelector("[data-journey]")?.classList.add("is-webgl-unavailable");
       });
     };
@@ -827,6 +1050,7 @@ function init() {
   initHeader();
   initSectionNavigation();
   initReveal();
+  initProductVault();
   initDeliveryProgress();
   initDeferredSignalJourney();
   initJourney();
