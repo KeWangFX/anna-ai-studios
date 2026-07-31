@@ -107,6 +107,94 @@ function initSectionNavigation() {
   sections.forEach((section) => observer.observe(section));
 }
 
+function initAnchorNavigation() {
+  const header = document.querySelector("[data-header]");
+
+  const resolveTarget = (hash) => {
+    if (!hash || hash === "#") return null;
+    try {
+      return document.getElementById(decodeURIComponent(hash.slice(1)));
+    } catch {
+      return null;
+    }
+  };
+
+  const moveToHash = (hash, { updateHistory = false, moveFocus = false } = {}) => {
+    const target = resolveTarget(hash);
+    if (!(target instanceof HTMLElement)) return false;
+
+    const headerOffset = header instanceof HTMLElement ? header.offsetHeight : 0;
+    const targetTop = target.getBoundingClientRect().top + window.scrollY - headerOffset;
+
+    if (updateHistory && window.location.hash !== hash) {
+      window.history.pushState(null, "", hash);
+    }
+
+    // Immediate positioning bypasses the long scroll-mapped hero and prevents sticky
+    // media from leaving anchor targets between narrative phases.
+    window.scrollTo({ top: Math.max(0, targetTop), behavior: "auto" });
+
+    if (moveFocus) {
+      const focusTarget = target.matches("main, section")
+        ? target.querySelector("h1, h2, h3")
+        : target;
+      if (focusTarget instanceof HTMLElement) {
+        focusTarget.setAttribute("tabindex", "-1");
+        focusTarget.focus({ preventScroll: true });
+      }
+    }
+
+    return true;
+  };
+
+  document.addEventListener("click", (event) => {
+    const link = event.target instanceof Element ? event.target.closest('a[href^="#"]') : null;
+    if (!(link instanceof HTMLAnchorElement)) return;
+    if (!resolveTarget(link.hash)) return;
+
+    event.preventDefault();
+    moveToHash(link.hash, {
+      updateHistory: true,
+      moveFocus: event.detail === 0,
+    });
+  });
+
+  const stabilizeDeepLink = () => {
+    const hash = window.location.hash;
+    if (!hash || !resolveTarget(hash)) return;
+
+    const controller = new AbortController();
+    let interrupted = false;
+    const stop = () => {
+      interrupted = true;
+      controller.abort();
+    };
+    const align = () => {
+      if (interrupted || window.location.hash !== hash) return;
+      // Re-resolve after fonts, lazy media and responsive components settle. The bounded
+      // sequence prevents late layout growth from stranding deep links above their target.
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => moveToHash(hash));
+      });
+    };
+
+    ["wheel", "touchstart", "pointerdown", "keydown"].forEach((eventName) => {
+      window.addEventListener(eventName, stop, {
+        once: true,
+        passive: eventName !== "keydown",
+        signal: controller.signal,
+      });
+    });
+
+    [0, 100, 350, 800, 1500].forEach((delay) => window.setTimeout(align, delay));
+    document.fonts?.ready.then(align).catch(() => {});
+    window.setTimeout(() => controller.abort(), 1800);
+  };
+
+  stabilizeDeepLink();
+  window.addEventListener("popstate", stabilizeDeepLink);
+}
+
 function initReveal() {
   const elements = [...document.querySelectorAll(".reveal")];
   if (!elements.length) return;
@@ -133,6 +221,7 @@ function initReveal() {
 
 function initProductVault() {
   const section = document.querySelector("[data-product-vault]");
+  if (section?.hidden) return;
   const track = section?.querySelector("[data-product-track]");
   const stage = section?.querySelector("[data-product-stage]");
   const tabsContainer = section?.querySelector("[data-product-tabs]");
@@ -380,7 +469,7 @@ function initDeliveryProgress() {
 
 function initDeferredSignalJourney() {
   const section = document.querySelector("[data-signal-journey]");
-  if (!section || reducedMotionQuery.matches || !("IntersectionObserver" in window)) return;
+  if (!section || section.hidden || reducedMotionQuery.matches || !("IntersectionObserver" in window)) return;
 
   const desktopSignalQuery = window.matchMedia("(min-width: 781px) and (min-height: 681px)");
   if (!desktopSignalQuery.matches) return;
@@ -399,6 +488,7 @@ function initDeferredSignalJourney() {
 
 function initSignalJourney() {
   const section = document.querySelector("[data-signal-journey]");
+  if (section?.hidden) return;
   const canvas = section?.querySelector("[data-signal-canvas]");
   const visual = section?.querySelector(".signal-journey__visual");
   const steps = section ? [...section.querySelectorAll("[data-signal-step]")] : [];
@@ -665,6 +755,23 @@ function initJourney() {
   const timeElement = document.querySelector("[data-journey-time]");
   if (!journey || !video || !progressElement) return;
 
+  const staticHeroQuery = window.matchMedia("(max-width: 780px)");
+  staticHeroQuery.addEventListener?.("change", () => window.location.reload());
+  if (staticHeroQuery.matches) {
+    journey.classList.add("is-static");
+    if (intro) {
+      intro.style.opacity = "1";
+      intro.setAttribute("aria-hidden", "false");
+      intro.removeAttribute("inert");
+    }
+    panels.forEach((panel) => {
+      panel.classList.remove("is-active");
+      panel.setAttribute("aria-hidden", "true");
+    });
+    progressElement.setAttribute("aria-valuenow", "0");
+    return;
+  }
+
   const videoSources = [...video.querySelectorAll("source[data-src]")];
   const saveData = Boolean(navigator.connection?.saveData);
   const allowMotionMedia = !reducedMotionQuery.matches && !saveData;
@@ -867,18 +974,23 @@ function initServiceSelection() {
   const form = document.querySelector("[data-contact-form]");
   const serviceSelect = form?.querySelector('select[name="service_code"]');
   const links = [...document.querySelectorAll("[data-service-select]")];
-  if (!(serviceSelect instanceof HTMLSelectElement) || !links.length) return;
+  if (!(serviceSelect instanceof HTMLSelectElement)) return;
+
+  const selectService = (serviceCode) => {
+    const optionExists = [...serviceSelect.options].some((option) => option.value === serviceCode);
+    if (!optionExists) return;
+
+    serviceSelect.value = serviceCode;
+    serviceSelect.removeAttribute("aria-invalid");
+    serviceSelect.closest("[data-form-field]")?.querySelector("[data-field-error]")?.replaceChildren();
+    serviceSelect.dispatchEvent(new Event("change", { bubbles: true }));
+  };
+
+  selectService(new URLSearchParams(window.location.search).get("service") || "");
 
   links.forEach((link) => {
     link.addEventListener("click", () => {
-      const serviceCode = link.dataset.serviceSelect || "";
-      const optionExists = [...serviceSelect.options].some((option) => option.value === serviceCode);
-      if (!optionExists) return;
-
-      serviceSelect.value = serviceCode;
-      serviceSelect.removeAttribute("aria-invalid");
-      serviceSelect.closest("[data-form-field]")?.querySelector("[data-field-error]")?.replaceChildren();
-      serviceSelect.dispatchEvent(new Event("change", { bubbles: true }));
+      selectService(link.dataset.serviceSelect || "");
     });
   });
 }
@@ -1026,7 +1138,7 @@ function initOptionalShader() {
     requested = true;
 
     const load = () => {
-      import("./shader-background.js?v=20260726a").catch(() => {
+      import("./shader-background.js?v=20260731b").catch(() => {
         document.querySelector("[data-journey]")?.classList.add("is-webgl-unavailable");
       });
     };
@@ -1048,6 +1160,7 @@ function init() {
     node.textContent = String(new Date().getFullYear());
   });
   initHeader();
+  initAnchorNavigation();
   initSectionNavigation();
   initReveal();
   initProductVault();

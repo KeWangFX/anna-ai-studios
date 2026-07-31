@@ -28,3 +28,21 @@
 
 /zh/thanks.html
   Cache-Control: public, max-age=0, must-revalidate
+
+/products/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/privacy/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/systems/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/zh/products/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/zh/privacy/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/zh/systems/*
+  Cache-Control: public, max-age=0, must-revalidate

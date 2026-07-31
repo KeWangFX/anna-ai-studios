@@ -12,4 +12,52 @@
     <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://anna-ai-studios.pages.dev/zh/" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://anna-ai-studios.pages.dev/" />
   </url>
+  <url>
+    <loc>https://anna-ai-studios.pages.dev/systems/production-ai/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://anna-ai-studios.pages.dev/systems/production-ai/" />
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://anna-ai-studios.pages.dev/zh/systems/production-ai/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://anna-ai-studios.pages.dev/systems/production-ai/" />
+  </url>
+  <url>
+    <loc>https://anna-ai-studios.pages.dev/zh/systems/production-ai/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://anna-ai-studios.pages.dev/systems/production-ai/" />
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://anna-ai-studios.pages.dev/zh/systems/production-ai/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://anna-ai-studios.pages.dev/systems/production-ai/" />
+  </url>
+  <url>
+    <loc>https://anna-ai-studios.pages.dev/systems/growth-automation/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://anna-ai-studios.pages.dev/systems/growth-automation/" />
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://anna-ai-studios.pages.dev/zh/systems/growth-automation/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://anna-ai-studios.pages.dev/systems/growth-automation/" />
+  </url>
+  <url>
+    <loc>https://anna-ai-studios.pages.dev/zh/systems/growth-automation/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://anna-ai-studios.pages.dev/systems/growth-automation/" />
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://anna-ai-studios.pages.dev/zh/systems/growth-automation/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://anna-ai-studios.pages.dev/systems/growth-automation/" />
+  </url>
+  <url>
+    <loc>https://anna-ai-studios.pages.dev/products/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://anna-ai-studios.pages.dev/products/" />
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://anna-ai-studios.pages.dev/zh/products/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://anna-ai-studios.pages.dev/products/" />
+  </url>
+  <url>
+    <loc>https://anna-ai-studios.pages.dev/zh/products/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://anna-ai-studios.pages.dev/products/" />
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://anna-ai-studios.pages.dev/zh/products/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://anna-ai-studios.pages.dev/products/" />
+  </url>
+  <url>
+    <loc>https://anna-ai-studios.pages.dev/privacy/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://anna-ai-studios.pages.dev/privacy/" />
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://anna-ai-studios.pages.dev/zh/privacy/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://anna-ai-studios.pages.dev/privacy/" />
+  </url>
+  <url>
+    <loc>https://anna-ai-studios.pages.dev/zh/privacy/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://anna-ai-studios.pages.dev/privacy/" />
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://anna-ai-studios.pages.dev/zh/privacy/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://anna-ai-studios.pages.dev/privacy/" />
+  </url>
 </urlset>

@@ -1,13 +1,17 @@
 # Anna AI Studios 官网
 
-面向创意与技术团队的双语前沿部署式 AI 工程官网。
+面向创意与技术团队的双语生产级 AI 系统官网。
 
 ## 路由与结构
 
 - `/`：英文主站
 - `/zh/`：简体中文站
+- `/systems/production-ai/` 与 `/zh/systems/production-ai/`：生产级 AI 系统
+- `/systems/growth-automation/` 与 `/zh/systems/growth-automation/`：增长自动化系统
+- `/products/` 与 `/zh/products/`：DateLens 与 FrameFetch 产品目录
+- `/privacy/` 与 `/zh/privacy/`：咨询数据隐私说明
 - `styles.css`：共享视觉系统与响应式布局
-- `script.js`：主片滚动映射、信号路径动画、导航与留言表单逻辑
+- `script.js`：桌面主片滚动映射、稳定深链、导航与留言表单逻辑
 - `shader-background.js`：Three.js 铜互连和光子叠加层
 - `assets/brand/`：公开品牌资产、响应式 Logo、社交分享卡、Sora 提示词和主视觉媒体
 - `assets/cases/`：已批准并完成网页压缩的 Anna Lab 案例图片
@@ -32,9 +36,9 @@
 
 国际格式不能写成 `+44 075...`；使用英国国家码后必须去掉本地号码前导 `0`。
 
-## 滚动信号路径
+## 首页性能
 
-交付方式与案例之间新增一段“唱片沟槽 × 晶圆蚀刻”的程序化视觉。滚动进度映射到 8 秒的捕捉、编排、控制、决策四阶段。Canvas 使用确定性几何、DPR 上限 1.5，并且只在滚动或尺寸变化时重绘；移动端、短视口和减少动态模式使用静态画面与普通纵向内容。
+桌面端保留一段有边界的电路滚动叙事。手机端使用单屏静态 Hero，不加载章节视频和 WebGL。完整服务与产品内容进入独立页面，首页只承担定位、交付证据和咨询转化。
 
 ## Anna Lab 案例
 
@@ -79,6 +83,7 @@ Header、移动端标记、页脚与社交分享分别使用品牌系统的独�
 ## 构建与部署
 
 ```powershell
+npm run validate
 npm run cf:build
 npm run cf:deploy
 ```

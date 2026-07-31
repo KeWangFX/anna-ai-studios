@@ -25,6 +25,26 @@ ROOT_FILES = (
 PUBLIC_FILES = (
     (ROOT / "zh" / "index.html", DIST / "zh" / "index.html"),
     (ROOT / "zh" / "thanks.html", DIST / "zh" / "thanks.html"),
+    (ROOT / "products" / "index.html", DIST / "products" / "index.html"),
+    (ROOT / "privacy" / "index.html", DIST / "privacy" / "index.html"),
+    (
+        ROOT / "systems" / "production-ai" / "index.html",
+        DIST / "systems" / "production-ai" / "index.html",
+    ),
+    (
+        ROOT / "systems" / "growth-automation" / "index.html",
+        DIST / "systems" / "growth-automation" / "index.html",
+    ),
+    (ROOT / "zh" / "products" / "index.html", DIST / "zh" / "products" / "index.html"),
+    (ROOT / "zh" / "privacy" / "index.html", DIST / "zh" / "privacy" / "index.html"),
+    (
+        ROOT / "zh" / "systems" / "production-ai" / "index.html",
+        DIST / "zh" / "systems" / "production-ai" / "index.html",
+    ),
+    (
+        ROOT / "zh" / "systems" / "growth-automation" / "index.html",
+        DIST / "zh" / "systems" / "growth-automation" / "index.html",
+    ),
     *(
         (
             ROOT / "assets" / "brand" / name,

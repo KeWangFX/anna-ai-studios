@@ -1,13 +1,17 @@
 # Anna AI Studios
 
-Bilingual forward-deployed AI engineering website for a London-based independent delivery studio.
+Bilingual production AI systems website for a London-based independent delivery studio.
 
 ## Site architecture
 
 - `/` — English site
 - `/zh/` — Simplified Chinese site
+- `/systems/production-ai/` and `/zh/systems/production-ai/` — production AI delivery
+- `/systems/growth-automation/` and `/zh/systems/growth-automation/` — front-line growth systems
+- `/products/` and `/zh/products/` — DateLens and FrameFetch product directory
+- `/privacy/` and `/zh/privacy/` — enquiry-data privacy notice
 - `styles.css` — shared visual system and responsive layout
-- `script.js` — hero scrubbing, the procedural signal journey, navigation and form behavior
+- `script.js` — desktop hero scrubbing, stable anchor navigation and form behavior
 - `shader-background.js` — Three.js copper-trace and photon overlay
 - `assets/brand/` — public brand artwork, responsive Anna AI Studios logo variants, social card and hero media
 - `assets/cases/` — approved, web-compressed Anna Lab case-study frames
@@ -36,9 +40,9 @@ Direct contact fallbacks are published alongside the form:
 
 Do not replace the WhatsApp link with the UK local form (`+44 075...`); the leading zero must be removed after the country code.
 
-## Scroll-mapped signal study
+## Homepage performance
 
-The delivery-to-lab interlude procedurally combines record-groove waveform geometry with wafer etching. Scroll progress maps to an eight-second Capture → Structure → Control → Decide sequence. It uses Canvas 2D with deterministic geometry, caps DPR at 1.5 and redraws only on scroll or resize. Mobile, short-viewport and reduced-motion layouts use one static frame and ordinary vertical content.
+The desktop hero keeps one bounded scroll-mapped circuit sequence. Mobile renders one static viewport with the narrative chapters, video and WebGL layer disabled. Full service and product detail is routed to dedicated pages so the homepage remains focused on positioning, delivery evidence and enquiry.
 
 ## Anna Lab cases
 
@@ -53,7 +57,7 @@ Only approved web derivatives belong in `assets/cases/`. Keep production source 
 - `DateLens` — a public product preview for privacy-conscious media evidence. The card links to the live preview and clearly states when real-time analysis is paused.
 - `FrameFetch` — a live tool for inspecting authorised public video links, choosing available output quality and using browser or desktop-companion delivery.
 
-Both product cards use exact external URLs, truthful status labels, clear legal boundaries and versioned promotional WebP assets. Update the status copy and asset version whenever a product's availability, pricing or capabilities change.
+Both product-directory pages use exact external URLs, truthful status labels, clear legal boundaries and versioned promotional WebP assets. Update the status copy and asset version whenever a product's availability, pricing or capabilities change.
 
 ## Client growth services
 
@@ -61,12 +65,12 @@ Both product cards use exact external URLs, truthful status labels, clear legal 
 - `Automated review management` — review requests, response drafting and approval-gated publication.
 - `Revenue-ready websites` — accessible, conversion-focused web delivery with an explicit measurement plan.
 
-These offers appear in both languages and use stable service codes in the contact form: `AI-RECEPTIONIST`, `REVIEW-AUTOMATION` and `REVENUE-WEBSITE`. Each service CTA preselects its code, while core FDE project types remain first in the form.
+These offers live on separate bilingual landing pages and use stable service codes in the contact form: `AI-RECEPTIONIST`, `REVIEW-AUTOMATION` and `REVENUE-WEBSITE`. Each service CTA preselects its code, while production AI project types remain first in the form.
 
 ## Local preview
 
 ```powershell
-cd D:\job\codex\keWang_website
+cd C:\Users\kewang\Documents\job
 npm run preview
 ```
 
@@ -107,6 +111,7 @@ Short GOPs are intentional: scroll scrubbing needs nearby keyframes more than ma
 ## Cloudflare build and deploy
 
 ```powershell
+npm run validate
 npm run cf:build
 npm run cf:deploy
 ```
