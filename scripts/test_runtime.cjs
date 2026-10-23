@@ -122,6 +122,19 @@ assert.equal(env.progress.getAttribute('aria-valuenow'), '50');
 assert.equal(env.panels[1].getAttribute('aria-hidden'), 'false');
 assert.equal(env.panels[1].hasAttribute('inert'), false);
 assert.equal(env.intro.hasAttribute('inert'), true);
+
+// The conversion copy must stay reachable even when the decorative circuit reaches its final phase.
+const focused = environment(); focused.journey.setAttribute('data-persistent-intro', ''); startJourney(focused);
+for (const top of [-500, -1000, -2000]) {
+  focused.top = top; focused.window.emit('scroll'); focused.flush();
+  assert.equal(focused.intro.getAttribute('aria-hidden'), 'false');
+  assert.equal(focused.intro.hasAttribute('inert'), false);
+  focused.panels.forEach(panel => {
+    assert.equal(panel.getAttribute('aria-hidden'), 'true');
+    assert.equal(panel.hasAttribute('inert'), true);
+  });
+}
+focused.query('(max-width: 780px)').set(true); assertStatic(focused);
 env.query('(max-width: 780px)').set(true); assertStatic(env);
 assert.equal(env.requests, 1);
 env.video.emit('loadedmetadata'); env.video.emit('loadeddata'); assertStatic(env);
@@ -169,7 +182,10 @@ assert.equal(noDecodedData.journey.classList.contains('is-video-ready'), true);
 const fallback = environment({ observer: false }); fallback.top = -5000; startJourney(fallback);
 assert.equal(fallback.requests, 0); fallback.top = 0; fallback.window.emit('scroll'); fallback.flush(); assert.equal(fallback.requests, 1);
 
-const optionalCode = extract('initOptionalShader', 'init').replace('import("./shader-background.js?v=20261023a")', 'recordImport()');
+// Ignore cache-version changes while still requiring the real optional-import branch to be exercised.
+const optionalSource = extract('initOptionalShader', 'init');
+const optionalCode = optionalSource.replace(/import\("\.\/shader-background\.js(?:\?[^"\n]*)?"\)/, 'recordImport()');
+assert.notEqual(optionalCode, optionalSource, 'The shader import must be intercepted by the lifecycle fixture');
 const noCanvas = environment(); let imports = 0;
 noCanvas.context.recordImport = () => { imports += 1; return Promise.resolve(); };
 noCanvas.run(`${optionalCode}\ninitOptionalShader();`); assert.equal(noCanvas.idle.length, 0); assert.equal(imports, 0);

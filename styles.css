@@ -403,6 +403,12 @@ h3 {
   min-height: 1500px;
 }
 
+/* Keep the circuit identity, but reach the service content without a long narrative scroll. */
+.journey.journey--focused {
+  height: 150vh;
+  min-height: 1040px;
+}
+
 .journey__stage {
   position: sticky;
   top: 0;
@@ -669,6 +675,90 @@ h3 {
 
 .journey__steps li.is-active {
   color: var(--text);
+}
+
+.journey--focused .journey__stage {
+  min-height: 800px;
+}
+
+.journey--focused .journey__hud {
+  display: flex;
+  align-items: center;
+  padding-block: calc(var(--header-height) + 32px) 100px;
+}
+
+.journey--focused .journey__intro,
+.journey--focused.has-progress .journey__intro {
+  position: relative;
+  top: auto;
+  bottom: auto;
+  width: min(820px, 72vw);
+  opacity: 1;
+  pointer-events: auto;
+  transform: none;
+}
+
+.journey--focused .journey__chapters {
+  display: none;
+}
+
+.journey--focused h1 {
+  margin-bottom: 22px;
+  font-size: clamp(52px, 5.8vw, 94px);
+}
+
+.journey--focused .eyebrow {
+  margin-bottom: 20px;
+}
+
+.journey--focused .journey__lead {
+  max-width: 660px;
+  margin-bottom: 20px;
+}
+
+.hero-paths {
+  display: grid;
+  max-width: 660px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 0;
+  margin: 0 0 24px;
+  gap: 12px;
+  list-style: none;
+}
+
+.hero-paths a {
+  display: flex;
+  min-height: 74px;
+  flex-direction: column;
+  padding: 12px 16px;
+  border: 1px solid var(--line-strong);
+  background: rgba(6, 8, 7, 0.65);
+  gap: 5px;
+}
+
+.hero-paths a:hover {
+  border-color: var(--copper-bright);
+}
+
+.hero-paths strong {
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 550;
+}
+
+.hero-paths strong span {
+  color: var(--copper-bright);
+}
+
+.hero-paths a > span {
+  color: var(--text-soft);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.journey--focused .hero-trustline {
+  margin-top: 18px;
+  font-size: 11px;
 }
 
 .section {
@@ -3230,6 +3320,155 @@ a.contact-channel:hover strong {
   margin-top: 28px;
 }
 
+figure.product-directory__visual {
+  min-height: 0;
+  align-self: start;
+  margin: 0;
+}
+
+figure.product-directory__visual > a {
+  display: block;
+}
+
+figure.product-directory__visual img {
+  height: auto;
+  object-fit: contain;
+}
+
+.product-directory__visual figcaption {
+  padding: 18px 22px;
+  border-top: 1px solid var(--line);
+  color: var(--text-soft);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.product-directory__copy > .product-availability {
+  padding: 18px;
+  margin: 24px 0 0;
+  border-left: 2px solid var(--copper-bright);
+  background: rgba(240, 167, 95, 0.055);
+  color: var(--text-soft);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.product-availability strong {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text);
+  font-weight: 550;
+}
+
+.product-preview {
+  min-width: 0;
+  margin-top: 20px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  scroll-margin-top: calc(var(--header-height) + 24px);
+}
+
+.product-preview > summary {
+  min-height: 48px;
+  padding-block: 14px;
+  color: var(--copper-bright);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.product-preview > summary::marker {
+  color: var(--copper-bright);
+}
+
+.product-preview p,
+.product-preview figcaption {
+  color: var(--text-soft);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.product-preview figure {
+  margin: 18px 0;
+}
+
+.product-preview img {
+  width: 100%;
+  height: auto;
+}
+
+.product-preview figcaption {
+  margin-top: 12px;
+}
+
+.product-preview figcaption a {
+  color: var(--copper-bright);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.service-scope {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 0;
+  margin: 0;
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.service-scope__item {
+  min-width: 0;
+  padding: clamp(24px, 3vw, 42px);
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.service-scope dt {
+  margin-bottom: 14px;
+  color: var(--copper-bright);
+  font-size: 17px;
+  font-weight: 550;
+}
+
+.service-scope dd {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.service-comparison {
+  padding: 0;
+  margin: 0;
+}
+
+.service-comparison__item {
+  padding-block: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.service-comparison dt {
+  color: var(--copper-bright);
+  font-size: 13px;
+  font-weight: 550;
+}
+
+.service-comparison dd {
+  margin: 5px 0 0;
+  color: var(--text-soft);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.subpage-scope-link {
+  display: inline-flex;
+  margin-top: 18px;
+}
+
+#pilot-scope-heading {
+  scroll-margin-top: calc(var(--header-height) + 30px);
+}
+
 .privacy-shell {
   display: grid;
   grid-template-columns: minmax(220px, 0.32fr) minmax(0, 0.68fr);
@@ -3625,6 +3864,52 @@ a.contact-channel:hover strong {
   .journey__lead {
     margin-bottom: 22px;
     font-size: 16px;
+  }
+
+  .journey.journey--focused {
+    height: auto;
+    min-height: 0;
+  }
+
+  .journey--focused .journey__stage,
+  .journey--focused .journey__hud {
+    height: auto;
+    min-height: 100svh;
+  }
+
+  .journey--focused .journey__hud {
+    padding-top: calc(var(--header-height) + 44px);
+    padding-bottom: 48px;
+  }
+
+  .journey--focused .journey__intro,
+  .journey--focused.has-progress .journey__intro {
+    top: auto;
+    bottom: auto;
+    width: 100%;
+    transform: none;
+  }
+
+  .journey--focused h1,
+  [lang="zh-Hans"] .journey--focused h1 {
+    font-size: clamp(42px, 11vw, 60px);
+  }
+
+  .hero-paths a {
+    min-height: 72px;
+    padding: 11px;
+  }
+
+  .hero-paths strong {
+    font-size: 13px;
+  }
+
+  .hero-paths a > span {
+    font-size: 12px;
+  }
+
+  .service-scope {
+    grid-template-columns: 1fr;
   }
 
   .journey__intro .button-row .text-link {

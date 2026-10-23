@@ -48,6 +48,8 @@ The desktop hero keeps one bounded scroll-mapped circuit sequence. Mobile render
 
 Breakpoint, reduced-motion and data-saver changes reconfigure the existing hero without reloading the document or resetting enquiry fields. Hidden/static scenes stop their animation work. Pages without a circuit canvas do not import Three.js. Content stays readable if JavaScript or its reveal observer fails.
 
+The focused homepage keeps its offer, service-path links and assessment CTA visible during desktop circuit scrubbing. Its desktop scroll section is 150vh instead of the earlier 240vh; mobile remains a naturally sized static hero. The four delivery stages remain available in the dedicated delivery section.
+
 ## Anna Lab cases
 
 - `The Nameless God` — Codex + Seedance 2.5 feature-film production control.
@@ -64,6 +66,12 @@ Each homepage case keeps a readable mobile summary and a native `details` disclo
 - `FrameFetch` — a live tool for inspecting authorised public video links, choosing available output quality and using browser or desktop-companion delivery.
 
 Both product-directory pages use exact external URLs, truthful status labels, clear legal boundaries and versioned promotional WebP assets. Update the status copy and asset version whenever a product's availability, pricing or capabilities change.
+
+FrameFetch's external Render instance may need to wake after inactivity. Its product card explains that wait before the user leaves, offers a same-site static interface preview, and labels screenshot prices and allowances as subject to the tool's current terms. Do not add background requests, polling, iframes or keepalive jobs to wake it.
+
+## Pilot scope
+
+Both bilingual service paths expose client preparation, proposed deliverables, acceptance checks, operational ownership and separately itemised third-party costs. The growth cards compare inputs, delivery, acceptance and human responsibility. Specific timelines, pricing, supported providers and support arrangements are agreed in writing after assessment; the site does not invent fixed packages or service-level commitments.
 
 ## Client growth services
 

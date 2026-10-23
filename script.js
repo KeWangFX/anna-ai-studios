@@ -768,6 +768,7 @@ function initJourney() {
   const timeElement = document.querySelector("[data-journey-time]");
   if (!journey || !video || !progressElement) return;
 
+  const persistentIntro = journey.hasAttribute("data-persistent-intro");
   const staticHeroQuery = window.matchMedia("(max-width: 780px)");
   const videoSources = [...video.querySelectorAll("source[data-src]")];
   const connection = navigator.connection;
@@ -796,7 +797,8 @@ function initJourney() {
     if (nextIndex === activePanel) return;
     activePanel = nextIndex;
     panels.forEach((panel, index) => {
-      const active = index === nextIndex;
+      // The focused homepage retains its offer and CTA while the background follows the journey.
+      const active = !persistentIntro && index === nextIndex;
       panel.classList.toggle("is-active", active);
       panel.setAttribute("aria-hidden", String(!active));
       panel.toggleAttribute("inert", !active);
@@ -860,7 +862,7 @@ function initJourney() {
     journey.style.setProperty("--journey-progress", currentProgress.toFixed(4));
     journey.classList.toggle("has-progress", currentProgress > 0.025);
     if (intro) {
-      const introHidden = currentProgress > 0.025;
+      const introHidden = !persistentIntro && currentProgress > 0.025;
       intro.setAttribute("aria-hidden", String(introHidden));
       intro.toggleAttribute("inert", introHidden);
     }
@@ -1234,7 +1236,7 @@ function initOptionalShader() {
         requested = false;
         return;
       }
-      import("./shader-background.js?v=20261023a").catch(() => {
+      import("./shader-background.js?v=20261023b").catch(() => {
         document.querySelector("[data-journey]")?.classList.add("is-webgl-unavailable");
       });
     };
