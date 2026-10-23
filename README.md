@@ -76,7 +76,7 @@ Both bilingual service paths expose client preparation, proposed deliverables, a
 ## Client growth services
 
 - `AI receptionist` — inbound call handling, intent capture, appointment booking and explicit human handoff.
-- `Automated review management` — review requests, response drafting and approval-gated publication.
+- `Review workflow automation` — review requests, response drafting and approval-gated publication.
 - `Revenue-ready websites` — accessible, conversion-focused web delivery with an explicit measurement plan.
 
 These offers live on separate bilingual landing pages and use stable service codes in the contact form: `AI-RECEPTIONIST`, `REVIEW-AUTOMATION` and `REVENUE-WEBSITE`. Each service CTA preselects its code, while production AI project types remain first in the form.
@@ -138,6 +138,8 @@ The standalone source repository is `KeWangFX/anna-ai-studios`. Pushes to `main`
 
 ## Release checks
 
+- Keep contact labels, response steps, hints, errors and privacy guidance at least 13 px; consent text uses 14 px and form controls use 16 px in both languages.
+- Keep the displayed `REVIEW-AUTOMATION` name aligned with the growth service page; service codes remain stable for enquiry routing.
 - Verify English and Chinese routes, metadata and `hreflang` links.
 - Test 375, 768, 1024 and 1440 px layouts.
 - Test with reduced motion, data-saver mode and WebGL disabled; reduced motion must not request video or Three.js.

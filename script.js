@@ -1236,7 +1236,7 @@ function initOptionalShader() {
         requested = false;
         return;
       }
-      import("./shader-background.js?v=20261023b").catch(() => {
+      import("./shader-background.js?v=20261023c").catch(() => {
         document.querySelector("[data-journey]")?.classList.add("is-webgl-unavailable");
       });
     };

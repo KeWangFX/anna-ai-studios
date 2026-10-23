@@ -2655,7 +2655,7 @@ h3 {
   border-bottom: 1px solid var(--line);
   color: var(--text-muted);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 13px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
@@ -2786,14 +2786,14 @@ a.contact-channel:hover strong {
   margin-bottom: 9px;
   color: var(--text-soft);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 13px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
 [lang="zh-Hans"] .form-field label {
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: 13px;
   letter-spacing: 0.04em;
 }
 
@@ -2857,8 +2857,8 @@ a.contact-channel:hover strong {
 .form-field__error {
   display: block;
   margin-top: 7px;
-  font-size: 11px;
-  line-height: 1.45;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .form-field__hint {
@@ -2866,7 +2866,8 @@ a.contact-channel:hover strong {
 }
 
 .form-field__error {
-  min-height: 16px;
+  /* Reserve one full message line at the readable font size to limit validation shifts. */
+  min-height: 1.5em;
   color: #ffb7a8;
 }
 
@@ -2897,7 +2898,10 @@ a.contact-channel:hover strong {
 
 .form-consent input {
   width: 20px;
+  height: 20px;
   min-height: 20px;
+  /* Long translated consent copy must not stretch the native checkbox or its focus ring. */
+  align-self: start;
   margin: 2px 0 0;
   padding: 0;
   accent-color: var(--copper-bright);
@@ -2907,7 +2911,7 @@ a.contact-channel:hover strong {
   margin: 0;
   color: var(--text-soft);
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: 14px;
   letter-spacing: 0;
   line-height: 1.55;
   text-transform: none;
@@ -2927,7 +2931,7 @@ a.contact-channel:hover strong {
 }
 
 [lang="zh-Hans"] .form-consent label {
-  font-size: 13px;
+  font-size: 14px;
   letter-spacing: 0;
 }
 
@@ -2947,12 +2951,13 @@ a.contact-channel:hover strong {
   margin: 0;
   border: 0;
   cursor: pointer;
+  font-size: 13px;
 }
 
 .contact-form__footer > p {
   margin: 0;
   color: var(--text-muted);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.5;
 }
 
@@ -2961,7 +2966,7 @@ a.contact-channel:hover strong {
   border-top: 1px solid var(--line);
   padding-top: 18px;
   color: var(--text-muted);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.55;
 }
 
