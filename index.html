@@ -37,8 +37,8 @@
     <link rel="icon" href="favicon-v1.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="assets/brand/anna-ai-studios-apple-touch-icon-180x180-v1.png" />
     <link rel="preload" href="assets/brand/circuit-poster.webp" as="image" type="image/webp" />
-    <link rel="stylesheet" href="styles.css?v=20260731b" />
-    <script defer src="script.js?v=20260731b"></script>
+    <link rel="stylesheet" href="styles.css?v=20261023a" />
+    <script defer src="script.js?v=20261023a"></script>
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -93,19 +93,19 @@
         <a href="#studio">Studio</a>
         <a href="#contact">Contact</a>
         <a class="mobile-language-link" href="zh/" lang="zh-Hans" hreflang="zh-Hans">中文</a>
-        <a class="mobile-project-link" href="#contact">Book a systems review</a>
+        <a class="mobile-project-link" href="#contact">Request a systems review</a>
       </nav>
 
       <div class="header-actions">
         <a class="language-link" href="zh/" lang="zh-Hans" hreflang="zh-Hans">中文</a>
         <a class="button button--small button--copper" href="#contact">
-          Book a systems review
+          Request a systems review
         </a>
       </div>
     </header>
 
     <main id="main-content">
-      <section class="journey" id="top" data-journey aria-label="The Circuit — from opportunity to operating system">
+      <section class="journey is-static" id="top" data-journey aria-label="The Circuit — from opportunity to operating system">
         <div class="journey__stage">
           <div class="journey__media" aria-hidden="true">
             <img
@@ -141,7 +141,7 @@
                 Anna AI Studios designs, integrates and operates controllable AI systems for creative and technical teams—from multimodal workflows to human-gated agents.
               </p>
               <div class="button-row">
-                <a class="button button--copper" href="#contact">Book a 30-min systems review</a>
+                <a class="button button--copper" href="#contact">Request a 30-min systems review</a>
                 <a class="text-link" href="#lab">See production cases <span aria-hidden="true">↓</span></a>
               </div>
               <p class="hero-trustline">Senior-led delivery · London / worldwide · Reply within 2 working days</p>
@@ -528,7 +528,6 @@
           <article class="case-study reveal">
             <div class="case-study__media case-study__media--film">
               <img class="case-study__image case-study__image--primary" src="assets/cases/nameless-god-character.webp" width="1200" height="660" loading="lazy" decoding="async" alt="Character state and continuity development for The Nameless God" />
-              <img class="case-study__image case-study__image--secondary case-study__image--contain" src="assets/cases/nameless-god-storyboard.webp" width="1400" height="2124" loading="lazy" decoding="async" alt="Part one contact sheet from the 185-frame Nameless God storyboard package" />
               <span class="case-study__media-index" aria-hidden="true">01 / FILM SYSTEM</span>
             </div>
             <div class="case-study__copy">
@@ -537,11 +536,21 @@
                 <h3>The Nameless God</h3>
                 <p class="case-study__deck">Codex + Seedance 2.5 · feature-film development</p>
               </div>
-              <p>An original 110-minute Eastern mythic fantasy feature built through a production-control system rather than a loose prompt chain. Codex coordinates script lock, breakdown, continuity, art direction, a 465-shot plan, 185-frame storyboard package and independent review gates. Seedance 2.5 motion prompts inherit the same approved asset graph.</p>
+              <p class="case-study__summary">A 110-minute mythic fantasy feature in development, connecting a 465-shot plan and 185-frame storyboard package through approved assets and human review.</p>
               <dl class="case-study__facts">
                 <div><dt>Verified evidence</dt><dd>465-shot plan · 185-frame storyboard package</dd></div>
                 <div><dt>Measured result</dt><dd>Feature remains in development; no client ROI is claimed</dd></div>
               </dl>
+              <details class="case-study__details">
+                <summary>View case &amp; production evidence</summary>
+                <div class="case-study__detail-body">
+                  <p>An original 110-minute Eastern mythic fantasy feature built through a production-control system rather than a loose prompt chain. Codex coordinates script lock, breakdown, continuity, art direction, a 465-shot plan, 185-frame storyboard package and independent review gates. Seedance 2.5 motion prompts inherit the same approved asset graph.</p>
+                  <figure class="case-study__evidence">
+                    <a href="assets/cases/nameless-god-storyboard.webp" target="_blank" rel="noopener noreferrer"><img src="assets/cases/nameless-god-storyboard.webp" width="1400" height="2124" loading="lazy" decoding="async" alt="Part one contact sheet showing frames from The Nameless God's 185-frame storyboard package" /></a>
+                    <figcaption>Storyboard development · part one contact sheet. <a href="assets/cases/nameless-god-storyboard.webp" target="_blank" rel="noopener noreferrer">Open full-size evidence <span aria-hidden="true">↗</span></a></figcaption>
+                  </figure>
+                </div>
+              </details>
               <ul class="tag-list"><li>Screenplay control</li><li>Visual continuity</li><li>Seedance 2.5</li><li>Human gates</li></ul>
             </div>
           </article>
@@ -549,7 +558,6 @@
           <article class="case-study case-study--reverse reveal">
             <div class="case-study__media case-study__media--fireworks">
               <img class="case-study__image case-study__image--primary" src="assets/cases/fireworks-keyframe.webp" width="1400" height="756" loading="lazy" decoding="async" alt="Cinematic keyframe of two brothers sheltering inside a damaged car for Fireworks" />
-              <img class="case-study__image case-study__image--secondary" src="assets/cases/fireworks-lookdev.webp" width="1400" height="758" loading="lazy" decoding="async" alt="Four-way visual style development sheet for Fireworks" />
               <span class="case-study__media-index" aria-hidden="true">02 / FILM SYSTEM</span>
             </div>
             <div class="case-study__copy">
@@ -558,11 +566,21 @@
                 <h3>Fireworks</h3>
                 <p class="case-study__deck">Codex + Seedance 2.5 · animated-short development</p>
               </div>
-              <p>A human-centred animated short workflow that turns a locked screenplay into visual masters, deterministic state variants, storyboards and Seedance shot packs. When recursive image generation introduced texture drift, the pipeline added SHA-tracked lineage, approved-asset-only binding, quarantine and retry rules, plus independent director QC.</p>
+              <p class="case-study__summary">An animated short workflow in production, using asset lineage, approved references and director review to control visual drift.</p>
               <dl class="case-study__facts">
                 <div><dt>Verified evidence</dt><dd>SHA lineage · approved-asset binding · quarantine and retry rules</dd></div>
                 <div><dt>Measured result</dt><dd>Visual masters remain in production; no public client KPI is claimed</dd></div>
               </dl>
+              <details class="case-study__details">
+                <summary>View case &amp; production evidence</summary>
+                <div class="case-study__detail-body">
+                  <p>A human-centred animated short workflow that turns a locked screenplay into visual masters, deterministic state variants, storyboards and Seedance shot packs. When recursive image generation introduced texture drift, the pipeline added SHA-tracked lineage, approved-asset-only binding, quarantine and retry rules, plus independent director QC.</p>
+                  <figure class="case-study__evidence">
+                    <a href="assets/cases/fireworks-lookdev.webp" target="_blank" rel="noopener noreferrer"><img src="assets/cases/fireworks-lookdev.webp" width="1400" height="758" loading="lazy" decoding="async" alt="Four visual style studies used in the look development of Fireworks" /></a>
+                    <figcaption>Visual development · four style studies. <a href="assets/cases/fireworks-lookdev.webp" target="_blank" rel="noopener noreferrer">Open full-size evidence <span aria-hidden="true">↗</span></a></figcaption>
+                  </figure>
+                </div>
+              </details>
               <ul class="tag-list"><li>Anti-degradation QC</li><li>Asset provenance</li><li>Seedance shot packs</li><li>Director review</li></ul>
             </div>
           </article>
@@ -570,7 +588,6 @@
           <article class="case-study reveal">
             <div class="case-study__media case-study__media--tangxi">
               <img class="case-study__image case-study__image--primary" src="assets/cases/tangxi-brand-system.webp" width="1400" height="1050" loading="lazy" decoding="async" alt="Tangxi Wonton Club bilingual logo system and brand colours" />
-              <img class="case-study__image case-study__image--secondary case-study__image--portrait" src="assets/cases/tangxi-campaign.webp" width="900" height="1126" loading="lazy" decoding="async" alt="Tangxi Wonton Club Fuzhou rouyan campaign poster" />
               <span class="case-study__media-index" aria-hidden="true">03 / BRAND SYSTEM</span>
             </div>
             <div class="case-study__copy">
@@ -579,11 +596,21 @@
                 <h3>Tangxi Wonton Club</h3>
                 <p class="case-study__deck">AI-assisted identity + campaign production</p>
               </div>
-              <p>A delivery workflow built from real product references into a bilingual identity system, logo variants, menu hierarchy, campaign artwork and motion-ready assets. Editable brand tokens stay separate from generated visual layers, while packaging details and product claims remain behind a manual production gate.</p>
+              <p class="case-study__summary">A bilingual identity and campaign asset workflow built from real product references, with supplier approval retained for print and product claims.</p>
               <dl class="case-study__facts">
                 <div><dt>Delivered</dt><dd>Bilingual identity · logo kit · menu · campaign assets</dd></div>
                 <div><dt>Production boundary</dt><dd>Print execution and product claims still require supplier approval</dd></div>
               </dl>
+              <details class="case-study__details">
+                <summary>View case &amp; production evidence</summary>
+                <div class="case-study__detail-body">
+                  <p>A delivery workflow built from real product references into a bilingual identity system, logo variants, menu hierarchy, campaign artwork and motion-ready assets. Editable brand tokens stay separate from generated visual layers, while packaging details and product claims remain behind a manual production gate.</p>
+                  <figure class="case-study__evidence">
+                    <a href="assets/cases/tangxi-campaign.webp" target="_blank" rel="noopener noreferrer"><img src="assets/cases/tangxi-campaign.webp" width="900" height="1126" loading="lazy" decoding="async" alt="Tangxi Wonton Club campaign poster for Fuzhou rouyan" /></a>
+                    <figcaption>Campaign artwork · Fuzhou rouyan. <a href="assets/cases/tangxi-campaign.webp" target="_blank" rel="noopener noreferrer">Open full-size evidence <span aria-hidden="true">↗</span></a></figcaption>
+                  </figure>
+                </div>
+              </details>
               <ul class="tag-list"><li>Bilingual identity</li><li>Packaging gate</li><li>Campaign assets</li><li>Motion system</li></ul>
             </div>
           </article>
@@ -614,12 +641,12 @@
         <div class="contact__frame reveal">
           <div class="contact__intro">
             <p class="section-index">06 — Systems review</p>
-            <h2 id="contact-title">Book a 30-minute<br />systems review.</h2>
-            <p>Share the operating reality, the constraint and the outcome you need. We will identify the smallest valuable system and tell you directly what is—and is not—worth building.</p>
+            <h2 id="contact-title">Request a 30-minute<br />systems review.</h2>
+            <p>Share the operating reality, the constraint and the outcome you need. We will review your brief and reply within two working days. Once we agree the next step, we will arrange a 30-minute call.</p>
             <div class="contact__promise" aria-label="Response process">
-              <span>01 / Structured intake</span>
-              <span>02 / Direct review</span>
-              <span>03 / Reply within 2 working days</span>
+              <span>01 / Submit your project brief</span>
+              <span>02 / Reply within 2 working days</span>
+              <span>03 / Confirm, then arrange a call</span>
             </div>
             <div class="contact-channels" aria-label="Direct contact options">
               <a class="contact-channel" href="mailto:keke19870699@gmail.com?subject=%5BANNA-LEAD%5D%5BEMAIL%5D%5BEN%5D%20Project%20enquiry">
@@ -652,12 +679,11 @@
             data-contact-form
             data-language="EN"
             data-success-url="https://anna-ai-studios.pages.dev/thanks.html"
-            novalidate
           >
             <input type="hidden" name="_subject" value="[ANNA-LEAD][NEW][EN]" data-subject-field />
             <input type="hidden" name="_next" value="https://anna-ai-studios.pages.dev/thanks.html" data-next-field />
             <input type="hidden" name="_template" value="table" />
-            <input type="hidden" name="_autoresponse" value="Thank you for contacting Anna AI Studios. Your project brief has been received. We will review it and respond within two working days. Please do not reply to this automated receipt." />
+            <input type="hidden" name="_autoresponse" value="Thank you for contacting Anna AI Studios. Your project brief has been received. We will review it and respond within two working days. A 30-minute call will be arranged once we agree the next step. Please do not reply to this automated receipt." />
             <input type="hidden" name="_replyto" value="" data-replyto-field />
             <input type="hidden" name="lead_id" value="" data-lead-id-field />
             <input type="hidden" name="submitted_at_utc" value="" data-submitted-at-field />

@@ -1,9 +1,9 @@
 import * as THREE from "./assets/vendor/three.module.min.js";
 
 const canvas = document.querySelector("[data-circuit-canvas]");
-const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-if (canvas instanceof HTMLCanvasElement && !reduceMotion) {
+if (canvas instanceof HTMLCanvasElement) {
   const section = canvas.closest("[data-journey]");
   let renderer;
 
@@ -84,9 +84,23 @@ if (canvas instanceof HTMLCanvasElement && !reduceMotion) {
 
     scene.add(new THREE.Mesh(geometry, material));
 
+    const desktopQuery = window.matchMedia("(min-width: 781px) and (min-height: 681px)");
+    const connection = navigator.connection;
     let frameId = 0;
-    let active = true;
+    let pageActive = true;
+    let disposed = false;
     let lastTime = performance.now();
+    let observer = null;
+
+    const measureVisibility = () => {
+      const rect = (section || canvas).getBoundingClientRect();
+      return rect.bottom > -100 && rect.top < window.innerHeight + 100;
+    };
+    let active = measureVisibility();
+
+    const shouldAnimate = () => pageActive && !disposed && active && !document.hidden &&
+      !motionQuery.matches && desktopQuery.matches && !connection?.saveData &&
+      !section?.classList.contains("is-static");
 
     const resize = () => {
       const rect = canvas.getBoundingClientRect();
@@ -97,10 +111,8 @@ if (canvas instanceof HTMLCanvasElement && !reduceMotion) {
     };
 
     const render = (now) => {
-      if (!active || document.hidden) {
-        frameId = 0;
-        return;
-      }
+      frameId = 0;
+      if (!shouldAnimate()) return;
       // Delta time is capped so returning from a background tab never produces a visual jump.
       uniforms.iTime.value += Math.min(32, now - lastTime) / 1000;
       lastTime = now;
@@ -109,40 +121,69 @@ if (canvas instanceof HTMLCanvasElement && !reduceMotion) {
     };
 
     const start = () => {
-      if (frameId || !active || document.hidden) return;
+      if (frameId || !shouldAnimate()) return;
+      resize();
       lastTime = performance.now();
       frameId = window.requestAnimationFrame(render);
+    };
+
+    const stop = () => {
+      if (frameId) window.cancelAnimationFrame(frameId);
+      frameId = 0;
+    };
+
+    const updateMotion = () => {
+      active = measureVisibility();
+      if (shouldAnimate()) start();
+      else stop();
     };
 
     window.addEventListener("anna:journey-progress", (event) => {
       uniforms.iProgress.value = Number(event.detail?.progress || 0);
     });
-    window.addEventListener("resize", resize);
-    document.addEventListener("visibilitychange", start);
+    window.addEventListener("anna:journey-mode", updateMotion);
+    window.addEventListener("resize", () => {
+      updateMotion();
+      if (shouldAnimate()) resize();
+    });
+    document.addEventListener("visibilitychange", updateMotion);
+    motionQuery.addEventListener?.("change", updateMotion);
+    desktopQuery.addEventListener?.("change", updateMotion);
+    connection?.addEventListener?.("change", updateMotion);
 
     if (section && "IntersectionObserver" in window) {
-      const observer = new IntersectionObserver(
+      observer = new IntersectionObserver(
         ([entry]) => {
           active = entry.isIntersecting;
-          if (active) start();
+          if (shouldAnimate()) start();
+          else stop();
         },
         { rootMargin: "100px" }
       );
       observer.observe(section);
+    } else {
+      window.addEventListener("scroll", updateMotion, { passive: true });
     }
 
-    resize();
     start();
 
-    window.addEventListener(
-      "pagehide",
-      () => {
-        if (frameId) window.cancelAnimationFrame(frameId);
+    window.addEventListener("pagehide", (event) => {
+      pageActive = false;
+      stop();
+      observer?.disconnect();
+      // Preserve the same GPU resources for BFCache; returning must not spawn a second renderer.
+      if (!event.persisted) {
+        disposed = true;
         geometry.dispose();
         material.dispose();
         renderer.dispose();
-      },
-      { once: true }
-    );
+      }
+    });
+    window.addEventListener("pageshow", () => {
+      if (disposed) return;
+      pageActive = true;
+      if (section) observer?.observe(section);
+      updateMotion();
+    });
   }
 }

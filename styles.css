@@ -490,6 +490,33 @@ h3 {
   pointer-events: none;
 }
 
+/* Keep the poster and primary action usable when motion is disabled at runtime. */
+.journey.is-static {
+  height: auto;
+  min-height: 0;
+}
+
+.journey.is-static .journey__stage {
+  position: relative;
+  min-height: 100svh;
+}
+
+.journey.is-static .journey__video,
+.journey.is-static .journey__canvas,
+.journey.is-static .journey__chapters,
+.journey.is-static .journey__progress-wrap {
+  display: none;
+}
+
+.journey.is-static .journey__poster,
+.journey.is-static .journey__intro {
+  opacity: 1;
+}
+
+.journey.is-static .journey__intro {
+  pointer-events: auto;
+}
+
 .journey__intro .eyebrow {
   display: flex;
   gap: 24px;
@@ -2310,7 +2337,9 @@ h3 {
 
 .home-page .case-summary-grid .case-study__copy,
 .home-page .case-summary-grid .case-study--reverse .case-study__copy {
-  min-height: 640px;
+  min-height: 0;
+  flex: 1;
+  justify-content: flex-start;
   padding: clamp(28px, 3vw, 42px);
   border-top: 1px solid var(--line);
   border-right: 0;
@@ -2323,10 +2352,73 @@ h3 {
 }
 
 .home-page .case-summary-grid .case-study__copy > p {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 5;
+  margin: 0;
+}
+
+.case-study__details {
+  min-width: 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.case-study__details > summary {
+  min-height: 48px;
+  padding-block: 13px;
+  color: var(--copper-bright);
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.case-study__details > summary:hover {
+  color: var(--text-primary);
+}
+
+.case-study__details > summary::marker {
+  color: var(--copper-bright);
+}
+
+.case-study__detail-body {
+  display: grid;
+  gap: 22px;
+  padding-block: 10px 22px;
+}
+
+.case-study__detail-body > p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+.case-study__evidence {
+  min-width: 0;
+  margin: 0;
+}
+
+.case-study__evidence > a,
+.case-study__evidence img {
+  display: block;
+  width: 100%;
+}
+
+.case-study__evidence img {
+  height: auto;
+  border: 1px solid var(--line);
+}
+
+.case-study__evidence figcaption {
+  margin-top: 12px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.case-study__evidence figcaption a {
+  color: var(--copper-bright);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .home-page .case-summary-grid .tag-list {
@@ -3228,9 +3320,15 @@ a.contact-channel:hover strong {
 }
 
 .reveal {
+  opacity: 1;
+  transform: none;
+  transition: opacity 700ms var(--ease), transform 700ms var(--ease);
+}
+
+/* Only hide elements after the observer has successfully registered them. */
+.reveal.is-reveal-pending {
   opacity: 0;
   transform: translateY(26px);
-  transition: opacity 700ms var(--ease), transform 700ms var(--ease);
 }
 
 .reveal.is-visible {
@@ -3647,7 +3745,6 @@ a.contact-channel:hover strong {
     padding: 24px;
   }
 
-  .home-page .case-summary-grid .case-study__copy > p,
   .home-page .case-summary-grid .tag-list {
     display: none;
   }
@@ -4086,7 +4183,8 @@ a.contact-channel:hover strong {
     opacity: 1;
   }
 
-  .reveal {
+  .reveal,
+  .reveal.is-reveal-pending {
     opacity: 1;
     transform: none;
   }

@@ -204,19 +204,32 @@ function initReveal() {
     return;
   }
 
-  // One observer avoids per-card scroll handlers and keeps the main thread free for video seeking.
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add("is-visible");
-        observer.unobserve(entry.target);
-      });
-    },
-    { rootMargin: "0px 0px -8%", threshold: 0.12 }
-  );
-
-  elements.forEach((element) => observer.observe(element));
+  let observer;
+  try {
+    // Hide only registered elements: a failed observer must leave the default content readable.
+    // One observer avoids per-card scroll handlers and leaves the main thread free for video seeking.
+    observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-visible");
+          entry.target.classList.remove("is-reveal-pending");
+          observer.unobserve(entry.target);
+        });
+      },
+      { rootMargin: "0px 0px -8%", threshold: 0.12 }
+    );
+    elements.forEach((element) => {
+      observer.observe(element);
+      element.classList.add("is-reveal-pending");
+    });
+  } catch {
+    observer?.disconnect();
+    elements.forEach((element) => {
+      element.classList.remove("is-reveal-pending");
+      element.classList.add("is-visible");
+    });
+  }
 }
 
 function initProductVault() {
@@ -756,25 +769,8 @@ function initJourney() {
   if (!journey || !video || !progressElement) return;
 
   const staticHeroQuery = window.matchMedia("(max-width: 780px)");
-  staticHeroQuery.addEventListener?.("change", () => window.location.reload());
-  if (staticHeroQuery.matches) {
-    journey.classList.add("is-static");
-    if (intro) {
-      intro.style.opacity = "1";
-      intro.setAttribute("aria-hidden", "false");
-      intro.removeAttribute("inert");
-    }
-    panels.forEach((panel) => {
-      panel.classList.remove("is-active");
-      panel.setAttribute("aria-hidden", "true");
-    });
-    progressElement.setAttribute("aria-valuenow", "0");
-    return;
-  }
-
   const videoSources = [...video.querySelectorAll("source[data-src]")];
-  const saveData = Boolean(navigator.connection?.saveData);
-  const allowMotionMedia = !reducedMotionQuery.matches && !saveData;
+  const connection = navigator.connection;
   const isChinese = document.documentElement.lang.toLowerCase().startsWith("zh");
   const labels = isChinese
     ? ["晶体管 / 发现", "铜互连 / 构建", "硅层 / 部署", "晶圆 / 扩展"]
@@ -785,11 +781,16 @@ function initJourney() {
   let targetTime = 0;
   let renderedTime = -1;
   let currentProgress = 0;
-  let activePanel = -1;
-  let scrollFrameRequested = false;
+  let activePanel = null;
+  let scrollFrame = 0;
   let mediaFrame = 0;
-  let sectionVisible = true;
+  let decodedFrame = null;
+  let mediaGeneration = 0;
+  let sectionVisible = false;
   let videoActivated = false;
+  let enabled = null;
+  let pageActive = true;
+  let visibilityObserver = null;
 
   const setActivePanel = (nextIndex) => {
     if (nextIndex === activePanel) return;
@@ -798,20 +799,47 @@ function initJourney() {
       const active = index === nextIndex;
       panel.classList.toggle("is-active", active);
       panel.setAttribute("aria-hidden", String(!active));
+      panel.toggleAttribute("inert", !active);
     });
     steps.forEach((step, index) => step.classList.toggle("is-active", index <= nextIndex));
     if (labelElement) labelElement.textContent = nextIndex >= 0 ? labels[nextIndex] : isChinese ? "进入系统" : "System entry";
   };
 
   const activateVideo = () => {
-    if (!allowMotionMedia || videoActivated) return;
+    if (!enabled || !pageActive || document.hidden || videoActivated) return;
     videoActivated = true;
+    mediaGeneration += 1;
+    journey.classList.remove("is-video-unavailable");
     videoSources.forEach((source) => {
       const sourceUrl = source.dataset.src;
-      if (sourceUrl) source.src = sourceUrl;
+      // Mobile uses the poster; do not arm its video source during a desktop session.
+      if (sourceUrl && (!source.media || window.matchMedia(source.media).matches)) source.src = sourceUrl;
     });
     video.preload = "auto";
     video.load();
+  };
+
+  const stopFrames = () => {
+    if (scrollFrame) window.cancelAnimationFrame(scrollFrame);
+    if (mediaFrame) window.cancelAnimationFrame(mediaFrame);
+    if (decodedFrame !== null) video.cancelVideoFrameCallback?.(decodedFrame);
+    scrollFrame = 0;
+    mediaFrame = 0;
+    decodedFrame = null;
+  };
+
+  const unloadVideo = () => {
+    mediaGeneration += 1;
+    video.pause();
+    journey.classList.remove("is-video-ready", "is-video-unavailable");
+    if (!videoActivated) return;
+    videoActivated = false;
+    video.preload = "none";
+    video.removeAttribute("src");
+    videoSources.forEach((source) => source.removeAttribute("src"));
+    // Clearing every URL before load() aborts the old fetch without starting a mobile/static request.
+    video.load();
+    renderedTime = -1;
   };
 
   const findPanel = (progress) => {
@@ -823,7 +851,7 @@ function initJourney() {
   };
 
   const updateScrollState = () => {
-    scrollFrameRequested = false;
+    if (!enabled || !pageActive) return;
     const rect = journey.getBoundingClientRect();
     const scrollSpan = Math.max(1, journey.offsetHeight - window.innerHeight);
     currentProgress = clamp(-rect.top / scrollSpan);
@@ -843,19 +871,25 @@ function initJourney() {
     window.dispatchEvent(
       new CustomEvent("anna:journey-progress", { detail: { progress: currentProgress } })
     );
+    if (!visibilityObserver) {
+      sectionVisible = measureVisibility();
+      synchronizeMedia();
+    }
   };
 
   const requestScrollUpdate = () => {
-    if (scrollFrameRequested) return;
-    scrollFrameRequested = true;
-    window.requestAnimationFrame(updateScrollState);
+    if (!enabled || !pageActive || scrollFrame) return;
+    scrollFrame = window.requestAnimationFrame(() => {
+      scrollFrame = 0;
+      updateScrollState();
+    });
   };
 
   const renderMedia = () => {
     mediaFrame = 0;
-    if (!allowMotionMedia || !sectionVisible) return;
+    if (!enabled || !pageActive || document.hidden || !sectionVisible || !videoActivated) return;
 
-    if (allowMotionMedia && sectionVisible && video.readyState >= 2) {
+    if (video.readyState >= 2) {
       // Seek only when the delta is visually meaningful; this prevents decode queues building up on fast scroll.
       if (!video.seeking && Math.abs(targetTime - renderedTime) > 0.035) {
         const safeTime = Math.min(Math.max(0, targetTime), Math.max(0, duration - 0.02));
@@ -871,80 +905,132 @@ function initJourney() {
   };
 
   const startMediaLoop = () => {
-    if (!allowMotionMedia || !sectionVisible || mediaFrame) return;
+    if (!enabled || !pageActive || document.hidden || !sectionVisible || !videoActivated || mediaFrame) return;
     mediaFrame = window.requestAnimationFrame(renderMedia);
   };
 
   video.addEventListener("loadedmetadata", () => {
+    if (!enabled || !videoActivated) return;
     duration = Number.isFinite(video.duration) && video.duration > 0 ? Math.min(8, video.duration) : 8;
     video.pause();
     updateScrollState();
   });
 
-  const showFirstDecodedFrame = () => {
-    journey.classList.add("is-video-ready");
-  };
-
   video.addEventListener("loadeddata", () => {
+    if (!enabled || !videoActivated) return;
+    const generation = mediaGeneration;
+    const showFirstDecodedFrame = () => {
+      decodedFrame = null;
+      if (enabled && videoActivated && generation === mediaGeneration) journey.classList.add("is-video-ready");
+    };
+    if (decodedFrame !== null) video.cancelVideoFrameCallback?.(decodedFrame);
     if ("requestVideoFrameCallback" in video) {
-      video.requestVideoFrameCallback(showFirstDecodedFrame);
+      decodedFrame = video.requestVideoFrameCallback(showFirstDecodedFrame);
     } else {
       showFirstDecodedFrame();
     }
   });
 
   video.addEventListener("error", () => {
+    if (!enabled || !videoActivated) return;
     journey.classList.remove("is-video-ready");
     journey.classList.add("is-video-unavailable");
   });
 
-  if (allowMotionMedia && "IntersectionObserver" in window) {
-    const observer = new IntersectionObserver(
+  const measureVisibility = () => {
+    const rect = journey.getBoundingClientRect();
+    return rect.bottom > -100 && rect.top < window.innerHeight + 100;
+  };
+
+  const synchronizeMedia = () => {
+    if (!enabled || !pageActive || document.hidden || !sectionVisible) {
+      if (mediaFrame) window.cancelAnimationFrame(mediaFrame);
+      mediaFrame = 0;
+      return;
+    }
+    activateVideo();
+    startMediaLoop();
+  };
+
+  if ("IntersectionObserver" in window) {
+    visibilityObserver = new IntersectionObserver(
       ([entry]) => {
+        if (!enabled || !pageActive || !entry) return;
         sectionVisible = entry.isIntersecting;
-        if (sectionVisible) {
-          activateVideo();
-          startMediaLoop();
-        }
+        synchronizeMedia();
       },
       { rootMargin: "100px" }
     );
-    observer.observe(journey);
-  } else if (allowMotionMedia) {
-    activateVideo();
   }
 
-  window.addEventListener("scroll", requestScrollUpdate, { passive: true });
-  window.addEventListener("resize", requestScrollUpdate);
-  document.addEventListener("visibilitychange", () => {
-    sectionVisible = !document.hidden && journey.getBoundingClientRect().bottom > 0 && journey.getBoundingClientRect().top < window.innerHeight;
-    startMediaLoop();
-  });
-
-  reducedMotionQuery.addEventListener?.("change", () => window.location.reload());
-  window.addEventListener(
-    "pagehide",
-    () => {
-      window.cancelAnimationFrame(mediaFrame);
-    },
-    { once: true }
-  );
-
-  if (reducedMotionQuery.matches) {
-    if (intro) {
-      intro.style.opacity = "1";
-      intro.setAttribute("aria-hidden", "false");
-      intro.removeAttribute("inert");
+  const configureEnhancement = () => {
+    const shouldEnable = !staticHeroQuery.matches && !reducedMotionQuery.matches && !connection?.saveData;
+    if (shouldEnable === enabled) {
+      if (enabled) {
+        sectionVisible = measureVisibility();
+        if (pageActive) visibilityObserver?.observe(journey);
+        requestScrollUpdate();
+        synchronizeMedia();
+      }
+      return;
     }
-    panels.forEach((panel) => {
-      panel.classList.remove("is-active");
-      panel.setAttribute("aria-hidden", "true");
-    });
-    return;
-  }
 
-  updateScrollState();
-  startMediaLoop();
+    // Reconfigure the existing controller instead of reloading, so responsive changes preserve form input and focus.
+    enabled = shouldEnable;
+    stopFrames();
+    visibilityObserver?.disconnect();
+    journey.classList.toggle("is-static", !enabled);
+    activePanel = null;
+
+    if (!enabled) {
+      unloadVideo();
+      currentProgress = 0;
+      targetTime = 0;
+      journey.style.setProperty("--journey-progress", "0");
+      journey.classList.remove("has-progress");
+      if (intro) {
+        intro.setAttribute("aria-hidden", "false");
+        intro.removeAttribute("inert");
+      }
+      setActivePanel(-1);
+      progressElement.setAttribute("aria-valuenow", "0");
+      if (timeElement) timeElement.textContent = "00.0 / 08.0";
+      window.dispatchEvent(new CustomEvent("anna:journey-progress", { detail: { progress: 0 } }));
+    } else {
+      sectionVisible = measureVisibility();
+      if (pageActive) visibilityObserver?.observe(journey);
+      updateScrollState();
+      synchronizeMedia();
+    }
+    window.dispatchEvent(new CustomEvent("anna:journey-mode", { detail: { enabled } }));
+  };
+
+  // Listeners and the visibility observer are created once; repeated breakpoint changes cannot accumulate work.
+  window.addEventListener("scroll", requestScrollUpdate, { passive: true });
+  window.addEventListener("resize", configureEnhancement);
+  document.addEventListener("visibilitychange", () => {
+    sectionVisible = measureVisibility();
+    synchronizeMedia();
+  });
+  staticHeroQuery.addEventListener?.("change", configureEnhancement);
+  reducedMotionQuery.addEventListener?.("change", configureEnhancement);
+  connection?.addEventListener?.("change", configureEnhancement);
+  window.addEventListener("pagehide", () => {
+    pageActive = false;
+    stopFrames();
+    visibilityObserver?.disconnect();
+    video.pause();
+  });
+  window.addEventListener("pageshow", (event) => {
+    pageActive = true;
+    configureEnhancement();
+    // BFCache can cancel the first decoded-frame notification after loadeddata. HAVE_CURRENT_DATA
+    // already guarantees a usable frame; a paused video may never emit another compositor callback.
+    if (event.persisted && enabled && videoActivated && video.readyState >= 2) {
+      journey.classList.add("is-video-ready");
+    }
+  });
+  configureEnhancement();
 }
 
 function createLeadId(date) {
@@ -1113,6 +1199,8 @@ function initContactForms() {
 
     // Back-forward cache can restore a disabled submit button after returning from verification.
     window.addEventListener("pageshow", resetSubmitState);
+    // Keep native required/email validation until the custom submit handler is fully registered.
+    form.noValidate = true;
   });
 }
 
@@ -1129,16 +1217,24 @@ function initLeadReference() {
 }
 
 function initOptionalShader() {
+  const canvas = document.querySelector("[data-circuit-canvas]");
+  // Service pages have no circuit scene; importing the module would still download Three.js.
+  if (!(canvas instanceof HTMLCanvasElement)) return;
   const desktopQuery = window.matchMedia("(min-width: 781px) and (min-height: 681px)");
-  const saveData = Boolean(navigator.connection?.saveData);
+  const connection = navigator.connection;
   let requested = false;
 
   const requestShader = () => {
-    if (requested || reducedMotionQuery.matches || saveData || !desktopQuery.matches) return;
+    if (requested || reducedMotionQuery.matches || connection?.saveData || !desktopQuery.matches) return;
     requested = true;
 
     const load = () => {
-      import("./shader-background.js?v=20260731b").catch(() => {
+      // Idle work may run after a responsive or accessibility change; recheck before requesting bytes.
+      if (reducedMotionQuery.matches || connection?.saveData || !desktopQuery.matches) {
+        requested = false;
+        return;
+      }
+      import("./shader-background.js?v=20261023a").catch(() => {
         document.querySelector("[data-journey]")?.classList.add("is-webgl-unavailable");
       });
     };
@@ -1152,6 +1248,8 @@ function initOptionalShader() {
 
   requestShader();
   desktopQuery.addEventListener?.("change", requestShader);
+  reducedMotionQuery.addEventListener?.("change", requestShader);
+  connection?.addEventListener?.("change", requestShader);
 }
 
 function init() {

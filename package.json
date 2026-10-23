@@ -6,7 +6,8 @@
     "cf:login": "npx wrangler login",
     "cf:whoami": "npx wrangler whoami",
     "cf:build": "python scripts/build_cloudflare_dist.py",
-    "validate": "python scripts/build_cloudflare_dist.py && python scripts/validate_site.py cloudflare-release",
+    "validate": "node scripts/test_runtime.cjs && python scripts/build_cloudflare_dist.py && python scripts/validate_site.py cloudflare-release",
+    "test:runtime": "node scripts/test_runtime.cjs",
     "cf:deploy": "python scripts/build_cloudflare_dist.py && npx wrangler pages deploy ./cloudflare-release --project-name anna-ai-studios"
   },
   "dependencies": {

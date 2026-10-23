@@ -30,6 +30,8 @@ English and Chinese forms share one searchable subject convention:
 
 Every delivery also contains a sortable Lead ID (`ANNA-YYYYMMDDhhmmss-XXXX`), UTC submission time, language and source page. Required fields are name, work email, service code, project brief and consent; company/team is optional. Native form validation, a hidden honeypot and FormSubmit's default verification reduce junk without adding client-side tracking.
 
+Review CTAs request an assessment rather than confirm an appointment. The studio replies within two working days and arranges a 30-minute call after both sides agree the next step. Native validation stays enabled until the custom form handler has initialized successfully.
+
 The production endpoint is activated and uses FormSubmit's random endpoint token instead of exposing the recipient address in the form action. Keep reCAPTCHA enabled, do not add `_captcha=false`, and never place confidential production material in the public enquiry form. Search Gmail with `subject:"[ANNA-LEAD]"` to isolate all website enquiries.
 
 Direct contact fallbacks are published alongside the form:
@@ -44,6 +46,8 @@ Do not replace the WhatsApp link with the UK local form (`+44 075...`); the lead
 
 The desktop hero keeps one bounded scroll-mapped circuit sequence. Mobile renders one static viewport with the narrative chapters, video and WebGL layer disabled. Full service and product detail is routed to dedicated pages so the homepage remains focused on positioning, delivery evidence and enquiry.
 
+Breakpoint, reduced-motion and data-saver changes reconfigure the existing hero without reloading the document or resetting enquiry fields. Hidden/static scenes stop their animation work. Pages without a circuit canvas do not import Three.js. Content stays readable if JavaScript or its reveal observer fails.
+
 ## Anna Lab cases
 
 - `The Nameless God` — Codex + Seedance 2.5 feature-film production control.
@@ -51,6 +55,8 @@ The desktop hero keeps one bounded scroll-mapped circuit sequence. Mobile render
 - `Tangxi Wonton Club` — AI-assisted bilingual identity and campaign delivery.
 
 Only approved web derivatives belong in `assets/cases/`. Keep production source directories private, strip unnecessary metadata, and leave packaging or product claims behind manual approval.
+
+Each homepage case keeps a readable mobile summary and a native `details` disclosure containing the full description and an existing public evidence image. The disclosure remains usable without JavaScript.
 
 ## Products
 
