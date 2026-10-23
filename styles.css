@@ -3003,6 +3003,8 @@ a.contact-channel:hover strong {
 
 .thank-you-shell {
   width: min(760px, 100%);
+  /* Let the grid panel shrink below an email address's intrinsic width. */
+  min-width: 0;
   border: 1px solid var(--line-strong);
   padding: clamp(36px, 7vw, 80px);
   background:
@@ -3033,6 +3035,8 @@ a.contact-channel:hover strong {
 
 .thank-you-shell > p {
   max-width: 580px;
+  /* Keep fallback addresses and lead references inside narrow phone layouts. */
+  overflow-wrap: anywhere;
   color: var(--text-soft);
   font-size: 17px;
   line-height: 1.7;
