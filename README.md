@@ -142,6 +142,8 @@ The standalone source repository is `KeWangFX/anna-ai-studios`. Pushes to `main`
 - Keep the displayed `REVIEW-AUTOMATION` name aligned with the growth service page; service codes remain stable for enquiry routing.
 - Verify English and Chinese routes, metadata and `hreflang` links.
 - Test 375, 768, 1024 and 1440 px layouts.
+- Include a 320 px window with classic scrollbars; compare content width against `document.documentElement.clientWidth`, which excludes scrollbar space.
+- Return from enquiry verification and confirm the button is usable, pending status is cleared, and actual field errors are preserved.
 - Test with reduced motion, data-saver mode and WebGL disabled; reduced motion must not request video or Three.js.
 - Verify the WeChat QR is always visible, loads at desktop and mobile widths, and check the WhatsApp URL uses `447516141043`.
 - Confirm the release directory contains no legacy portfolio data or media.

@@ -1142,10 +1142,16 @@ function initContactForms() {
     });
 
     const resetSubmitState = () => {
+      const wasSubmitting = form.classList.contains("is-submitting") || form.getAttribute("aria-busy") === "true";
       form.classList.remove("is-submitting");
       form.removeAttribute("aria-busy");
       if (submitButton) submitButton.disabled = false;
       if (submitLabel) submitLabel.textContent = defaultSubmitLabel;
+      // Verification can restore this page from BFCache; its old pending message no longer describes the form.
+      if (wasSubmitting && status?.textContent === messages.pending) {
+        status.textContent = "";
+        status.classList.remove("is-error");
+      }
     };
 
     form.addEventListener("submit", (event) => {
@@ -1236,7 +1242,7 @@ function initOptionalShader() {
         requested = false;
         return;
       }
-      import("./shader-background.js?v=20261023c").catch(() => {
+      import("./shader-background.js?v=20261023d").catch(() => {
         document.querySelector("[data-journey]")?.classList.add("is-webgl-unavailable");
       });
     };

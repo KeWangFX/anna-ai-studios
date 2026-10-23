@@ -222,6 +222,31 @@ for (const fail of [false, true]) {
   assert.equal(form.noValidate, !fail);
 }
 
+// Returning from provider verification must restore an actionable form without erasing a real validation error.
+for (const [language, pending] of [['EN', 'Opening secure verification…'], ['ZH', '正在打开安全验证…']]) {
+  const formEnv = environment(), form = new Node(), status = new Node(), button = new Node(), label = new Node();
+  form.dataset.language = language; label.textContent = 'Original submit label';
+  const elements = new Map([['[data-form-status]', status], ['[data-submit-button]', button], ['[data-submit-label]', label]]);
+  form.querySelector = selector => elements.get(selector) || null; form.querySelectorAll = () => [];
+  formEnv.document.querySelectorAll = () => [form];
+  formEnv.run(`${formCode}\ninitContactForms();`);
+  for (const pendingFlag of ['class', 'aria']) {
+    if (pendingFlag === 'class') form.classList.add('is-submitting');
+    else form.setAttribute('aria-busy', 'true');
+    button.disabled = true; label.textContent = pending; status.textContent = pending;
+    formEnv.window.emit('pageshow', { persisted: true });
+    assert.equal(button.disabled, false); assert.equal(label.textContent, 'Original submit label');
+    assert.equal(form.classList.contains('is-submitting'), false); assert.equal(form.getAttribute('aria-busy'), null);
+    assert.equal(status.textContent, '');
+  }
+  status.textContent = 'Existing field validation error'; status.classList.add('is-error');
+  formEnv.window.emit('pageshow', { persisted: true });
+  assert.equal(status.textContent, 'Existing field validation error'); assert.equal(status.classList.contains('is-error'), true);
+  form.setAttribute('aria-busy', 'true');
+  formEnv.window.emit('pageshow', { persisted: true });
+  assert.equal(status.textContent, 'Existing field validation error'); assert.equal(status.classList.contains('is-error'), true);
+}
+
 const shaderEnv = environment();
 const canvas = new Canvas(); canvas.closest = () => shaderEnv.journey;
 canvas.getBoundingClientRect = () => ({ width: 1920, height: 1080 });
