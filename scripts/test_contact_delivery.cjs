@@ -25,7 +25,7 @@ function fixture({language = 'ZH', placeholder = false, host = 'anna-ai-studios.
   const form = new Node(), window = new Node(), status = new Node(), button = new Node(), label = new Node();
   label.textContent = language === 'ZH' ? '发送项目需求' : 'Send project brief';
   button.disabled = true;
-  form.action = `https://script.google.com/macros/s/${placeholder ? 'DEPLOYMENT_REQUIRED' : 'LOCAL_FIXTURE_ONLY_NEVER_A_DEPLOYMENT_1234567890'}/exec`;
+  form.action = placeholder ? 'https://unconfigured.example/DEPLOYMENT_REQUIRED' : 'https://anna-ai-studios.pages.dev/api/contact';
   form.dataset = {language, turnstileSitekey: '0x4AAAAAAFjk66LpNyMVEQBr'};
   const original = {name: '王可', company: '安娜影像工作室', email: 'annaqa+local@example.com', service_code: 'AI-FILM',
     timeline: 'EXPLORING', message: '【仅本地测试】繁體與简体保持原文。\r\n第二行包括表情 🎬。', privacy_consent: 'Agreed'};
@@ -171,7 +171,7 @@ const flush = async () => {await Promise.resolve(); await Promise.resolve(); awa
     assert.deepEqual(fields, allowed); assert.match(form, /enctype="application\/x-www-form-urlencoded"/);
     assert.match(form, /name="privacy_consent"[^>]*value="Agreed"/); assert.match(form, /data-submit-button disabled/);
     assert.match(html, /http-equiv="Content-Security-Policy"/); assert.doesNotMatch(form, /FormSubmit|formsubmit\.co|data-next-field/);
-    assert.match(form, /action="https:\/\/script\.google\.com\/macros\/s\/(?:DEPLOYMENT_REQUIRED|[A-Za-z0-9_-]{30,})\/exec"/);
+    assert.match(form, /action="https:\/\/anna-ai-studios\.pages\.dev\/api\/contact"/);
   }
   assert.doesNotMatch(code, /fetch\(|XMLHttpRequest|no-cors/);
   console.log('PASS: offline native POST gating, CJK field preservation, cData reference binding, duplicate-click guard, stale/expired/error token reset, edited-field invalidation, BFCache, unavailable provider, 60-second silent-stall recovery, manual-challenge pause/resume, stale-timer isolation, exact backend field contract, placeholder and source-host blocking.');

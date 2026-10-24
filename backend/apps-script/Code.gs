@@ -20,7 +20,7 @@ const ANNA = Object.freeze({
   reserveRecipients: 2
 });
 
-function doGet() { return page_({code: 'post_required'}, 'EN'); }
+function doGet() { return response_({code: 'post_required'}, 'EN', false); }
 
 // Run manually in the owner editor after reviewing Google OAuth scopes.
 // This consumes no mail recipients and never returns the Turnstile secret.
@@ -41,11 +41,14 @@ function deploymentPreflight() {
 function doPost(e) {
   let language = 'EN';
   let lock;
+  // The transport selector changes only the response: validation and the send ledger stay shared.
+  const relay = isRelay_(e);
+  const respond = result => response_(result, language, relay);
   try {
-    const input = parse_(e);
+    const input = parse_(businessEvent_(e));
     language = input.language;
     lock = LockService.getScriptLock();
-    if (!lock.tryLock(1000)) return page_({code: 'busy'}, language);
+    if (!lock.tryLock(1000)) return respond({code: 'busy'});
     const properties = PropertiesService.getScriptProperties();
     if (properties.getProperty('ANNA_ENABLED') !== 'true') fail_('unavailable');
     const secret = properties.getProperty('TURNSTILE_SECRET');
@@ -60,7 +63,7 @@ function doPost(e) {
     // An identical retry only reports the stored result: it never resends mail.
     if (old) {
       if (old.fingerprint !== fingerprint) fail_('lead_conflict');
-      return page_(result_(old), language);
+      return respond(result_(old));
     }
     validateLeadAge_(input.lead_id, now);
     prune_(properties, now);
@@ -107,11 +110,11 @@ function doPost(e) {
     record.owner = 'uncertain';
     save_(properties, key, record);
     try { MailApp.sendEmail(ownerMessage); }
-    catch (_) { return page_(result_(record), language); }
+    catch (_) { return respond(result_(record)); }
     record.owner = 'accepted';
     save_(properties, key, record);
     try { requireQuota_(1); }
-    catch (_) { return page_(result_(record), language); }
+    catch (_) { return respond(result_(record)); }
     record.receipt = 'uncertain';
     save_(properties, key, record);
     try {
@@ -122,22 +125,42 @@ function doPost(e) {
         subject: '[ANNA-RECEIPT] ' + input.lead_id,
         body: receiptBody_(input.language, input.lead_id)
       });
-    } catch (_) { return page_(result_(record), language); }
+    } catch (_) { return respond(result_(record)); }
     record.receipt = 'accepted';
     save_(properties, key, record);
-    return page_(result_(record), language);
+    return respond(result_(record));
   } catch (error) {
     // Never expose provider responses, tokens, email addresses or stack traces publicly.
     const known = error && error.annaCode;
-    return page_({code: known || 'temporarily_unavailable'}, language);
+    return respond({code: known || 'temporarily_unavailable'});
   } finally {
     if (lock && lock.hasLock()) lock.releaseLock();
   }
 }
 
+function isRelay_(e) {
+  const flag = e && e.parameters && e.parameters.transport;
+  return Boolean(e && e.queryString === 'transport=relay-v1' &&
+    Array.isArray(flag) && flag.length === 1 && flag[0] === 'relay-v1');
+}
+
+function businessEvent_(e) {
+  if (!e || !e.queryString) return e;
+  // Google merges query and body values into e.parameters. Require exactly one
+  // transport flag so a duplicate in the POST body cannot override the selector.
+  const p = e.parameters || {};
+  if (!isRelay_(e)) fail_('invalid_request');
+  const business = Object.create(null);
+  Object.keys(p).forEach(key => { if (key !== 'transport') business[key] = p[key]; });
+  // The 12-field business parser never receives transport metadata or a query string.
+  return {postData: e.postData, contentLength: e.contentLength, pathInfo: e.pathInfo,
+    queryString: null, parameters: business};
+}
+
 function parse_(e) {
   if (!e || !e.postData || !/^application\/x-www-form-urlencoded(?:;|$)/i.test(e.postData.type) ||
-      e.queryString || e.contentLength < 0 || e.contentLength > 65536) fail_('invalid_request');
+      e.queryString || e.pathInfo ||
+      e.contentLength < 0 || e.contentLength > 65536) fail_('invalid_request');
   const allowed = ['lead_id', 'name', 'company', 'email', 'language', 'service_code',
     'timeline', 'message', 'privacy_consent', 'source_page', '_honey', 'cf-turnstile-response'];
   const p = e.parameters || {};
@@ -253,10 +276,20 @@ function result_(record) {
     id: record.id, owner: record.owner, receipt: record.receipt};
 }
 function escape_(value) { return String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
-function page_(result, language) {
+function response_(result, language, relay) {
   // Structured operator trace contains statuses and a lead reference, not user text.
   console.log(JSON.stringify({event: 'anna_submission', code: result.code,
     lead: result.id || null, owner: result.owner || null, receipt: result.receipt || null}));
+  if (relay) {
+    // ContentService removes the Google iframe dependency from the visitor's result page.
+    return ContentService.createTextOutput(JSON.stringify({
+      protocol: 'anna-contact-relay-v1', code: result.code, id: result.id || null,
+      language: language, owner: result.owner || null, receipt: result.receipt || null
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+  return page_(result, language);
+}
+function page_(result, language) {
   const zh = language === 'ZH';
   const accepted = result.code === 'accepted';
   const title = accepted ? (zh ? '咨询已提交处理' : 'Enquiry submitted for processing') :

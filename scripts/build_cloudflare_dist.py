@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import os
+import argparse
+import json
 import shutil
 import stat
 from pathlib import Path
@@ -134,7 +136,7 @@ def validate_dist() -> list[Path]:
     allowed_suffixes = {".html", ".css", ".js", ".svg", ".webp", ".png", ".jpg", ".mp4", ".webm", ".txt", ".xml"}
     forbidden_terms = {"resume", "family", "showreel", "portfolio", "analytics", "rollingai"}
 
-    unexpected_types = [path for path in public_files if path.suffix.lower() not in allowed_suffixes and path.name != "_headers"]
+    unexpected_types = [path for path in public_files if path.suffix.lower() not in allowed_suffixes and path.name not in {"_headers", "_routes.json"}]
     forbidden_paths = [
         path for path in public_files
         if any(term in path.relative_to(DIST).as_posix().lower() for term in forbidden_terms)
@@ -160,16 +162,17 @@ def validate_contact_backend() -> None:
         text = (ROOT / relative).read_text(encoding="utf-8")
         match = re.search(r'<form\b[^>]*action="([^"]+)"[^>]*data-contact-form', text, re.S)
         endpoint = match.group(1) if match else ""
-        if "DEPLOYMENT_REQUIRED" in endpoint or not re.fullmatch(
-            r"https://script\.google\.com/macros/s/[A-Za-z0-9_-]{30,}/exec", endpoint
-        ):
-            raise RuntimeError("CONTACT_BACKEND_NOT_CONFIGURED: authorised Apps Script deployment required")
+        if endpoint != "https://anna-ai-studios.pages.dev/api/contact":
+            raise RuntimeError("CONTACT_BACKEND_NOT_CONFIGURED: expected fixed same-site contact relay")
         endpoints.append(endpoint)
     if len(set(endpoints)) != 1:
         raise RuntimeError("Contact form endpoints must match across languages")
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--static-only", action="store_true", help="Exclude Cloudflare server code from GitHub Pages")
+    args = parser.parse_args()
     validate_contact_backend()
     reset_dist()
 
@@ -178,6 +181,13 @@ def main() -> None:
 
     for source, target in PUBLIC_FILES:
         copy_file(source, target)
+
+    if not args.static_only:
+        copy_file(ROOT / "deploy" / "cloudflare" / "_worker.js", DIST / "_worker.js")
+        # Only the inquiry path consumes the account's free Worker request quota.
+        (DIST / "_routes.json").write_text(json.dumps({
+            "version": 1, "include": ["/api/contact"], "exclude": []
+        }, indent=2) + "\n", encoding="utf-8")
 
     public_files = validate_dist()
     print(f"Anna AI Studios build prepared at: {DIST}")

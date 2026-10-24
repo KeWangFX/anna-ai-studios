@@ -18,7 +18,7 @@ Bilingual production AI systems website for a London-based independent delivery 
 - `assets/products/` — versioned, web-compressed DateLens and FrameFetch promotional artwork
 - `assets/contact/` — the cropped public WeChat QR code only; source phone screenshots stay private
 
-The public site remains static, without behavioural analytics or advertising cookies. Its contact form posts natively to a Google Apps Script web app after Cloudflare Turnstile verification; the email fallback remains available if the form service is unreachable. The mail backend keeps a limited delivery and abuse-prevention ledger in Script Properties, separate from the public website.
+The public pages remain static, without behavioural analytics or advertising cookies. After Cloudflare Turnstile verification, both contact forms post natively to `https://anna-ai-studios.pages.dev/api/contact`. A narrowly routed Cloudflare Pages Worker relays the original request to Google Apps Script and renders the result on the studio domain. Visitors do not need to open Google domains to submit or see the result. WeChat and email remain available as manual contact options. The mail backend keeps a limited delivery and abuse-prevention ledger in Script Properties, separate from the public website.
 
 ## Contact delivery
 
@@ -32,15 +32,27 @@ The subject uses ASCII routing metadata and the Lead ID for correlation. The ori
 
 Review CTAs request an assessment rather than confirm an appointment. The studio replies within two working days and arranges a 30-minute call after both sides agree the next step. Native validation stays enabled until the custom form handler has initialized successfully.
 
-The owner authorised the send-mail and external-request scopes, and Apps Script Web App version 1 was deployed on 24 October 2026. Both form actions use that same deployed endpoint; backend source, manifest and offline tests are maintained in `backend/apps-script/` and excluded from the public build. Controlled production validation on 24 October 2026 received all four Chinese/English owner notifications and localized receipts in the owner-controlled Gmail inbox. Original names, companies and briefs matched after MIME decoding, including Chinese punctuation and emoji; SPF/DKIM/DMARC passed. Remaining recipient quota was 96 after these four messages. This verifies that mailbox, not universal deliverability. Keep Turnstile server verification enabled and never place confidential production material in the public enquiry form. The token cData must match the generated Lead ID; edited fields or an expired token require a new verification. Search Gmail with `subject:"[ANNA-LEAD]"` to isolate website enquiries and `subject:"[ANNA-RECEIPT]"` for receipts. MailApp acceptance alone does not establish inbox delivery; retain actual notification and receipt evidence for future delivery changes. Automatic verification stalls recover after 60 seconds, with the timer paused during a visible manual challenge.
+The owner has authorised the send-mail and external-request scopes. Apps Script Web App version 3 supports a structured response at `/exec?transport=relay-v1`, using protocol `anna-contact-relay-v1`; the existing mail validation, quota limits and idempotency ledger remain shared with the earlier direct-POST route. The query selector is strictly validated as single-value transport metadata and removed before the unchanged twelve-field business payload is parsed. Backend source, manifest and offline tests remain in `backend/apps-script/`; relay source and tests are in `deploy/cloudflare/`. These source files may be present in the GitHub repository, but backend files are excluded from public static builds and secrets must never enter the repository.
 
-The consumer Google Apps Script allowance is currently 100 email recipients per day. The backend applies lower rolling limits: 20 enquiries per 24 hours, 5 per hour, 2 per submitting address per 24 hours, and two recipients reserved before sending. Each accepted enquiry needs two mail recipients. It checks the live remaining quota and stops without a paid fallback when insufficient. Verification work is also bounded to 200 attempts per 24 hours and 10 per minute; invalid attempts can consume this shared budget, so this is not a DDoS-resistance guarantee. Recheck the [official quota page](https://developers.google.com/apps-script/guides/services/quotas) before changing limits. Direct access to Google services from mainland China has not been verified; keep the direct-contact alternatives visible and do not claim mainland availability.
+The relay has one fixed upstream, forwards no visitor cookies or credentials, limits request/response sizes and accepts only the allowlisted Google result redirect. It never automatically repeats a mail POST. It displays acceptance only when both notification and receipt have an accepted backend status. A timeout, partial send or unexpected response remains unconfirmed and directs the visitor to manual contact. The relay does not intentionally store or log enquiry bodies.
+
+Earlier direct-POST production validation on 24 October 2026 received four Chinese/English notifications and localized receipts in the owner-controlled Gmail inbox, with original text preserved. That historical evidence does not establish delivery through the new relay or from mainland China. The version 3 relay still requires its own production protocol and real-mail acceptance evidence before being marked verified. MailApp acceptance alone does not establish inbox delivery. Search Gmail with `subject:"[ANNA-LEAD]"` for enquiries and `subject:"[ANNA-RECEIPT]"` for receipts.
+
+Keep Turnstile server verification enabled and never place confidential production material in the public enquiry form. Token cData must match the Lead ID; edited details or expired verification require a fresh verification. API loading has an 18-second limit. Automatic verification stalls recover after 60 seconds, with the timer paused during a visible manual challenge.
+
+The consumer Google Apps Script allowance is currently 100 email recipients per day. The backend applies lower rolling limits: 20 enquiries per 24 hours, 5 per hour, 2 per submitting address per 24 hours, and two recipients reserved before sending. Each accepted enquiry needs two mail recipients. It checks the live remaining quota and stops without a paid fallback when insufficient. Verification work is also bounded to 200 attempts per 24 hours and 10 per minute; invalid attempts can consume this shared budget, so this is not a DDoS-resistance guarantee. Recheck the [official Google quotas](https://developers.google.com/apps-script/guides/services/quotas) and live account allowance before delivery tests or limit changes.
+
+Cloudflare Pages Functions share the Workers Free allowance of 100,000 requests per day across the account, resetting at midnight UTC. Only `/api/contact` invokes this Worker; static asset requests bypass it. Keep the account on the free plan, check shared remaining usage before a rollout and do not enable a paid upgrade or paid fallback. The quota is a provider limit, not a promise of available capacity. See [Cloudflare Pages Functions pricing](https://developers.cloudflare.com/pages/functions/pricing/), checked on 24 October 2026.
+
+Removing the visitor's Google connection does not establish reliable mainland-China or WeChat WebView access: the website origin and Turnstile must still be reachable. Real mainland/device evidence must be reported separately from desktop simulations and fault-injection tests. The GitHub mirror shares the Cloudflare contact endpoint and is not an independent form backend or a guaranteed mainland route.
 
 Direct contact fallbacks are published alongside the form:
 
 - Email: `keke19870699@gmail.com`
 - WhatsApp: display `+44 7516 141043`, E.164/`wa.me` value `+447516141043`
 - WeChat: `kewangfx`, with `assets/contact/wechat-kewangfx-qr.png`
+
+The bilingual manual alternative offers **Copy brief** and **Copy WeChat ID** without calling the mail or verification services. Copying is explicit, local and does not send an enquiry or persist the draft. Only visible contact fields are included; incomplete drafts are allowed, and unsupported or rejected clipboard access exposes selectable text. Visitors review and send the text themselves through WeChat or their usual mail app. QR guidance covers same-phone recognition when offered and searching the ID otherwise; no WeChat SDK or paid integration is required.
 
 Do not replace the WhatsApp link with the UK local form (`+44 075...`); the leading zero must be removed after the country code.
 
@@ -132,11 +144,13 @@ npm run cf:build
 npm run cf:deploy
 ```
 
-Deployment target: `anna-ai-studios` (`https://anna-ai-studios.pages.dev`). The build script starts from a clean `cloudflare-release/` directory and copies only the company site, brand/contact assets, curated product and case artwork, local Three.js runtime and the approved core-team portrait. Legacy portfolio, source screenshots and family media remain in the repository but are not published.
+Deployment target: `anna-ai-studios` (`https://anna-ai-studios.pages.dev`). The build script starts from a clean `cloudflare-release/` directory and copies only the company site, brand/contact assets, curated product and case artwork, local Three.js runtime and the approved core-team portrait. The Cloudflare build also includes `_worker.js` and an `_routes.json` restricted to `/api/contact`. Google backend source, tests, secrets, legacy portfolio, source screenshots and family media are excluded from published static files.
+
+Release the compatible Apps Script version first and verify its structured relay response before switching the public form. Then deploy Cloudflare and verify the endpoint before publishing the mirror. Do not mark protocol or inbox delivery as verified merely because deployment or offline tests pass.
 
 ## GitHub Pages mirror
 
-The standalone source repository is `KeWangFX/anna-ai-studios`. Pushes to `main` run `.github/workflows/deploy-pages.yml`, rebuild the same public whitelist and upload only `cloudflare-release/` to GitHub Pages. Cloudflare remains the canonical production URL; GitHub Pages is a deployment mirror.
+The standalone source repository is `KeWangFX/anna-ai-studios`. Pushes to `main` run `.github/workflows/deploy-pages.yml`, run the same tests and build with `python scripts/build_cloudflare_dist.py --static-only`. Only the public static whitelist is uploaded; Worker code and routing files are omitted. Cloudflare remains canonical. Mirror forms submit to the same Cloudflare endpoint and valid result links return to the original mirror language page. Manual WeChat/email options remain usable when that endpoint is unavailable.
 
 ## Release checks
 
@@ -148,5 +162,7 @@ The standalone source repository is `KeWangFX/anna-ai-studios`. Pushes to `main`
 - Return from enquiry verification and confirm the button is usable, pending status is cleared, and actual field errors are preserved.
 - Test with reduced motion, data-saver mode and WebGL disabled; reduced motion must not request video or Three.js.
 - Verify the WeChat QR is always visible, loads at desktop and mobile widths, and check the WhatsApp URL uses `447516141043`.
+- Check bilingual brief/WeChat copying with a working, rejected and unavailable clipboard; copied text must remain clearly unsent and exclude hidden fields.
+- Verify the deployed relay protocol, non-success handling and real notification/receipt evidence separately; retain explicit mainland and real-WeChat coverage limits.
 - Confirm the release directory contains no legacy portfolio data or media.
 - Keep HTML/CSS/JS revalidated and version public media whenever its content changes.

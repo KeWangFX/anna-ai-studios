@@ -48,7 +48,10 @@ function setup(options = {}) {
         if (messages.length === options.throwOnMail) throw Error('SIMULATED_AMBIGUOUS_SEND');
       }
     },
-    HtmlService: {createHtmlOutput: html => ({html})}
+    HtmlService: {createHtmlOutput: html => ({html})},
+    ContentService: {MimeType: {JSON: 'application/json'}, createTextOutput: text => ({
+      text, setMimeType(type) { assert.equal(type, 'application/json'); return this; }
+    })}
   });
   vm.runInContext(source, context, {filename: 'Code.gs'});
   const data = (overrides = {}) => ({
@@ -68,12 +71,25 @@ function setup(options = {}) {
         cdata: p.lead_id, challenge_ts: new Date(time).toISOString(), ...challengeOverride};
       const event = {postData: {type: 'application/x-www-form-urlencoded'}, contentLength: 3000,
         parameters: Object.fromEntries(Object.entries(p).map(([key, value]) => [key, [value]])), ...eventOverride};
-      return context.doPost(event).html;
+      const response = context.doPost(event);
+      return response.html ?? response.text;
     }
   };
 }
 function test(name, fn) { fn(); passed++; process.stdout.write('PASS ' + name + '\n'); }
 function noSend(b, html, code) { assert.equal(b.messages.length, 0); assert.equal(b.lastEvent().code, code); assert.ok(!html.includes(code)); }
+function relayEvent(data, query = 'transport=relay-v1') {
+  const contents = new URLSearchParams(data).toString();
+  const parameters = {};
+  // Model Google's documented combined query/body parameter arrays, not a custom relay shortcut.
+  for (const [key, value] of [...new URLSearchParams(query), ...new URLSearchParams(contents)]) {
+    (parameters[key] ||= []).push(value);
+  }
+  const length = Buffer.byteLength(contents, 'utf8');
+  return {queryString: query || null, pathInfo: '', contentLength: length,
+    postData: {type: 'application/x-www-form-urlencoded', contents, length}, parameters,
+    parameter: Object.fromEntries(Object.entries(parameters).map(([key, values]) => [key, values[0]]))};
+}
 
 test('Chinese original is preserved; one owner + fixed Chinese receipt', () => {
   const b = setup(); const p = b.data(); const html = b.submit(p);
@@ -182,5 +198,72 @@ test('editor preflight reports safe quota metadata without sending', () => {
   assert.equal(result.remainingDailyRecipients, 17); assert.equal(result.hasTurnstileSecret, true);
   assert.equal(b.messages.length, 0); assert.equal(b.fetchCount(), 0);
   assert.ok(!JSON.stringify(result).includes('LOCAL_TEST_SECRET'));
+});
+test('relay JSON preserves Chinese mail and exposes only fixed protocol statuses', () => {
+  const b = setup(); const p = b.data();
+  const text = b.submit(p, {}, relayEvent(p)); const result = JSON.parse(text);
+  assert.deepEqual(result, {protocol: 'anna-contact-relay-v1', code: 'accepted', id: p.lead_id,
+    language: 'ZH', owner: 'accepted', receipt: 'accepted'});
+  assert.equal(b.messages.length, 2); assert.ok(b.messages[0].body.includes(p.message));
+  for (const value of [p.name, p.company, p.email, p.message, p['cf-turnstile-response']]) assert.ok(!text.includes(value));
+});
+test('relay and legacy HTML share the same idempotency record', () => {
+  const b = setup(); const p = b.data(); const html = b.submit(p);
+  const result = JSON.parse(b.submit(p, {}, relayEvent(p)));
+  assert.ok(html.includes('这并不代表最终送达已确认')); assert.equal(result.code, 'accepted');
+  assert.equal(b.messages.length, 2); assert.equal(b.fetchCount(), 1);
+});
+test('relay cannot label a partial receipt as accepted or retry it', () => {
+  const b = setup({throwOnMail: 2}); const p = b.data();
+  const first = JSON.parse(b.submit(p, {}, relayEvent(p)));
+  const retry = JSON.parse(b.submit(p, {}, relayEvent(p)));
+  assert.equal(first.code, 'needs_review'); assert.equal(first.owner, 'accepted');
+  assert.equal(first.receipt, 'uncertain'); assert.deepEqual(retry, first);
+  assert.equal(b.messages.length, 2); assert.equal(b.fetchCount(), 1);
+});
+test('relay rejects malformed fields with structured non-success and no email', () => {
+  const b = setup(); const p = b.data({privacy_consent: 'No'});
+  const result = JSON.parse(b.submit(p, {}, relayEvent(p)));
+  assert.equal(result.code, 'invalid_request'); assert.equal(result.id, null);
+  assert.equal(result.owner, null); assert.equal(result.receipt, null);
+  assert.equal(b.messages.length, 0); assert.equal(b.fetchCount(), 0);
+});
+test('unrecognised backend transport paths cannot send mail', () => {
+  for (const pathInfo of ['unknown', 'relay-v1']) {
+    const b = setup(); noSend(b, b.submit(b.data(), {}, {pathInfo}), 'invalid_request');
+    assert.equal(b.fetchCount(), 0);
+  }
+});
+test('transport query is stripped without changing the 12 business fields or original event', () => {
+  const b = setup(); const p = b.data(); const event = relayEvent(p);
+  const stripped = b.context.businessEvent_(event);
+  assert.equal(Object.keys(stripped.parameters).length, 12); assert.equal(stripped.queryString, null);
+  assert.equal(stripped.parameters.transport, undefined); assert.deepEqual(event.parameters.transport, ['relay-v1']);
+  const parsed = b.context.parse_(stripped); assert.equal(parsed.message, p.message);
+  assert.equal(parsed.name, p.name); assert.equal(stripped.postData.contents, new URLSearchParams(p).toString());
+});
+for (const query of ['transport=other', 'transport=relay-v1&x=1', 'transport=relay-v1&transport=relay-v1',
+  'transport=relay%2Dv1', 'x=1', 'transport=relay-v1&']) test('rejects non-canonical transport query ' + query, () => {
+  const b = setup(); const p = b.data(); b.submit(p, {}, relayEvent(p, query));
+  assert.equal(b.lastEvent().code, 'invalid_request'); assert.equal(b.messages.length, 0); assert.equal(b.fetchCount(), 0);
+});
+test('a transport flag in the body cannot impersonate or duplicate the query selector', () => {
+  for (const query of ['', 'transport=relay-v1']) {
+    const b = setup(); const p = b.data({transport: 'relay-v1'}); b.submit(p, {}, relayEvent(p, query));
+    assert.equal(b.lastEvent().code, 'invalid_request'); assert.equal(b.messages.length, 0); assert.equal(b.fetchCount(), 0);
+  }
+});
+test('canonical query still rejects missing, scalar or mismatched merged metadata', () => {
+  for (const flag of [undefined, 'relay-v1', ['other'], ['relay-v1', 'other']]) {
+    const b = setup(); const p = b.data(); const event = relayEvent(p);
+    if (flag === undefined) delete event.parameters.transport; else event.parameters.transport = flag;
+    assert.equal(b.context.isRelay_(event), false);
+    noSend(b, b.submit(p, {}, event), 'invalid_request'); assert.equal(b.fetchCount(), 0);
+  }
+});
+test('valid transport query does not permit an unknown backend path', () => {
+  const b = setup(); const p = b.data(); const event = relayEvent(p); event.pathInfo = 'relay-v1';
+  const result = JSON.parse(b.submit(p, {}, event)); assert.equal(result.code, 'invalid_request');
+  assert.equal(b.messages.length, 0); assert.equal(b.fetchCount(), 0);
 });
 process.stdout.write('PASS ' + passed + ' local checks; no real email or deployment performed.\n');

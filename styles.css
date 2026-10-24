@@ -2748,6 +2748,85 @@ a.contact-channel:hover strong {
   text-transform: uppercase;
 }
 
+.contact-fallback {
+  margin-top: 24px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line-strong);
+  min-width: 0;
+}
+
+.contact-fallback h3 {
+  margin: 0 0 10px;
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.contact-fallback p,
+.contact-fallback label {
+  margin: 0 0 14px;
+  color: var(--text-soft);
+  font-size: 12px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
+.contact-fallback a {
+  color: var(--copper-bright);
+}
+
+.contact-fallback__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.contact-fallback__actions button {
+  max-width: 100%;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--copper-bright);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.contact-fallback__actions button:hover {
+  border-color: var(--copper-bright);
+}
+
+.contact-fallback__actions button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.contact-fallback__status:not(:empty) {
+  margin: 14px 0;
+  color: var(--cyan);
+}
+
+.contact-fallback__manual label {
+  display: block;
+  margin-top: 14px;
+  margin-bottom: 8px;
+}
+
+.contact-fallback__manual textarea {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 10px;
+  padding: 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 0;
+  background: var(--bg-soft);
+  color: var(--text);
+  font: 16px/1.6 var(--font-sans);
+  resize: vertical;
+}
+
 .contact-form {
   position: relative;
   z-index: 1;

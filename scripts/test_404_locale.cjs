@@ -62,7 +62,7 @@ for (const [hostname, pathname, language, homeHref] of cases) {
   }
   const assetBase = hostname === "kewangfx.github.io" ? "/anna-ai-studios/" : "/";
   assert.equal(assets[0].href, `${assetBase}favicon-v1.svg`);
-  assert.equal(assets[1].href, `${assetBase}styles.css?v=20261023d`);
+  assert.equal(assets[1].href, `${assetBase}styles.css?v=20261024d`);
 }
 
 console.log(`404 locale and recovery: ${cases.length} route cases passed.`);

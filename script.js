@@ -1074,6 +1074,81 @@ function initServiceSelection() {
   });
 }
 
+function initContactFallbacks() {
+  document.querySelectorAll("[data-contact-form]").forEach((form) => {
+    const section = form.querySelector("[data-contact-fallback]");
+    if (!section) return;
+    const status = section.querySelector("[data-copy-status]");
+    const manual = section.querySelector("[data-copy-manual]");
+    const output = section.querySelector("[data-copy-text]");
+    if (!status || !manual || !output) return;
+    const zh = form.dataset.language === "ZH";
+    const copy = zh ? {
+      title: "Anna AI Studios — 咨询草稿（尚未发送）", empty: "未填写",
+      labels: ["姓名", "公司 / 团队", "工作邮箱", "项目类型", "期望时间", "项目说明"],
+      manual: "尚未确认复制，请在下方选中文本并手动复制；咨询尚未发送。",
+      copied: "咨询内容已复制，尚未发送。请粘贴到微信或邮箱，检查后自行发送。",
+      wechat: "微信号已复制：kewangfx。请在微信搜索并联系；咨询尚未发送。",
+      changed: "内容已修改，请重新复制更新后的咨询。咨询尚未发送。",
+    } : {
+      title: "Anna AI Studios — consultation draft (not sent)", empty: "Not filled in",
+      labels: ["Name", "Company / team", "Work email", "Project type", "Target timing", "Project brief"],
+      manual: "Copy is not confirmed. Select the text below and copy it manually. The enquiry has not been sent.",
+      copied: "Brief copied, not sent. Paste it into WeChat or your mail app, review it and send it there.",
+      wechat: "WeChat ID copied: kewangfx. Search for it in WeChat to contact us. The enquiry has not been sent.",
+      changed: "Your details changed. Copy the updated brief again. The enquiry has not been sent.",
+    };
+    let generation = 0;
+    const brief = () => {
+      // An explicit allowlist excludes verification tokens, hidden fields and backend references.
+      const fields = ["name", "company", "email", "service_code", "timeline", "message"];
+      return [copy.title, "", ...fields.map((name, index) => {
+        const control = form.querySelector(`[data-form-field] [name="${name}"]`);
+        let value = control?.value || "";
+        if (control?.tagName === "SELECT" && value) {
+          value = control.options[control.selectedIndex]?.textContent || value;
+        }
+        // Preserve the draft verbatim; an incomplete enquiry remains useful for manual contact.
+        return `${copy.labels[index]}: ${value.trim() ? value : copy.empty}`;
+      })].join("\n");
+    };
+    section.querySelectorAll("[data-contact-copy]").forEach((button) => {
+      button.disabled = false;
+      button.addEventListener("click", async () => {
+        const attempt = ++generation;
+        const isWechat = button.dataset.contactCopy === "wechat";
+        const text = isWechat ? "kewangfx" : brief();
+        // Make the manual route available before clipboard permission resolves or stalls.
+        output.value = text;
+        output.rows = isWechat ? 2 : 8;
+        manual.hidden = false;
+        status.textContent = copy.manual;
+        try {
+          if (!navigator.clipboard?.writeText) throw new Error("Manual copy required");
+          await navigator.clipboard.writeText(text);
+          if (attempt === generation) status.textContent = isWechat ? copy.wechat : copy.copied;
+        } catch {
+          if (attempt !== generation) return;
+          // Selection is local only: never submit the form or persist the visitor's draft.
+          output.focus();
+          output.select();
+          output.setSelectionRange(0, text.length);
+        }
+      });
+    });
+    const clearDraft = () => {
+      if (manual.hidden) return;
+      generation += 1;
+      output.value = "";
+      manual.hidden = true;
+      status.textContent = copy.changed;
+    };
+    form.addEventListener("input", (event) => { if (event.target !== output) clearDraft(); });
+    form.addEventListener("change", clearDraft);
+    form.addEventListener("reset", clearDraft);
+  });
+}
+
 function initContactForms() {
   const forms = [...document.querySelectorAll("[data-contact-form]")];
   if (!forms.length) return;
@@ -1109,16 +1184,16 @@ function initContactForms() {
       tooShort: "Add a little more detail before sending.",
       summary: "Check the highlighted fields, then send again.",
       pending: "Completing secure verification…", sending: "Submitting enquiry…",
-      unavailable: "The enquiry form is temporarily unavailable. Please use the email link below.",
-      retry: "Verification could not finish. Please send again or use the email link below.",
+      unavailable: "The enquiry form is temporarily unavailable. Use the WeChat or email options below; you can copy your brief there.",
+      retry: "Verification could not finish. Please send again, or copy your brief below and contact us by WeChat or email.",
       expired: "Verification expired. Please send again to restart it.",
       changed: "Your details changed. Please send again to verify the updated enquiry.",
     },
     ZH: {
       required: "此项为必填。", email: "请输入有效的邮箱地址。", tooShort: "请补充更多信息后再发送。",
       summary: "请检查标记的字段，然后重新发送。", pending: "正在完成安全验证…", sending: "正在提交咨询…",
-      unavailable: "咨询表单暂时不可用，请使用下方邮箱链接。",
-      retry: "安全验证未完成，请重新发送或使用下方邮箱链接。",
+      unavailable: "咨询表单暂时不可用，可在下方复制咨询内容，通过微信或邮箱联系。",
+      retry: "安全验证未完成，请重新发送，或在下方复制咨询内容，通过微信或邮箱联系。",
       expired: "安全验证已过期，请重新发送以再次验证。", changed: "内容已修改，请重新发送以验证更新后的咨询。",
     },
   };
@@ -1141,8 +1216,7 @@ function initContactForms() {
     const controls = [...form.querySelectorAll("[data-form-field] input, [data-form-field] select, [data-form-field] textarea")];
     const current = new URL(window.location.href);
     const source = current.origin + current.pathname.replace(/index\.html$/, "");
-    const configured = /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]{30,}\/exec$/.test(form.action)
-      && !form.action.includes("DEPLOYMENT_REQUIRED") && sources.has(source)
+    const configured = form.action === "https://anna-ai-studios.pages.dev/api/contact" && sources.has(source)
       && form.dataset.turnstileSitekey === "0x4AAAAAAFjk66LpNyMVEQBr"
       && Boolean(tokenField && leadField && sourceField && widget && button);
     let phase = "idle", generation = 0, widgetId = null, verificationTimer = null;
@@ -1337,6 +1411,7 @@ function init() {
   initJourney();
   initOptionalShader();
   initServiceSelection();
+  initContactFallbacks();
   initContactForms();
   initLeadReference();
 }
