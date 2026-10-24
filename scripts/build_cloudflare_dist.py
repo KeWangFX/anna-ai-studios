@@ -152,7 +152,25 @@ def validate_dist() -> list[Path]:
     return public_files
 
 
+def validate_contact_backend() -> None:
+    """Do not publish an unconfigured candidate, even through the mirror workflow."""
+    import re
+    endpoints = []
+    for relative in ("index.html", "zh/index.html"):
+        text = (ROOT / relative).read_text(encoding="utf-8")
+        match = re.search(r'<form\b[^>]*action="([^"]+)"[^>]*data-contact-form', text, re.S)
+        endpoint = match.group(1) if match else ""
+        if "DEPLOYMENT_REQUIRED" in endpoint or not re.fullmatch(
+            r"https://script\.google\.com/macros/s/[A-Za-z0-9_-]{30,}/exec", endpoint
+        ):
+            raise RuntimeError("CONTACT_BACKEND_NOT_CONFIGURED: authorised Apps Script deployment required")
+        endpoints.append(endpoint)
+    if len(set(endpoints)) != 1:
+        raise RuntimeError("Contact form endpoints must match across languages")
+
+
 def main() -> None:
+    validate_contact_backend()
     reset_dist()
 
     for name in ROOT_FILES:

@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="base-uri 'self'; object-src 'none'; form-action 'self' https://script.google.com https://script.googleusercontent.com; script-src 'self' https://challenges.cloudflare.com 'sha256-DWktYS9tt8G/ZVxM2QJlKYzWc/9FBuk6QYH87h1o+3Q=' 'sha256-FWcF5FztoRX1k6JR0lhokds7W5bXSIVJ3BhGHkUFk6Y=' 'sha256-x/QbVXz0DKG0POqJYhKgtgfCxZVaZ3tsATOAnwRxTfY='; frame-src https://challenges.cloudflare.com https://script.google.com https://script.googleusercontent.com; connect-src 'self' https://challenges.cloudflare.com" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Anna AI Studios | Production AI Systems</title>
     <meta
@@ -38,7 +39,7 @@
     <link rel="apple-touch-icon" href="assets/brand/anna-ai-studios-apple-touch-icon-180x180-v1.png" />
     <link rel="preload" href="assets/brand/circuit-poster.webp" as="image" type="image/webp" />
     <link rel="stylesheet" href="styles.css?v=20261023d" />
-    <script defer src="script.js?v=20261024a"></script>
+    <script defer src="script.js?v=20261024b"></script>
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -678,19 +679,13 @@
 
           <form
             class="contact-form"
-            action="https://formsubmit.co/6cac8ac34b35002e23bb9086eed1c426"
-            method="POST"
-            data-contact-form
+            action="https://script.google.com/macros/s/AKfycbzD1PsWi_LSHxLFE56HPKtgLsvTXl9J0sc2LbU4eIsGEg-Ref2vjStymq-iqptIJUJQ/exec"
+            method="POST" enctype="application/x-www-form-urlencoded" accept-charset="UTF-8"
+            data-contact-form data-turnstile-sitekey="0x4AAAAAAFjk66LpNyMVEQBr"
             data-language="EN"
-            data-success-url="https://anna-ai-studios.pages.dev/thanks.html"
           >
-            <input type="hidden" name="_subject" value="[ANNA-LEAD][NEW][EN]" data-subject-field />
-            <input type="hidden" name="_next" value="https://anna-ai-studios.pages.dev/thanks.html" data-next-field />
-            <input type="hidden" name="_template" value="table" />
-            <input type="hidden" name="_autoresponse" value="Thank you for contacting Anna AI Studios. Your project brief has been received. We will review it and respond within two working days. A 30-minute call will be arranged once we agree the next step. Please do not reply to this automated receipt." />
-            <input type="hidden" name="_replyto" value="" data-replyto-field />
             <input type="hidden" name="lead_id" value="" data-lead-id-field />
-            <input type="hidden" name="submitted_at_utc" value="" data-submitted-at-field />
+            <input type="hidden" name="cf-turnstile-response" value="" />
             <input type="hidden" name="source_page" value="" data-source-field />
             <input type="hidden" name="language" value="EN" />
             <div class="form-honeypot" aria-hidden="true" hidden>
@@ -699,6 +694,7 @@
             </div>
 
             <div class="form-status" role="status" aria-live="polite" data-form-status></div>
+            <noscript><p class="contact-form__privacy">Enable JavaScript to use secure form verification, or email us using the link below.</p></noscript>
             <div class="contact-form__grid">
               <div class="form-field" data-form-field>
                 <label for="anna-name-en">Name <span aria-hidden="true">*</span><span class="sr-only"> (required)</span></label>
@@ -752,17 +748,18 @@
 
             <div class="form-consent form-field" data-form-field>
               <input id="anna-consent-en" name="privacy_consent" type="checkbox" value="Agreed" required aria-describedby="anna-consent-error-en" />
-              <label for="anna-consent-en">I have read the <a href="privacy/">privacy notice</a> and understand that FormSubmit will email these details to Anna AI Studios solely to respond to this enquiry. <span aria-hidden="true">*</span><span class="sr-only"> (required)</span></label>
+              <label for="anna-consent-en">I have read the <a href="privacy/">privacy notice</a> and understand that Google processes these details to send Anna AI Studios my enquiry and email me a receipt. Cloudflare checks this submission for abuse. <span aria-hidden="true">*</span><span class="sr-only"> (required)</span></label>
               <span class="form-field__error" id="anna-consent-error-en" data-field-error></span>
             </div>
 
+            <div data-turnstile-container></div>
             <div class="contact-form__footer">
-              <button class="button button--large button--copper" type="submit" data-submit-button>
+              <button class="button button--large button--copper" type="submit" data-submit-button disabled>
                 <span data-submit-label>Send project brief</span><span aria-hidden="true">↗</span>
               </button>
-              <p>Protected by verification and a hidden spam trap. A structured copy is delivered directly to the studio inbox.</p>
+              <p>Protected by Cloudflare verification. Google processes the enquiry and sends a notification and receipt; delivery is confirmed by the emails you receive.</p>
             </div>
-            <p class="contact-form__privacy">Read the <a href="privacy/">Anna AI Studios privacy notice</a>. Form delivery is handled by <a href="https://formsubmit.co/privacy.pdf" target="_blank" rel="noreferrer">FormSubmit</a>. Prefer email? <a href="mailto:keke19870699@gmail.com?subject=%5BANNA-LEAD%5D%5BEMAIL%5D%5BEN%5D%20Project%20enquiry">keke19870699@gmail.com</a></p>
+            <p class="contact-form__privacy">Read the <a href="privacy/">Anna AI Studios privacy notice</a>. Form delivery uses <a href="https://policies.google.com/privacy" target="_blank" rel="noreferrer">Google Apps Script and Gmail</a>, with <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noreferrer">Cloudflare Turnstile</a> verification. Prefer email? <a href="mailto:keke19870699@gmail.com?subject=%5BANNA-LEAD%5D%5BEMAIL%5D%5BEN%5D%20Project%20enquiry">keke19870699@gmail.com</a></p>
           </form>
         </div>
       </section>

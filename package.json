@@ -6,8 +6,11 @@
     "cf:login": "npx wrangler login",
     "cf:whoami": "npx wrangler whoami",
     "cf:build": "python scripts/build_cloudflare_dist.py",
-    "validate": "node scripts/test_runtime.cjs && python scripts/build_cloudflare_dist.py && python scripts/validate_site.py cloudflare-release",
+    "validate": "node scripts/test_runtime.cjs && node scripts/test_contact_delivery.cjs && node scripts/test_contact_contract.cjs && node backend/apps-script/test_backend.cjs && python scripts/build_cloudflare_dist.py && python scripts/validate_site.py cloudflare-release",
     "test:runtime": "node scripts/test_runtime.cjs",
+    "test:contact": "node scripts/test_contact_delivery.cjs",
+    "test:contact-contract": "node scripts/test_contact_contract.cjs",
+    "test:backend": "node backend/apps-script/test_backend.cjs",
     "cf:deploy": "python scripts/build_cloudflare_dist.py && npx wrangler pages deploy ./cloudflare-release --project-name anna-ai-studios"
   },
   "dependencies": {

@@ -18,17 +18,19 @@
 - `assets/products/`：已版本化并完成网页压缩的 DateLens 与 FrameFetch 宣传图
 - `assets/contact/`：公开使用的裁切版微信二维码；手机原始截图不进入发布目录
 
-网站保持纯静态，不使用分析脚本、Cookie 或数据库。结构化留言通过 FormSubmit 转发到 `keke19870699@gmail.com`，并保留邮箱、WhatsApp 和微信直达入口。
+公开网站保持静态，不使用行为分析或广告 Cookie。结构化留言通过 Cloudflare Turnstile 验证后，以原生 POST 交给 Google Apps Script 发送工作室通知与自动回执，并保留邮箱、WhatsApp 和微信直达入口。邮件后端在 Script Properties 中保存有限的投递与反滥用台账，与公开网站分开维护。
 
 ## 联系方式与留言命名
 
 中英文表单统一使用以下邮件主题：
 
 ```text
-[ANNA-LEAD][SERVICE-CODE][EN|ZH][YYYYMMDD] ANNA-YYYYMMDDhhmmss-XXXX
+[ANNA-LEAD][EN|ZH][SERVICE-CODE] ANNA-YYYYMMDDhhmmss-XXXX
 ```
 
-邮件主题使用 ASCII 路由信息和 Lead ID 方便对应查询；姓名、公司／团队与项目正文在提交的邮件字段中保留原文，包括中文内容。每条留言同时包含可排序 Lead ID、UTC 提交时间、语言与来源页面。FormSubmit 端点已经激活，保留 reCAPTCHA 与隐藏反垃圾字段。Gmail 可用 `subject:"[ANNA-LEAD]"` 单独筛出网站咨询。
+邮件主题使用 ASCII 路由信息和 Lead ID 方便对应查询；姓名、公司／团队与项目正文在提交的邮件字段中保留原文，包括中文内容。每条留言同时包含可排序 Lead ID、UTC 接收时间、语言与来源页面。所有者已授权发信与外部请求权限，Apps Script Web App 第 1 版于 2026 年 10 月 24 日部署，两种语言使用同一实际端点。后端源码、manifest 与离线测试保存在 `backend/apps-script/`，不会进入静态发布目录。授权预检显示当天剩余 100 个邮件收件人额度、验证密钥已配置；已部署后端现已启用，等待受控实收验证。保留 Turnstile 服务端验证与隐藏反垃圾字段；token 的 cData 必须与 Lead ID 相符，内容修改或验证过期后须重新验证。Gmail 可用 `subject:"[ANNA-LEAD]"` 筛出网站咨询，用 `subject:"[ANNA-RECEIPT]"` 筛出回执。MailApp 接受发送不代表最终送达；中英文通知与回执都需真实实收后才能完成验收。
+
+当前个人 Google Apps Script 免费额度为每天 100 个邮件收件人。后端采用更低的滚动限制：24 小时最多 20 条咨询、每小时 5 条、同一提交邮箱 24 小时 2 条，并预留 2 个收件人额度。每条咨询发送两封邮件，发送前检查实时剩余额度，不足时停止且不切换付费服务。安全验证另限制为 24 小时 200 次、每分钟 10 次；无效请求也可能消耗共享验证额度，因此不宣称具备 DDoS 防护能力。调整前需重新核对 [Google 官方额度](https://developers.google.com/apps-script/guides/services/quotas)。Google 服务在中国大陆的直接可达性尚未验证，必须保留直接联系方式，不宣称大陆可用。
 
 - 邮箱：`keke19870699@gmail.com`
 - WhatsApp：页面显示 `+44 7516 141043`，链接使用 `+447516141043`

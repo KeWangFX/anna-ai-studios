@@ -1077,132 +1077,175 @@ function initServiceSelection() {
 function initContactForms() {
   const forms = [...document.querySelectorAll("[data-contact-form]")];
   if (!forms.length) return;
-
+  let scriptPromise;
+  const loadTurnstile = () => {
+    if (window.turnstile?.render) return Promise.resolve(window.turnstile);
+    if (scriptPromise) return scriptPromise;
+    scriptPromise = new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      const failed = () => {
+        window.clearTimeout(timeout);
+        script.remove();
+        scriptPromise = null;
+        reject(new Error("Verification unavailable"));
+      };
+      const timeout = window.setTimeout(failed, 18000);
+      // Load directly from Cloudflare only after an intentional, valid submission.
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      script.async = true;
+      script.onerror = failed;
+      script.onload = () => {
+        if (!window.turnstile?.render) return failed();
+        window.clearTimeout(timeout);
+        resolve(window.turnstile);
+      };
+      document.head.append(script);
+    });
+    return scriptPromise;
+  };
   const copy = {
     EN: {
-      required: "This field is required.",
-      email: "Enter a valid email address.",
+      required: "This field is required.", email: "Enter a valid email address.",
       tooShort: "Add a little more detail before sending.",
       summary: "Check the highlighted fields, then send again.",
-      pending: "Opening secure verification…",
+      pending: "Completing secure verification…", sending: "Submitting enquiry…",
+      unavailable: "The enquiry form is temporarily unavailable. Please use the email link below.",
+      retry: "Verification could not finish. Please send again or use the email link below.",
+      expired: "Verification expired. Please send again to restart it.",
+      changed: "Your details changed. Please send again to verify the updated enquiry.",
     },
     ZH: {
-      required: "此项为必填。",
-      email: "请输入有效的邮箱地址。",
-      tooShort: "请补充更多信息后再发送。",
-      summary: "请检查标记的字段，然后重新发送。",
-      pending: "正在打开安全验证…",
+      required: "此项为必填。", email: "请输入有效的邮箱地址。", tooShort: "请补充更多信息后再发送。",
+      summary: "请检查标记的字段，然后重新发送。", pending: "正在完成安全验证…", sending: "正在提交咨询…",
+      unavailable: "咨询表单暂时不可用，请使用下方邮箱链接。",
+      retry: "安全验证未完成，请重新发送或使用下方邮箱链接。",
+      expired: "安全验证已过期，请重新发送以再次验证。", changed: "内容已修改，请重新发送以验证更新后的咨询。",
     },
   };
+  const sources = new Set([
+    "https://anna-ai-studios.pages.dev/", "https://anna-ai-studios.pages.dev/zh/",
+    "https://kewangfx.github.io/anna-ai-studios/", "https://kewangfx.github.io/anna-ai-studios/zh/",
+  ]);
 
   forms.forEach((form) => {
     const language = form.dataset.language === "ZH" ? "ZH" : "EN";
     const messages = copy[language];
     const status = form.querySelector("[data-form-status]");
-    const submitButton = form.querySelector("[data-submit-button]");
-    const submitLabel = form.querySelector("[data-submit-label]");
-    const defaultSubmitLabel = submitLabel?.textContent || "Submit";
+    const button = form.querySelector("[data-submit-button]");
+    const label = form.querySelector("[data-submit-label]");
+    const defaultLabel = label?.textContent || "Submit";
+    const tokenField = form.querySelector('[name="cf-turnstile-response"]');
+    const leadField = form.querySelector("[data-lead-id-field]");
+    const sourceField = form.querySelector("[data-source-field]");
+    const widget = form.querySelector("[data-turnstile-container]");
     const controls = [...form.querySelectorAll("[data-form-field] input, [data-form-field] select, [data-form-field] textarea")];
+    const current = new URL(window.location.href);
+    const source = current.origin + current.pathname.replace(/index\.html$/, "");
+    const configured = /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]{30,}\/exec$/.test(form.action)
+      && !form.action.includes("DEPLOYMENT_REQUIRED") && sources.has(source)
+      && form.dataset.turnstileSitekey === "0x4AAAAAAFjk66LpNyMVEQBr"
+      && Boolean(tokenField && leadField && sourceField && widget && button);
+    let phase = "idle", generation = 0, widgetId = null;
 
-    const errorFor = (control) => {
-      if (control.validity.valueMissing) return messages.required;
-      if (control.validity.typeMismatch) return messages.email;
-      if (control.validity.tooShort) return messages.tooShort;
-      return "";
-    };
-
-    const validateControl = (control) => {
-      const wrapper = control.closest("[data-form-field]");
-      const error = wrapper?.querySelector("[data-field-error]");
-      const message = errorFor(control);
-      if (message) {
-        control.setAttribute("aria-invalid", "true");
-      } else {
-        control.removeAttribute("aria-invalid");
+    const show = (text, error = false) => {
+      if (status) {
+        status.textContent = text;
+        status.classList.toggle("is-error", error);
       }
+    };
+    const busy = (enabled, text = defaultLabel) => {
+      form.classList.toggle("is-submitting", enabled);
+      if (enabled) form.setAttribute("aria-busy", "true");
+      else form.removeAttribute("aria-busy");
+      if (button) button.disabled = enabled || !configured;
+      if (label) label.textContent = text;
+    };
+    const invalidate = (message = "") => {
+      // A new attempt gets a new reference and widget; stale callbacks cannot reuse its token.
+      generation += 1;
+      phase = "idle";
+      if (tokenField) tokenField.value = "";
+      if (leadField) leadField.value = "";
+      const oldWidget = widgetId;
+      widgetId = null;
+      if (oldWidget !== null) {
+        try { window.turnstile?.remove(oldWidget); } catch { /* Local token state is already invalid. */ }
+      }
+      busy(false);
+      show(configured ? message : messages.unavailable, Boolean(message) || !configured);
+    };
+    const validateControl = (control) => {
+      const validity = control.validity;
+      const message = validity.valueMissing ? messages.required : validity.typeMismatch ? messages.email
+        : validity.tooShort ? messages.tooShort : !validity.valid ? messages.summary : "";
+      control.setAttribute("aria-invalid", String(Boolean(message)));
+      const error = control.closest("[data-form-field]")?.querySelector("[data-field-error]");
       if (error) error.textContent = message;
       return !message;
     };
-
+    const validate = () => {
+      const firstInvalid = controls.filter(control => !validateControl(control))[0];
+      if (!firstInvalid) return true;
+      show(messages.summary, true);
+      firstInvalid.focus();
+      return false;
+    };
     controls.forEach((control) => {
       control.addEventListener("blur", () => validateControl(control));
-      control.addEventListener("change", () => validateControl(control));
-      control.addEventListener("input", () => {
+      for (const eventName of ["input", "change"]) control.addEventListener(eventName, () => {
+        if (phase !== "idle") invalidate(messages.changed);
         if (control.getAttribute("aria-invalid") === "true") validateControl(control);
       });
     });
-
-    const resetSubmitState = () => {
-      const wasSubmitting = form.classList.contains("is-submitting") || form.getAttribute("aria-busy") === "true";
-      form.classList.remove("is-submitting");
-      form.removeAttribute("aria-busy");
-      if (submitButton) submitButton.disabled = false;
-      if (submitLabel) submitLabel.textContent = defaultSubmitLabel;
-      // Verification can restore this page from BFCache; its old pending message no longer describes the form.
-      if (wasSubmitting && status?.textContent === messages.pending) {
-        status.textContent = "";
-        status.classList.remove("is-error");
-      }
-    };
-
     form.addEventListener("submit", (event) => {
-      let firstInvalid = null;
-      controls.forEach((control) => {
-        if (!validateControl(control) && !firstInvalid) firstInvalid = control;
-      });
-      if (firstInvalid) {
-        event.preventDefault();
-        if (status) {
-          status.textContent = messages.summary;
-          status.classList.add("is-error");
-        }
-        firstInvalid.focus();
+      if (!configured) { event.preventDefault(); invalidate(); return; }
+      if (phase === "ready" && tokenField.value) {
+        // requestSubmit re-runs validation and this listener, then uses the browser's native POST.
+        if (!validate()) { event.preventDefault(); invalidate(messages.summary); return; }
+        phase = "submitting";
+        busy(true, messages.sending);
+        show(messages.sending);
         return;
       }
-
-      const honeypot = form.querySelector('input[name="_honey"]');
-      if (honeypot?.value) {
-        // Silently stop scripted submissions without disclosing the trap.
-        event.preventDefault();
-        form.reset();
-        return;
-      }
-
-      const now = new Date();
-      const leadId = createLeadId(now);
-      const serviceValue = String(form.elements.service_code?.value || "");
-      const service = serviceValue.length <= 28 && /^[A-Z0-9]+(?:-[A-Z0-9]+)*$/.test(serviceValue)
-        ? serviceValue
-        : "OTHER";
-      const date = now.toISOString().slice(0, 10).replace(/-/g, "");
-      // Keep routing metadata ASCII and correlate it by reference; the original name,
-      // company and project brief stay untouched in the submitted form fields.
-      const subject = `[ANNA-LEAD][${service}][${language}][${date}] ${leadId}`;
-
-      form.querySelector("[data-subject-field]").value = subject;
-      form.querySelector("[data-replyto-field]").value = form.elements.email.value;
-      form.querySelector("[data-lead-id-field]").value = leadId;
-      form.querySelector("[data-submitted-at-field]").value = now.toISOString();
-      form.querySelector("[data-source-field]").value = window.location.href;
-
-      const successUrl = new URL(form.dataset.successUrl, window.location.href);
-      successUrl.searchParams.set("ref", leadId);
-      form.querySelector("[data-next-field]").value = successUrl.href;
-
-      if (status) {
-        status.textContent = messages.pending;
-        status.classList.remove("is-error");
-      }
-      form.classList.add("is-submitting");
-      form.setAttribute("aria-busy", "true");
-      if (submitButton) submitButton.disabled = true;
-      if (submitLabel) submitLabel.textContent = messages.pending;
+      event.preventDefault();
+      if (phase !== "idle" || !validate()) return;
+      if (form.querySelector('input[name="_honey"]')?.value) { invalidate(messages.unavailable); return; }
+      invalidate();
+      const attempt = generation;
+      // cData is fixed at render time, so generate the reference before rendering or execution.
+      leadField.value = createLeadId(new Date());
+      sourceField.value = source;
+      phase = "verifying";
+      busy(true, messages.pending);
+      show(messages.pending);
+      loadTurnstile().then((turnstile) => {
+        if (attempt !== generation || phase !== "verifying") return;
+        widgetId = turnstile.render(widget, {
+          sitekey: form.dataset.turnstileSitekey, action: "anna_contact", cData: leadField.value,
+          execution: "execute", appearance: "interaction-only", theme: "dark", size: "compact",
+          language: language === "ZH" ? "zh-CN" : "en",
+          "response-field": false, retry: "never", "refresh-expired": "manual", "refresh-timeout": "manual",
+          callback: (token) => {
+            if (attempt !== generation || phase !== "verifying") return;
+            if (typeof token !== "string" || !token || token.length > 2048) { invalidate(messages.retry); return; }
+            tokenField.value = token;
+            phase = "ready";
+            button.disabled = false;
+            form.requestSubmit();
+          },
+          "expired-callback": () => { if (attempt === generation) invalidate(messages.expired); },
+          "timeout-callback": () => { if (attempt === generation) invalidate(messages.retry); },
+          "error-callback": () => { if (attempt === generation) invalidate(messages.retry); return true; },
+        });
+        turnstile.execute(widgetId);
+      }).catch(() => { if (attempt === generation) invalidate(messages.retry); });
     });
-
-    // Back-forward cache can restore a disabled submit button after returning from verification.
-    window.addEventListener("pageshow", resetSubmitState);
-    // Keep native required/email validation until the custom submit handler is fully registered.
+    // BFCache must never restore a spent token or leave the form permanently disabled.
+    window.addEventListener("pagehide", () => invalidate());
+    window.addEventListener("pageshow", () => { if (phase !== "idle") invalidate(); });
     form.noValidate = true;
+    busy(false);
+    if (!configured) show(messages.unavailable, true);
   });
 }
 

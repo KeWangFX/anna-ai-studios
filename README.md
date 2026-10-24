@@ -18,21 +18,23 @@ Bilingual production AI systems website for a London-based independent delivery 
 - `assets/products/` — versioned, web-compressed DateLens and FrameFetch promotional artwork
 - `assets/contact/` — the cropped public WeChat QR code only; source phone screenshots stay private
 
-The site remains static and has no analytics, cookies or database binding. Its contact form posts directly to FormSubmit, which forwards a structured email to `keke19870699@gmail.com`; the email fallback remains available if the form service is unreachable.
+The public site remains static, without behavioural analytics or advertising cookies. Its contact form posts natively to a Google Apps Script web app after Cloudflare Turnstile verification; the email fallback remains available if the form service is unreachable. The mail backend keeps a limited delivery and abuse-prevention ledger in Script Properties, separate from the public website.
 
 ## Contact delivery
 
 English and Chinese forms share one searchable subject convention:
 
 ```text
-[ANNA-LEAD][SERVICE-CODE][EN|ZH][YYYYMMDD] ANNA-YYYYMMDDhhmmss-XXXX
+[ANNA-LEAD][EN|ZH][SERVICE-CODE] ANNA-YYYYMMDDhhmmss-XXXX
 ```
 
-The subject uses ASCII routing metadata and the Lead ID for correlation. The original name, company/team and project brief remain unchanged in the submitted email fields, including Chinese text. Every delivery also contains a sortable Lead ID (`ANNA-YYYYMMDDhhmmss-XXXX`), UTC submission time, language and source page. Required fields are name, work email, service code, project brief and consent; company/team is optional. Native form validation, a hidden honeypot and FormSubmit's default verification reduce junk without adding client-side tracking.
+The subject uses ASCII routing metadata and the Lead ID for correlation. The original name, company/team and project brief remain unchanged in the submitted email fields, including Chinese text. Every delivery also contains a sortable Lead ID (`ANNA-YYYYMMDDhhmmss-XXXX`), UTC submission time, language and source page. Required fields are name, work email, service code, project brief and consent; company/team is optional. Native form validation, a hidden honeypot and Cloudflare Turnstile verification reduce junk without adding client-side tracking.
 
 Review CTAs request an assessment rather than confirm an appointment. The studio replies within two working days and arranges a 30-minute call after both sides agree the next step. Native validation stays enabled until the custom form handler has initialized successfully.
 
-The production endpoint is activated and uses FormSubmit's random endpoint token instead of exposing the recipient address in the form action. Keep reCAPTCHA enabled, do not add `_captcha=false`, and never place confidential production material in the public enquiry form. Search Gmail with `subject:"[ANNA-LEAD]"` to isolate all website enquiries.
+The owner authorised the send-mail and external-request scopes, and Apps Script Web App version 1 was deployed on 24 October 2026. Both form actions use that same deployed endpoint; backend source, manifest and offline tests are maintained in `backend/apps-script/` and excluded from the public build. The authorised preflight reported 100 remaining daily recipients and a configured verification secret; the deployed backend is enabled for controlled real-mail validation. Keep Turnstile server verification enabled and never place confidential production material in the public enquiry form. The token cData must match the generated Lead ID; edited fields or an expired token require a new verification. Search Gmail with `subject:"[ANNA-LEAD]"` to isolate website enquiries and `subject:"[ANNA-RECEIPT]"` for receipts. MailApp acceptance does not establish inbox delivery; marked Chinese and English submissions require real notification and receipt checks before release closure.
+
+The consumer Google Apps Script allowance is currently 100 email recipients per day. The backend applies lower rolling limits: 20 enquiries per 24 hours, 5 per hour, 2 per submitting address per 24 hours, and two recipients reserved before sending. Each accepted enquiry needs two mail recipients. It checks the live remaining quota and stops without a paid fallback when insufficient. Verification work is also bounded to 200 attempts per 24 hours and 10 per minute; invalid attempts can consume this shared budget, so this is not a DDoS-resistance guarantee. Recheck the [official quota page](https://developers.google.com/apps-script/guides/services/quotas) before changing limits. Direct access to Google services from mainland China has not been verified; keep the direct-contact alternatives visible and do not claim mainland availability.
 
 Direct contact fallbacks are published alongside the form:
 

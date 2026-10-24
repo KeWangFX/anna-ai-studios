@@ -2,6 +2,7 @@
 <html lang="zh-Hans">
   <head>
     <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="base-uri 'self'; object-src 'none'; form-action 'self' https://script.google.com https://script.googleusercontent.com; script-src 'self' https://challenges.cloudflare.com 'sha256-DWktYS9tt8G/ZVxM2QJlKYzWc/9FBuk6QYH87h1o+3Q=' 'sha256-FWcF5FztoRX1k6JR0lhokds7W5bXSIVJ3BhGHkUFk6Y=' 'sha256-x/QbVXz0DKG0POqJYhKgtgfCxZVaZ3tsATOAnwRxTfY='; frame-src https://challenges.cloudflare.com https://script.google.com https://script.googleusercontent.com; connect-src 'self' https://challenges.cloudflare.com" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Anna AI Studios｜生产级 AI 系统落地</title>
     <meta name="description" content="Anna AI Studios 为创意与技术团队设计、集成并运营可控、可观测、有人类审批门禁的生产级 AI 系统。" />
@@ -32,7 +33,7 @@
     <link rel="apple-touch-icon" href="../assets/brand/anna-ai-studios-apple-touch-icon-180x180-v1.png" />
     <link rel="preload" href="../assets/brand/circuit-poster.webp" as="image" type="image/webp" />
     <link rel="stylesheet" href="../styles.css?v=20261023d" />
-    <script defer src="../script.js?v=20261024a"></script>
+    <script defer src="../script.js?v=20261024b"></script>
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -463,19 +464,15 @@
           </div>
         </div>
 
-        <form class="contact-form" action="https://formsubmit.co/6cac8ac34b35002e23bb9086eed1c426" method="POST" data-contact-form data-language="ZH" data-success-url="https://anna-ai-studios.pages.dev/zh/thanks.html">
-          <input type="hidden" name="_subject" value="[ANNA-LEAD][NEW][ZH]" data-subject-field />
-          <input type="hidden" name="_next" value="https://anna-ai-studios.pages.dev/zh/thanks.html" data-next-field />
-          <input type="hidden" name="_template" value="table" />
-          <input type="hidden" name="_autoresponse" value="感谢联系 Anna AI Studios。我们已收到你的项目需求，将在两个工作日内完成初步评估并回复。双方确认下一步后，再安排 30 分钟通话。此邮件为自动回执，请勿直接回复。" />
-          <input type="hidden" name="_replyto" value="" data-replyto-field />
+        <form class="contact-form" action="https://script.google.com/macros/s/AKfycbzD1PsWi_LSHxLFE56HPKtgLsvTXl9J0sc2LbU4eIsGEg-Ref2vjStymq-iqptIJUJQ/exec" method="POST" enctype="application/x-www-form-urlencoded" accept-charset="UTF-8" data-contact-form data-turnstile-sitekey="0x4AAAAAAFjk66LpNyMVEQBr" data-language="ZH">
           <input type="hidden" name="lead_id" value="" data-lead-id-field />
-          <input type="hidden" name="submitted_at_utc" value="" data-submitted-at-field />
+          <input type="hidden" name="cf-turnstile-response" value="" />
           <input type="hidden" name="source_page" value="" data-source-field />
           <input type="hidden" name="language" value="ZH" />
           <div class="form-honeypot" aria-hidden="true" hidden><label for="anna-company-site-zh">请勿填写此项</label><input id="anna-company-site-zh" type="text" name="_honey" tabindex="-1" autocomplete="off" /></div>
 
           <div class="form-status" role="status" aria-live="polite" data-form-status></div>
+          <noscript><p class="contact-form__privacy">请启用 JavaScript 完成安全验证，或使用下方邮箱链接直接联系。</p></noscript>
           <div class="contact-form__grid">
             <div class="form-field" data-form-field><label for="anna-name-zh">姓名 <span aria-hidden="true">*</span><span class="sr-only">（必填）</span></label><input id="anna-name-zh" name="name" type="text" minlength="2" maxlength="80" autocomplete="name" required aria-describedby="anna-name-error-zh" /><span class="form-field__error" id="anna-name-error-zh" data-field-error></span></div>
             <div class="form-field" data-form-field><label for="anna-company-zh">公司 / 团队 <span class="form-field__optional">（选填）</span></label><input id="anna-company-zh" name="company" type="text" minlength="2" maxlength="120" autocomplete="organization" aria-describedby="anna-company-error-zh" /><span class="form-field__error" id="anna-company-error-zh" data-field-error></span></div>
@@ -485,10 +482,11 @@
             <div class="form-field form-field--wide" data-form-field><label for="anna-message-zh">项目说明 <span aria-hidden="true">*</span><span class="sr-only">（必填）</span></label><textarea id="anna-message-zh" name="message" rows="7" minlength="20" maxlength="2500" required aria-describedby="anna-message-hint-zh anna-message-error-zh"></textarea><span class="form-field__hint" id="anna-message-hint-zh">请写明当前流程、主要约束、目标结果和时间要求。不要上传或粘贴保密制作素材。</span><span class="form-field__error" id="anna-message-error-zh" data-field-error></span></div>
           </div>
 
-          <div class="form-consent form-field" data-form-field><input id="anna-consent-zh" name="privacy_consent" type="checkbox" value="Agreed" required aria-describedby="anna-consent-error-zh" /><label for="anna-consent-zh">我已阅读<a href="privacy/">隐私说明</a>，并了解 FormSubmit 会将上述信息通过邮件发送给 Anna AI Studios，仅用于回复本次咨询。 <span aria-hidden="true">*</span><span class="sr-only">（必填）</span></label><span class="form-field__error" id="anna-consent-error-zh" data-field-error></span></div>
+          <div class="form-consent form-field" data-form-field><input id="anna-consent-zh" name="privacy_consent" type="checkbox" value="Agreed" required aria-describedby="anna-consent-error-zh" /><label for="anna-consent-zh">我已阅读<a href="privacy/">隐私说明</a>，并了解 Google 会处理上述信息，将咨询发送给 Anna AI Studios 并向我发送回执；Cloudflare 用于检查本次提交是否存在滥用。 <span aria-hidden="true">*</span><span class="sr-only">（必填）</span></label><span class="form-field__error" id="anna-consent-error-zh" data-field-error></span></div>
 
-          <div class="contact-form__footer"><button class="button button--large button--copper" type="submit" data-submit-button><span data-submit-label>发送项目需求</span><span aria-hidden="true">↗</span></button><p>通过安全验证与隐藏反垃圾字段保护。结构化内容会直接发送到工作室邮箱。</p></div>
-          <p class="contact-form__privacy">请阅读 <a href="privacy/">Anna AI Studios 隐私说明</a>。邮件转发由 <a href="https://formsubmit.co/privacy.pdf" target="_blank" rel="noreferrer">FormSubmit</a> 处理。更愿意直接发邮件？<a href="mailto:keke19870699@gmail.com?subject=%5BANNA-LEAD%5D%5BEMAIL%5D%5BZH%5D%20%E9%A1%B9%E7%9B%AE%E5%92%A8%E8%AF%A2">keke19870699@gmail.com</a></p>
+          <div data-turnstile-container></div>
+          <div class="contact-form__footer"><button class="button button--large button--copper" type="submit" data-submit-button disabled><span data-submit-label>发送项目需求</span><span aria-hidden="true">↗</span></button><p>由 Cloudflare 提供安全验证。Google 处理咨询并发送通知和回执；是否送达请以实际收到邮件为准。</p></div>
+          <p class="contact-form__privacy">请阅读 <a href="privacy/">Anna AI Studios 隐私说明</a>。邮件通过 <a href="https://policies.google.com/privacy" target="_blank" rel="noreferrer">Google Apps Script 与 Gmail</a> 处理，安全验证由 <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noreferrer">Cloudflare Turnstile</a> 提供。更愿意直接发邮件？<a href="mailto:keke19870699@gmail.com?subject=%5BANNA-LEAD%5D%5BEMAIL%5D%5BZH%5D%20%E9%A1%B9%E7%9B%AE%E5%92%A8%E8%AF%A2">keke19870699@gmail.com</a></p>
         </form>
       </div></section>
     </main>
