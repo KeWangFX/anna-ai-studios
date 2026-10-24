@@ -25,10 +25,10 @@
 中英文表单统一使用以下邮件主题：
 
 ```text
-[ANNA-LEAD][SERVICE-CODE][EN|ZH][YYYYMMDD] Company / Name
+[ANNA-LEAD][SERVICE-CODE][EN|ZH][YYYYMMDD] ANNA-YYYYMMDDhhmmss-XXXX
 ```
 
-每条留言同时包含可排序 Lead ID、UTC 提交时间、语言与来源页面。FormSubmit 端点已经激活，保留 reCAPTCHA 与隐藏反垃圾字段。Gmail 可用 `subject:"[ANNA-LEAD]"` 单独筛出网站咨询。
+邮件主题使用 ASCII 路由信息和 Lead ID 方便对应查询；姓名、公司／团队与项目正文在提交的邮件字段中保留原文，包括中文内容。每条留言同时包含可排序 Lead ID、UTC 提交时间、语言与来源页面。FormSubmit 端点已经激活，保留 reCAPTCHA 与隐藏反垃圾字段。Gmail 可用 `subject:"[ANNA-LEAD]"` 单独筛出网站咨询。
 
 - 邮箱：`keke19870699@gmail.com`
 - WhatsApp：页面显示 `+44 7516 141043`，链接使用 `+447516141043`

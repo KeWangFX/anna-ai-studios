@@ -213,6 +213,7 @@ for (const failAt of [0, 1, 2]) {
 }
 
 const formCode = extract('initContactForms', 'initLeadReference');
+const leadIdCode = extract('createLeadId', 'initServiceSelection');
 for (const fail of [false, true]) {
   const formEnv = environment(), form = new Node(); form.noValidate = false;
   form.querySelector = () => null; form.querySelectorAll = () => [];
@@ -220,6 +221,60 @@ for (const fail of [false, true]) {
   formEnv.document.querySelectorAll = () => [form];
   try { formEnv.run(`${formCode}\ninitContactForms();`); } catch (error) { if (!fail) throw error; }
   assert.equal(form.noValidate, !fail);
+}
+
+// Exercise the actual submit handler: routing metadata must not rewrite Unicode enquiry data.
+for (const language of ['EN', 'ZH']) {
+  for (const [serviceValue, expectedService] of [
+    ['AI-FILM', 'AI-FILM'], ['多模态审片', 'OTHER'],
+    ['OTHER\r\nUnexpected: value', 'OTHER'], ['A'.repeat(29), 'OTHER'], ['', 'OTHER'],
+  ]) {
+    const formEnv = environment(), form = new Node(), status = new Node(), button = new Node(), label = new Node();
+    form.dataset.language = language;
+    form.dataset.successUrl = language === 'ZH' ? '/zh/thanks.html' : '/thanks.html';
+    formEnv.window.location.href = `https://anna-ai-studios.pages.dev/${language === 'ZH' ? 'zh/' : ''}#contact`;
+    formEnv.context.URL = URL;
+    formEnv.context.Date = class extends Date {
+      constructor(...args) { super(...(args.length ? args : ['2026-10-24T00:05:06.789Z'])); }
+    };
+    formEnv.window.crypto = { getRandomValues(bytes) { bytes.set([0x12, 0x34]); return bytes; } };
+    const original = {
+      name: '王可／陳明', company: '安娜影像工作室 Anna Studio',
+      message: '【测试】中文咨询正文，保留繁體與简体。\r\n第二行：海洋与烟火视觉制作 🎬',
+      email: 'annaqa+unicode@example.com', service_code: serviceValue,
+    };
+    form.elements = Object.fromEntries(Object.entries(original).map(([name, value]) => {
+      const control = new Node(); control.value = value;
+      control.validity = { valueMissing: false, typeMismatch: false, tooShort: false };
+      control.closest = () => null;
+      return [name, control];
+    }));
+    const hidden = new Map(['subject', 'replyto', 'lead-id', 'submitted-at', 'source', 'next']
+      .map(name => [`[data-${name}-field]`, new Node()]));
+    const honeypot = new Node(); honeypot.value = '';
+    const nodes = new Map([...hidden, ['input[name="_honey"]', honeypot],
+      ['[data-form-status]', status], ['[data-submit-button]', button], ['[data-submit-label]', label]]);
+    form.querySelector = selector => nodes.get(selector) || null;
+    form.querySelectorAll = () => Object.values(form.elements);
+    formEnv.document.querySelectorAll = () => [form];
+    formEnv.run(`${leadIdCode}\n${formCode}\ninitContactForms();`);
+    let prevented = false;
+    form.emit('submit', { preventDefault() { prevented = true; } });
+    const value = name => hidden.get(`[data-${name}-field]`).value;
+    assert.equal(prevented, false, 'Valid Unicode enquiries must continue through native form submission');
+    assert.equal(value('lead-id'), 'ANNA-20261024000506-1234');
+    assert.equal(value('subject'), `[ANNA-LEAD][${expectedService}][${language}][20261024] ${value('lead-id')}`);
+    assert.match(value('subject'), /^[\x20-\x7E]+$/);
+    for (const [name, originalValue] of Object.entries(original)) assert.equal(form.elements[name].value, originalValue);
+    assert.equal(value('replyto'), original.email);
+    assert.equal(value('submitted-at'), '2026-10-24T00:05:06.789Z');
+    assert.equal(value('source'), formEnv.window.location.href);
+    const next = new URL(value('next'));
+    assert.equal(next.pathname, form.dataset.successUrl);
+    assert.equal(next.searchParams.get('ref'), value('lead-id'));
+    assert.equal(form.getAttribute('aria-busy'), 'true');
+    assert.equal(button.disabled, true);
+  }
 }
 
 // Returning from provider verification must restore an actionable form without erasing a real validation error.
@@ -271,4 +326,4 @@ shaderEnv.window.emit('pagehide', { persisted: true }); assert.equal(shaderEnv.f
 shaderEnv.window.emit('pageshow', { persisted: true }); assert.equal(shaderEnv.frames.size, 1); assert.equal(renderers, 1);
 shaderEnv.window.emit('pagehide', { persisted: false }); assert.equal(shaderEnv.frames.size, 0); assert.equal(disposed, 1);
 shaderEnv.window.emit('pageshow'); assert.equal(shaderEnv.frames.size, 0);
-console.log('PASS: hero initial static modes, repeated breakpoint/reduced-motion/saveData transitions, scoped video sources, aria/inert, one observer/listener set, pending RAF cleanup, hidden/BFCache, no-observer fallback, optional shader guard/idle recheck, reveal failure fallback, progressive form validation, shader stop/resume/renderer reuse.');
+console.log('PASS: hero initial static modes, repeated breakpoint/reduced-motion/saveData transitions, scoped video sources, aria/inert, one observer/listener set, pending RAF cleanup, hidden/BFCache, no-observer fallback, optional shader guard/idle recheck, reveal failure fallback, progressive form validation, Unicode enquiry preservation with ASCII subject routing and correlated references, shader stop/resume/renderer reuse.');

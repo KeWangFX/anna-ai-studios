@@ -25,10 +25,10 @@ The site remains static and has no analytics, cookies or database binding. Its c
 English and Chinese forms share one searchable subject convention:
 
 ```text
-[ANNA-LEAD][SERVICE-CODE][EN|ZH][YYYYMMDD] Company / Name
+[ANNA-LEAD][SERVICE-CODE][EN|ZH][YYYYMMDD] ANNA-YYYYMMDDhhmmss-XXXX
 ```
 
-Every delivery also contains a sortable Lead ID (`ANNA-YYYYMMDDhhmmss-XXXX`), UTC submission time, language and source page. Required fields are name, work email, service code, project brief and consent; company/team is optional. Native form validation, a hidden honeypot and FormSubmit's default verification reduce junk without adding client-side tracking.
+The subject uses ASCII routing metadata and the Lead ID for correlation. The original name, company/team and project brief remain unchanged in the submitted email fields, including Chinese text. Every delivery also contains a sortable Lead ID (`ANNA-YYYYMMDDhhmmss-XXXX`), UTC submission time, language and source page. Required fields are name, work email, service code, project brief and consent; company/team is optional. Native form validation, a hidden honeypot and FormSubmit's default verification reduce junk without adding client-side tracking.
 
 Review CTAs request an assessment rather than confirm an appointment. The studio replies within two working days and arranges a 30-minute call after both sides agree the next step. Native validation stays enabled until the custom form handler has initialized successfully.
 

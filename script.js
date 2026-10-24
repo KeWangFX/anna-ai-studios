@@ -1049,15 +1049,6 @@ function createLeadId(date) {
   return `ANNA-${timestamp}-${suffix}`;
 }
 
-function sanitizeSubjectPart(value, fallback, maxLength) {
-  const normalized = String(value || "")
-    .replace(/[\r\n<>\[\]]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, maxLength);
-  return normalized || fallback;
-}
-
 function initServiceSelection() {
   const form = document.querySelector("[data-contact-form]");
   const serviceSelect = form?.querySelector('select[name="service_code"]');
@@ -1179,11 +1170,14 @@ function initContactForms() {
 
       const now = new Date();
       const leadId = createLeadId(now);
-      const service = sanitizeSubjectPart(form.elements.service_code?.value, "OTHER", 28);
-      const company = sanitizeSubjectPart(form.elements.company?.value, "Independent", 36);
-      const name = sanitizeSubjectPart(form.elements.name?.value, "Contact", 28);
+      const serviceValue = String(form.elements.service_code?.value || "");
+      const service = serviceValue.length <= 28 && /^[A-Z0-9]+(?:-[A-Z0-9]+)*$/.test(serviceValue)
+        ? serviceValue
+        : "OTHER";
       const date = now.toISOString().slice(0, 10).replace(/-/g, "");
-      const subject = `[ANNA-LEAD][${service}][${language}][${date}] ${company} / ${name}`;
+      // Keep routing metadata ASCII and correlate it by reference; the original name,
+      // company and project brief stay untouched in the submitted form fields.
+      const subject = `[ANNA-LEAD][${service}][${language}][${date}] ${leadId}`;
 
       form.querySelector("[data-subject-field]").value = subject;
       form.querySelector("[data-replyto-field]").value = form.elements.email.value;
