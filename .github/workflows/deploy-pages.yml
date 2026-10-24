@@ -29,7 +29,7 @@ jobs:
           node-version: "22"
 
       - name: Validate responsive runtime lifecycle
-        run: node scripts/test_runtime.cjs && node scripts/test_contact_delivery.cjs && node scripts/test_contact_contract.cjs && node backend/apps-script/test_backend.cjs
+        run: node scripts/test_runtime.cjs && node scripts/test_404_locale.cjs && node scripts/test_contact_delivery.cjs && node scripts/test_contact_contract.cjs && node backend/apps-script/test_backend.cjs
 
       - name: Setup Python
         uses: actions/setup-python@v5

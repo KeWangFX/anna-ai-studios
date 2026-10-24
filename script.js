@@ -1145,7 +1145,22 @@ function initContactForms() {
       && !form.action.includes("DEPLOYMENT_REQUIRED") && sources.has(source)
       && form.dataset.turnstileSitekey === "0x4AAAAAAFjk66LpNyMVEQBr"
       && Boolean(tokenField && leadField && sourceField && widget && button);
-    let phase = "idle", generation = 0, widgetId = null;
+    let phase = "idle", generation = 0, widgetId = null, verificationTimer = null;
+
+    const clearVerificationTimer = () => {
+      if (verificationTimer !== null) window.clearTimeout(verificationTimer);
+      verificationTimer = null;
+    };
+    const startVerificationTimer = (attempt) => {
+      clearVerificationTimer();
+      // Bound silent provider stalls, but never count time spent solving a visible challenge.
+      const timer = window.setTimeout(() => {
+        if (verificationTimer !== timer || attempt !== generation || phase !== "verifying") return;
+        verificationTimer = null;
+        invalidate(messages.retry);
+      }, 60000);
+      verificationTimer = timer;
+    };
 
     const show = (text, error = false) => {
       if (status) {
@@ -1162,6 +1177,7 @@ function initContactForms() {
     };
     const invalidate = (message = "") => {
       // A new attempt gets a new reference and widget; stale callbacks cannot reuse its token.
+      clearVerificationTimer();
       generation += 1;
       phase = "idle";
       if (tokenField) tokenField.value = "";
@@ -1220,18 +1236,26 @@ function initContactForms() {
       show(messages.pending);
       loadTurnstile().then((turnstile) => {
         if (attempt !== generation || phase !== "verifying") return;
+        startVerificationTimer(attempt);
         widgetId = turnstile.render(widget, {
           sitekey: form.dataset.turnstileSitekey, action: "anna_contact", cData: leadField.value,
           execution: "execute", appearance: "interaction-only", theme: "dark", size: "compact",
-          language: language === "ZH" ? "zh-CN" : "en",
+          language: language === "ZH" ? "zh-cn" : "en",
           "response-field": false, retry: "never", "refresh-expired": "manual", "refresh-timeout": "manual",
           callback: (token) => {
             if (attempt !== generation || phase !== "verifying") return;
+            clearVerificationTimer();
             if (typeof token !== "string" || !token || token.length > 2048) { invalidate(messages.retry); return; }
             tokenField.value = token;
             phase = "ready";
             button.disabled = false;
             form.requestSubmit();
+          },
+          "before-interactive-callback": () => {
+            if (attempt === generation && phase === "verifying") clearVerificationTimer();
+          },
+          "after-interactive-callback": () => {
+            if (attempt === generation && phase === "verifying") startVerificationTimer(attempt);
           },
           "expired-callback": () => { if (attempt === generation) invalidate(messages.expired); },
           "timeout-callback": () => { if (attempt === generation) invalidate(messages.retry); },
@@ -1240,6 +1264,7 @@ function initContactForms() {
         turnstile.execute(widgetId);
       }).catch(() => { if (attempt === generation) invalidate(messages.retry); });
     });
+    form.addEventListener("reset", () => invalidate());
     // BFCache must never restore a spent token or leave the form permanently disabled.
     window.addEventListener("pagehide", () => invalidate());
     window.addEventListener("pageshow", () => { if (phase !== "idle") invalidate(); });

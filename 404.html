@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta http-equiv="Content-Security-Policy" content="base-uri 'self'; object-src 'none'; form-action 'self' https://script.google.com https://script.googleusercontent.com; script-src 'self' https://challenges.cloudflare.com 'sha256-DWktYS9tt8G/ZVxM2QJlKYzWc/9FBuk6QYH87h1o+3Q=' 'sha256-FWcF5FztoRX1k6JR0lhokds7W5bXSIVJ3BhGHkUFk6Y=' 'sha256-x/QbVXz0DKG0POqJYhKgtgfCxZVaZ3tsATOAnwRxTfY='; frame-src https://challenges.cloudflare.com https://script.google.com https://script.googleusercontent.com; connect-src 'self' https://challenges.cloudflare.com" />
+    <meta http-equiv="Content-Security-Policy" content="base-uri 'self'; object-src 'none'; form-action 'self' https://script.google.com https://script.googleusercontent.com; script-src 'self' https://challenges.cloudflare.com 'sha256-622U4j5ppoVjrP+frgBmXueceYkv3GkgkcXV9LSjb/0=' 'sha256-FWcF5FztoRX1k6JR0lhokds7W5bXSIVJ3BhGHkUFk6Y=' 'sha256-x/QbVXz0DKG0POqJYhKgtgfCxZVaZ3tsATOAnwRxTfY='; frame-src https://challenges.cloudflare.com https://script.google.com https://script.googleusercontent.com; connect-src 'self' https://challenges.cloudflare.com" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex" />
     <meta name="theme-color" content="#060807" />
@@ -10,6 +10,26 @@
     <script>
       (() => {
         const base = location.hostname.endsWith("github.io") ? "/anna-ai-studios/" : "/";
+        // Keep recovery inside the language the visitor was using, including on the mirror.
+        const route = location.pathname.startsWith(base) ? location.pathname.slice(base.length) : location.pathname.replace(/^\//, "");
+        const chinese = /^zh(?:\/|$)/.test(route);
+        const copy = chinese ? {
+          title: "页面未找到 | Anna AI Studios",
+          kicker: "404 — 路径中断",
+          firstLine: "这个页面",
+          secondLine: "暂时找不到。",
+          description: "返回工作室，继续查看服务与案例。",
+          home: "返回 Anna AI Studios 中文首页"
+        } : {
+          title: "Not found | Anna AI Studios",
+          kicker: "404 — Open circuit",
+          firstLine: "This route",
+          secondLine: "ends here.",
+          description: "Return to the production path.",
+          home: "Back to Anna AI Studios"
+        };
+        document.documentElement.lang = chinese ? "zh-Hans" : "en";
+        document.title = copy.title;
         const icon = document.createElement("link");
         icon.rel = "icon";
         icon.type = "image/svg+xml";
@@ -22,7 +42,19 @@
         document.head.append(stylesheet);
 
         window.addEventListener("DOMContentLoaded", () => {
-          document.querySelector("[data-home-link]")?.setAttribute("href", base);
+          document.querySelector("[data-error-kicker]").textContent = copy.kicker;
+          document.querySelector("[data-error-first-line]").textContent = copy.firstLine;
+          document.querySelector("[data-error-second-line]").textContent = copy.secondLine;
+          document.querySelector("[data-error-description]").textContent = copy.description;
+          if (chinese) {
+            // Chinese glyphs need more leading and a smaller mobile minimum to keep both lines readable.
+            const heading = document.querySelector("[data-error-heading]");
+            heading.style.fontSize = "clamp(40px,9vw,132px)";
+            heading.style.lineHeight = "1.12";
+          }
+          const home = document.querySelector("[data-home-link]");
+          home.textContent = copy.home;
+          home.setAttribute("href", `${base}${chinese ? "zh/" : ""}`);
         }, { once: true });
       })();
     </script>
@@ -30,10 +62,11 @@
   <body>
     <main class="contact section shell" style="min-height:100dvh;display:grid;place-items:center">
       <div class="contact__frame">
-        <p class="section-index">404 — Open circuit</p>
-        <h1 style="font-size:clamp(56px,9vw,132px);line-height:.9;letter-spacing:-.06em">This route<br />ends here.</h1>
-        <p>Return to the production path.</p>
-        <a class="button button--copper" href="/" data-home-link>Back to Anna AI Studios</a>
+        <p class="section-index" data-error-kicker>404 — Open circuit</p>
+        <h1 data-error-heading style="font-size:clamp(56px,9vw,132px);line-height:.9;letter-spacing:-.06em"><span data-error-first-line>This route</span><br /><span data-error-second-line>ends here.</span></h1>
+        <p data-error-description>Return to the production path.</p>
+        <a class="button button--copper" href="https://anna-ai-studios.pages.dev/" data-home-link>Back to Anna AI Studios</a>
+        <noscript><p><a href="https://anna-ai-studios.pages.dev/zh/" lang="zh-Hans">返回中文首页</a></p></noscript>
       </div>
     </main>
   </body>

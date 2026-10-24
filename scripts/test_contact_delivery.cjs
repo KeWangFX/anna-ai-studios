@@ -47,7 +47,22 @@ function fixture({language = 'ZH', placeholder = false, host = 'anna-ai-studios.
     render(container, options) {assert.equal(container, widget); renders.push(options); return 'widget-' + renders.length;},
     execute(id) {executions.push(id);}, remove(id) {removals.push(id);},
   };
-  window.setTimeout = () => 1; window.clearTimeout = () => {};
+  const timers = new Map(), scheduledTimers = [];
+  let clock = 0, nextTimer = 0;
+  window.setTimeout = (callback, delay) => {
+    const timer = {id: ++nextTimer, callback, delay, at: clock + delay};
+    timers.set(timer.id, timer); scheduledTimers.push(timer); return timer.id;
+  };
+  window.clearTimeout = id => timers.delete(id);
+  const advance = duration => {
+    const target = clock + duration;
+    for (;;) {
+      const next = [...timers.values()].filter(timer => timer.at <= target).sort((a, b) => a.at - b.at)[0];
+      if (!next) break;
+      clock = next.at; timers.delete(next.id); next.callback();
+    }
+    clock = target;
+  };
   const document = {querySelectorAll: () => [form], createElement() {return {remove() {}};},
     head: {append(script) {createdScripts.push(script);}}};
   let reference = 0;
@@ -63,7 +78,7 @@ function fixture({language = 'ZH', placeholder = false, host = 'anna-ai-studios.
   form.requestSubmit = send;
   vm.runInContext(code + '\ninitContactForms();', context);
   return {form, window, status, button, label, controls, original, token, lead, origin, honey,
-    renders, executions, removals, nativePosts, createdScripts, send};
+    renders, executions, removals, nativePosts, createdScripts, timers, scheduledTimers, advance, send};
 }
 const flush = async () => {await Promise.resolve(); await Promise.resolve(); await Promise.resolve();};
 (async () => {
@@ -77,8 +92,10 @@ const flush = async () => {await Promise.resolve(); await Promise.resolve(); awa
     assert.equal(f.renders.length, 1); assert.equal(f.executions.length, 1);
     assert.equal(f.renders[0].cData, idBeforeExecution); assert.equal(f.renders[0].action, 'anna_contact');
     assert.equal(f.renders[0]['response-field'], false);
+    assert.equal(f.renders[0].language, language === 'ZH' ? 'zh-cn' : 'en');
     f.send(); await flush(); assert.equal(f.renders.length, 1, 'Repeated clicks must not create multiple challenges');
     f.renders[0].callback('LOCAL_TEST_TOKEN');
+    assert.equal(f.timers.size, 0, 'Successful verification must cancel the local watchdog');
     assert.equal(f.nativePosts.length, 1); assert.equal(f.nativePosts[0].lead_id, idBeforeExecution);
     for (const [key, value] of Object.entries(f.original)) assert.equal(f.nativePosts[0][key], value);
     assert.equal(f.nativePosts[0].source_page.includes('?'), false); assert.equal(f.nativePosts[0].source_page.includes('#'), false);
@@ -91,12 +108,48 @@ const flush = async () => {await Promise.resolve(); await Promise.resolve(); awa
   for (const callbackName of ['expired-callback', 'timeout-callback', 'error-callback']) {
     const f = fixture(); f.send(); await flush(); const old = f.renders[0], lead = f.lead.value;
     old[callbackName](); assert.equal(f.token.value, ''); assert.equal(f.lead.value, ''); assert.equal(f.button.disabled, false);
+    assert.equal(f.timers.size, 0, 'Provider terminal callbacks must cancel the local watchdog');
     old.callback('STALE_TOKEN'); assert.equal(f.nativePosts.length, 0);
     f.send(); await flush(); assert.notEqual(f.lead.value, lead); assert.equal(f.renders.length, 2);
   }
   const changed = fixture(); changed.send(); await flush(); const stale = changed.renders[0];
   changed.controls.message.value += '补充内容'; changed.controls.message.emit('input');
   stale.callback('STALE_AFTER_EDIT'); assert.equal(changed.nativePosts.length, 0); assert.equal(changed.lead.value, '');
+  assert.equal(changed.timers.size, 0);
+
+  // Drive actual form handlers with a deterministic clock, without waiting or contacting Cloudflare.
+  for (const language of ['EN', 'ZH']) {
+    const hung = fixture({language}); hung.send(); await flush();
+    hung.advance(59999); assert.equal(hung.button.disabled, true);
+    hung.advance(1); assert.equal(hung.button.disabled, false); assert.equal(hung.lead.value, '');
+    assert.equal(hung.token.value, ''); assert.equal(hung.nativePosts.length, 0);
+    assert.equal(hung.renders.length, 1, 'A timeout must not automatically retry verification');
+    assert.ok(hung.status.textContent.includes(language === 'ZH' ? '重新发送' : 'send again'));
+    hung.renders[0].callback('LATE_TOKEN_AFTER_TIMEOUT'); assert.equal(hung.nativePosts.length, 0);
+  }
+  const interactive = fixture(); interactive.send(); await flush();
+  const challenge = interactive.renders[0], originalWatchdog = interactive.scheduledTimers[0];
+  interactive.advance(59000); challenge['before-interactive-callback']();
+  assert.equal(interactive.timers.size, 0); interactive.advance(120000);
+  originalWatchdog.callback();
+  assert.equal(interactive.button.disabled, true, 'Manual challenge time must not expire the form');
+  assert.ok(interactive.lead.value); assert.equal(interactive.nativePosts.length, 0);
+  challenge['after-interactive-callback']();
+  originalWatchdog.callback();
+  assert.equal(interactive.button.disabled, true, 'A cancelled timer cannot cancel a resumed automatic phase');
+  interactive.advance(59999); assert.equal(interactive.button.disabled, true);
+  interactive.advance(1); assert.equal(interactive.button.disabled, false);
+
+  for (const cancel of [f => f.form.emit('reset'), f => f.controls.message.emit('input'),
+    f => {f.window.emit('pagehide'); f.window.emit('pageshow');}]) {
+    const f = fixture(); f.send(); await flush();
+    const oldTimer = f.scheduledTimers[0], oldChallenge = f.renders[0];
+    cancel(f); assert.equal(f.timers.size, 0); assert.equal(f.button.disabled, false);
+    f.send(); await flush(); const newLead = f.lead.value;
+    oldTimer.callback(); oldChallenge['before-interactive-callback'](); oldChallenge['after-interactive-callback']();
+    assert.equal(f.lead.value, newLead); assert.equal(f.button.disabled, true); assert.equal(f.timers.size, 1);
+    f.renders[1].callback('CURRENT_TOKEN'); assert.equal(f.nativePosts.length, 1); assert.equal(f.timers.size, 0);
+  }
   const invalid = fixture(); invalid.controls.email.validity = {valid: false, typeMismatch: true};
   invalid.send(); await flush(); assert.equal(invalid.renders.length, 0); assert.equal(invalid.controls.email.focused, true);
   const trap = fixture(); trap.honey.value = 'bot'; trap.send(); await flush(); assert.equal(trap.renders.length, 0);
@@ -121,5 +174,5 @@ const flush = async () => {await Promise.resolve(); await Promise.resolve(); awa
     assert.match(form, /action="https:\/\/script\.google\.com\/macros\/s\/(?:DEPLOYMENT_REQUIRED|[A-Za-z0-9_-]{30,})\/exec"/);
   }
   assert.doesNotMatch(code, /fetch\(|XMLHttpRequest|no-cors/);
-  console.log('PASS: offline native POST gating, CJK field preservation, cData reference binding, duplicate-click guard, stale/expired/error token reset, edited-field invalidation, BFCache, unavailable provider, exact backend field contract, placeholder and source-host blocking.');
+  console.log('PASS: offline native POST gating, CJK field preservation, cData reference binding, duplicate-click guard, stale/expired/error token reset, edited-field invalidation, BFCache, unavailable provider, 60-second silent-stall recovery, manual-challenge pause/resume, stale-timer isolation, exact backend field contract, placeholder and source-host blocking.');
 })().catch(error => {console.error(error); process.exitCode = 1;});
