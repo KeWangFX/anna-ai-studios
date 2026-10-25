@@ -103,3 +103,12 @@ Production URLs: [Chinese](https://anna-ai-studios.pages.dev/zh/) · [English](h
 - Existing free Cloudflare Pages/Workers architecture retained. The saved 25 October account evidence shows Workers Free/$0; no paid service, plan change, new cloud resource or software purchase was introduced. Prior Alibaba free-tier assessment remains the basis for retaining the current deployment; this is a compatibility patch, not a new hosting build.
 
 Evidence folder: `C:\Users\kewang\Documents\Codex\2026-10-23\da-k\outputs\anna-wechat-device-2026-10-25`. Deployment identifiers and post-publish checks are recorded there after publication.
+
+
+### Subsequent desktop WeChat mirror checks and published result
+
+The GitHub Pages mirror subsequently loaded successfully in actual Windows WeChat (`WeChatAppEx.exe`). English-to-Chinese navigation worked; both localized form validation paths rejected incomplete fields and kept the page at `#contact`. English and Chinese copy operations first showed the selectable manual fallback, then asynchronously reported copied/not sent. The Chinese draft retained the observed name `王测试`, traditional/simplified characters, emoji and its two-line brief. No complete inquiry or email was submitted. This establishes desktop mirror UI behavior only, not mobile WeChat or the mirror-to-primary POST path.
+
+Runtime commit `d2f433d80736024bb64fcf5997f5eaae1d72c42a` is deployed at https://6ac65534.anna-ai-studios.pages.dev and both main/working branches. GitHub Pages run https://github.com/KeWangFX/anna-ai-studios/actions/runs/40226209602 succeeded. Curl checks of 28 published pages/assets match the saved source; two Cloudflare `.html` thank-you routes use expected 308 redirects to extensionless routes, whose final HTTP 200 bodies also match. Python urllib was separately rejected on the primary host with Cloudflare 403/1010; that raw result is preserved and not counted as a passed request. No security protection was disabled or browser identity spoofed.
+
+Mobile end-to-end acceptance remains open for lack of an available connected phone. Windows primary-domain visits still stopped at a blank Tencent intermediate page even after system DNS recovered; the successful mirror check does not resolve that path. Saved final report: `wechat-acceptance-report.md` in the evidence folder above.
