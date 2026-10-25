@@ -1152,25 +1152,47 @@ function initContactFallbacks() {
 function initContactForms() {
   const forms = [...document.querySelectorAll("[data-contact-form]")];
   if (!forms.length) return;
+  const diagnosticEvents = new Set(["load-error", "load-timeout", "load-api-unavailable", "watchdog",
+    "render-exception", "execute-exception", "provider-error", "provider-timeout", "provider-expired",
+    "provider-invalid-token", "unsupported", "before-interactive", "after-interactive", "verified"]);
+  const diagnose = (event, startedAt, providerCode) => {
+    if (!diagnosticEvents.has(event)) return;
+    // Local diagnostics contain only fixed labels, bounded timing and a numeric provider code.
+    // Never include tokens, references, draft contents, URLs or exception messages.
+    const detail = {event, elapsedMs: Math.min(900000, Math.max(0, Math.round(Date.now() - startedAt))),
+      visible: document.visibilityState === "visible"};
+    if ((typeof providerCode === "string" || typeof providerCode === "number") && /^\d{6}$/.test(String(providerCode))) {
+      detail.code = String(providerCode);
+    }
+    try { console.warn("[Anna contact verification]", detail); } catch { /* Diagnostics must not affect submission. */ }
+  };
   let scriptPromise;
   const loadTurnstile = () => {
     if (window.turnstile?.render) return Promise.resolve(window.turnstile);
     if (scriptPromise) return scriptPromise;
     scriptPromise = new Promise((resolve, reject) => {
       const script = document.createElement("script");
-      const failed = () => {
+      const startedAt = Date.now();
+      let settled = false;
+      const failed = (event) => {
+        // A timed-out script may later fire onerror/onload; report and settle it only once.
+        if (settled) return;
+        settled = true;
         window.clearTimeout(timeout);
         script.remove();
         scriptPromise = null;
+        diagnose(event, startedAt);
         reject(new Error("Verification unavailable"));
       };
-      const timeout = window.setTimeout(failed, 18000);
+      const timeout = window.setTimeout(() => failed("load-timeout"), 18000);
       // Load directly from Cloudflare only after an intentional, valid submission.
       script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
       script.async = true;
-      script.onerror = failed;
+      script.onerror = () => failed("load-error");
       script.onload = () => {
-        if (!window.turnstile?.render) return failed();
+        if (settled) return;
+        if (!window.turnstile?.render) return failed("load-api-unavailable");
+        settled = true;
         window.clearTimeout(timeout);
         resolve(window.turnstile);
       };
@@ -1225,12 +1247,13 @@ function initContactForms() {
       if (verificationTimer !== null) window.clearTimeout(verificationTimer);
       verificationTimer = null;
     };
-    const startVerificationTimer = (attempt) => {
+    const startVerificationTimer = (attempt, startedAt) => {
       clearVerificationTimer();
       // Bound silent provider stalls, but never count time spent solving a visible challenge.
       const timer = window.setTimeout(() => {
         if (verificationTimer !== timer || attempt !== generation || phase !== "verifying") return;
         verificationTimer = null;
+        diagnose("watchdog", startedAt);
         invalidate(messages.retry);
       }, 60000);
       verificationTimer = timer;
@@ -1302,6 +1325,7 @@ function initContactForms() {
       if (form.querySelector('input[name="_honey"]')?.value) { invalidate(messages.unavailable); return; }
       invalidate();
       const attempt = generation;
+      const startedAt = Date.now();
       // cData is fixed at render time, so generate the reference before rendering or execution.
       leadField.value = createLeadId(new Date());
       sourceField.value = source;
@@ -1310,8 +1334,10 @@ function initContactForms() {
       show(messages.pending);
       loadTurnstile().then((turnstile) => {
         if (attempt !== generation || phase !== "verifying") return;
-        startVerificationTimer(attempt);
-        widgetId = turnstile.render(widget, {
+        startVerificationTimer(attempt, startedAt);
+        let renderedWidget;
+        try {
+          renderedWidget = turnstile.render(widget, {
           sitekey: form.dataset.turnstileSitekey, action: "anna_contact", cData: leadField.value,
           execution: "execute", appearance: "interaction-only", theme: "dark", size: "compact",
           language: language === "ZH" ? "zh-cn" : "en",
@@ -1319,23 +1345,61 @@ function initContactForms() {
           callback: (token) => {
             if (attempt !== generation || phase !== "verifying") return;
             clearVerificationTimer();
-            if (typeof token !== "string" || !token || token.length > 2048) { invalidate(messages.retry); return; }
+            if (typeof token !== "string" || !token || token.length > 2048) {
+              diagnose("provider-invalid-token", startedAt); invalidate(messages.retry); return;
+            }
+            diagnose("verified", startedAt);
             tokenField.value = token;
             phase = "ready";
             button.disabled = false;
             form.requestSubmit();
           },
           "before-interactive-callback": () => {
-            if (attempt === generation && phase === "verifying") clearVerificationTimer();
+            if (attempt === generation && phase === "verifying") {
+              diagnose("before-interactive", startedAt); clearVerificationTimer();
+            }
           },
           "after-interactive-callback": () => {
-            if (attempt === generation && phase === "verifying") startVerificationTimer(attempt);
+            if (attempt === generation && phase === "verifying") {
+              diagnose("after-interactive", startedAt); startVerificationTimer(attempt, startedAt);
+            }
           },
-          "expired-callback": () => { if (attempt === generation) invalidate(messages.expired); },
-          "timeout-callback": () => { if (attempt === generation) invalidate(messages.retry); },
-          "error-callback": () => { if (attempt === generation) invalidate(messages.retry); return true; },
-        });
-        turnstile.execute(widgetId);
+          "expired-callback": () => {
+            if (attempt === generation) { diagnose("provider-expired", startedAt); invalidate(messages.expired); }
+          },
+          "timeout-callback": () => {
+            if (attempt === generation) { diagnose("provider-timeout", startedAt); invalidate(messages.retry); }
+          },
+          "error-callback": (errorCode) => {
+            if (attempt === generation) { diagnose("provider-error", startedAt, errorCode); invalidate(messages.retry); }
+            return true;
+          },
+          "unsupported-callback": () => {
+            if (attempt === generation) { diagnose("unsupported", startedAt); invalidate(messages.retry); }
+          },
+          });
+        } catch {
+          if (attempt === generation && phase === "verifying") {
+            diagnose("render-exception", startedAt); invalidate(messages.retry);
+          }
+          return;
+        }
+        // A provider may synchronously invoke a callback inside render(). Never execute a
+        // widget whose attempt was invalidated (or already submitted) before render returned.
+        if (attempt !== generation || phase !== "verifying") {
+          if (renderedWidget !== null && renderedWidget !== undefined) {
+            try { turnstile.remove(renderedWidget); } catch { /* The attempt is already terminal. */ }
+          }
+          return;
+        }
+        widgetId = renderedWidget;
+        try { turnstile.execute(widgetId); }
+        catch {
+          // A synchronous callback may already have ended this attempt before execute throws.
+          if (attempt === generation && phase === "verifying") {
+            diagnose("execute-exception", startedAt); invalidate(messages.retry);
+          }
+        }
       }).catch(() => { if (attempt === generation) invalidate(messages.retry); });
     });
     form.addEventListener("reset", () => invalidate());

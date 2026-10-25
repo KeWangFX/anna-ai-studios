@@ -21,7 +21,8 @@ class Node {
   closest() {return null;}
   focus() {this.focused = true;}
 }
-function fixture({language = 'ZH', placeholder = false, host = 'anna-ai-studios.pages.dev', missingApi = false} = {}) {
+function fixture({language = 'ZH', placeholder = false, host = 'anna-ai-studios.pages.dev', missingApi = false,
+  renderHook, executeHook, visibilityState = 'visible', consoleThrows = false} = {}) {
   const form = new Node(), window = new Node(), status = new Node(), button = new Node(), label = new Node();
   label.textContent = language === 'ZH' ? '发送项目需求' : 'Send project brief';
   button.disabled = true;
@@ -42,11 +43,14 @@ function fixture({language = 'ZH', placeholder = false, host = 'anna-ai-studios.
   form.querySelectorAll = () => Object.values(controls);
   const prefix = host === 'kewangfx.github.io' ? '/anna-ai-studios/' : '/';
   window.location = {href: `https://${host}${prefix}${language === 'ZH' ? 'zh/' : ''}?service=AI-FILM#contact`};
-  const renders = [], executions = [], removals = [], nativePosts = [], createdScripts = [];
-  if (!missingApi) window.turnstile = {
-    render(container, options) {assert.equal(container, widget); renders.push(options); return 'widget-' + renders.length;},
-    execute(id) {executions.push(id);}, remove(id) {removals.push(id);},
+  const renders = [], executions = [], removals = [], nativePosts = [], createdScripts = [], diagnostics = [];
+  const api = {
+    render(container, options) {
+      assert.equal(container, widget); renders.push(options); renderHook?.(options); return 'widget-' + renders.length;
+    },
+    execute(id) {executions.push(id); executeHook?.(renders.at(-1));}, remove(id) {removals.push(id);},
   };
+  if (!missingApi) window.turnstile = api;
   const timers = new Map(), scheduledTimers = [];
   let clock = 0, nextTimer = 0;
   window.setTimeout = (callback, delay) => {
@@ -63,10 +67,16 @@ function fixture({language = 'ZH', placeholder = false, host = 'anna-ai-studios.
     }
     clock = target;
   };
-  const document = {querySelectorAll: () => [form], createElement() {return {remove() {}};},
+  const document = {visibilityState, querySelectorAll: () => [form], createElement() {return {removals: 0, remove() {this.removals++;}};},
     head: {append(script) {createdScripts.push(script);}}};
   let reference = 0;
-  const context = vm.createContext({window, document, URL, Date, Promise,
+  // Drive diagnostic timing from the same fake clock as the actual watchdog callbacks.
+  class ClockDate extends Date {static now() {return clock;}}
+  const context = vm.createContext({window, document, URL, Date: ClockDate, Promise,
+    console: {warn(prefix, detail) {
+      if (consoleThrows) throw new Error('Console unavailable');
+      diagnostics.push({prefix, detail: JSON.parse(JSON.stringify(detail))});
+    }},
     createLeadId() {reference++; return 'ANNA-20261024010000-' + reference.toString(16).padStart(4, '0').toUpperCase();}});
   const send = () => {
     let prevented = false;
@@ -77,8 +87,8 @@ function fixture({language = 'ZH', placeholder = false, host = 'anna-ai-studios.
   };
   form.requestSubmit = send;
   vm.runInContext(code + '\ninitContactForms();', context);
-  return {form, window, status, button, label, controls, original, token, lead, origin, honey,
-    renders, executions, removals, nativePosts, createdScripts, timers, scheduledTimers, advance, send};
+  return {form, window, document, api, status, button, label, controls, original, token, lead, origin, honey,
+    renders, executions, removals, nativePosts, createdScripts, diagnostics, timers, scheduledTimers, advance, send};
 }
 const flush = async () => {await Promise.resolve(); await Promise.resolve(); await Promise.resolve();};
 (async () => {
@@ -162,6 +172,95 @@ const flush = async () => {await Promise.resolve(); await Promise.resolve(); awa
   unavailable.createdScripts[0].onerror(); await flush();
   assert.equal(unavailable.button.disabled, false); assert.equal(unavailable.nativePosts.length, 0);
 
+  // Provider failure data is untrusted. Only a six-digit primitive code may enter local logs.
+  const privateError = 'token=SECRET_TOKEN email=private@example.com lead=ANNA-20261024010000-0001 中文正文';
+  for (const [providerCode, expectedCode] of [['110200', '110200'], [110200, '110200'],
+    ['110200 '], ['110200\n'], ['12345'], ['1234567'], [privateError], [null], [undefined],
+    [{toString() {throw new Error('Do not coerce provider objects');}}]]) {
+    const f = fixture({visibilityState: 'hidden'}); f.send(); await flush(); f.advance(25);
+    const callback = f.renders[0]['error-callback'];
+    assert.equal(callback(providerCode), true);
+    assert.deepEqual(f.diagnostics, [{prefix: '[Anna contact verification]', detail: {
+      event: 'provider-error', elapsedMs: 25, visible: false, ...(expectedCode ? {code: expectedCode} : {}),
+    }}]);
+    callback(privateError); f.renders[0].callback(privateError);
+    assert.equal(f.diagnostics.length, 1, 'Stale callbacks must not log or submit again');
+    assert.equal(f.nativePosts.length, 0); assert.equal(f.button.disabled, false);
+  }
+  const bounded = fixture(); bounded.send(); await flush();
+  bounded.renders[0]['before-interactive-callback'](); bounded.advance(900001);
+  bounded.renders[0]['error-callback']('110200');
+  assert.deepEqual(bounded.diagnostics.at(-1).detail,
+    {event: 'provider-error', elapsedMs: 900000, visible: true, code: '110200'});
+
+  // Both terminal script events and late events must settle a load exactly once, then allow
+  // an intentional new attempt. An old script must never invalidate or diagnose the new load.
+  for (const failure of ['load-error', 'load-timeout', 'load-api-unavailable']) {
+    const f = fixture({missingApi: true}); f.send(); await flush();
+    const script = f.createdScripts[0], loadTimer = f.scheduledTimers[0];
+    if (failure === 'load-error') script.onerror(new Error(privateError));
+    else if (failure === 'load-timeout') f.advance(18000);
+    else script.onload();
+    await flush();
+    assert.deepEqual(f.diagnostics.map(item => item.detail.event), [failure]);
+    assert.equal(script.removals, 1); assert.equal(f.timers.size, 0); assert.equal(f.button.disabled, false);
+    f.send(); await flush(); const currentLead = f.lead.value;
+    script.onerror(); script.onload(); loadTimer.callback(); await flush();
+    assert.equal(f.createdScripts.length, 2); assert.equal(f.lead.value, currentLead);
+    assert.equal(f.diagnostics.length, 1); assert.equal(f.button.disabled, true);
+    f.window.turnstile = f.api;
+    f.createdScripts[1].onload(); await flush();
+    assert.equal(f.renders.length, 1); assert.equal(f.executions.length, 1);
+    f.renders[0].callback('LOCAL_RECOVERY_TOKEN');
+    assert.equal(f.nativePosts.length, 1, 'A later valid deliberate submission must still work');
+    assert.deepEqual(f.diagnostics.map(item => item.detail.event), [failure, 'verified']);
+  }
+
+  // Synchronous render callbacks run before the returned ID can be assigned. A terminal
+  // callback must remove that ID afterwards, without executing it or retaining stale tokens.
+  for (const callbackName of ['error-callback', 'timeout-callback', 'expired-callback', 'unsupported-callback']) {
+    const f = fixture({renderHook: options => options[callbackName]('110200')});
+    f.send(); await flush();
+    assert.deepEqual(f.removals, ['widget-1']); assert.equal(f.executions.length, 0);
+    assert.equal(f.nativePosts.length, 0); assert.equal(f.timers.size, 0);
+    assert.equal(f.button.disabled, false); assert.equal(f.lead.value, ''); assert.equal(f.token.value, '');
+    f.renders[0].callback('STALE_SYNC_RENDER_TOKEN'); assert.equal(f.nativePosts.length, 0);
+    assert.equal(f.diagnostics.length, 1);
+  }
+  const synchronousSuccess = fixture({renderHook: options => options.callback('LOCAL_SYNC_TOKEN')});
+  synchronousSuccess.send(); await flush();
+  assert.equal(synchronousSuccess.nativePosts.length, 1); assert.equal(synchronousSuccess.executions.length, 0);
+  assert.deepEqual(synchronousSuccess.removals, ['widget-1']); assert.equal(synchronousSuccess.timers.size, 0);
+  assert.deepEqual(synchronousSuccess.diagnostics.map(item => item.detail.event), ['verified']);
+  const synchronousInvalidToken = fixture({renderHook: options => options.callback({secret: privateError})});
+  synchronousInvalidToken.send(); await flush();
+  assert.equal(synchronousInvalidToken.nativePosts.length, 0); assert.equal(synchronousInvalidToken.executions.length, 0);
+  assert.deepEqual(synchronousInvalidToken.removals, ['widget-1']);
+  assert.deepEqual(synchronousInvalidToken.diagnostics.map(item => item.detail.event), ['provider-invalid-token']);
+
+  for (const stage of ['render', 'execute']) {
+    const f = fixture({[stage + 'Hook']: () => {throw new Error(privateError);}});
+    f.send(); await flush();
+    assert.deepEqual(f.diagnostics, [{prefix: '[Anna contact verification]',
+      detail: {event: stage + '-exception', elapsedMs: 0, visible: true}}]);
+    assert.equal(f.nativePosts.length, 0); assert.equal(f.button.disabled, false); assert.equal(f.timers.size, 0);
+    if (stage === 'execute') assert.deepEqual(f.removals, ['widget-1']);
+  }
+  const endedBeforeThrow = fixture({executeHook: options => {
+    options['error-callback']('110200'); throw new Error(privateError);
+  }});
+  endedBeforeThrow.send(); await flush();
+  assert.deepEqual(endedBeforeThrow.diagnostics.map(item => item.detail.event), ['provider-error']);
+  assert.deepEqual(endedBeforeThrow.removals, ['widget-1']); assert.equal(endedBeforeThrow.nativePosts.length, 0);
+  const sentBeforeThrow = fixture({executeHook: options => {
+    options.callback('LOCAL_SYNC_EXECUTE_TOKEN'); throw new Error(privateError);
+  }});
+  sentBeforeThrow.send(); await flush();
+  assert.equal(sentBeforeThrow.nativePosts.length, 1); assert.equal(sentBeforeThrow.button.disabled, true);
+  assert.deepEqual(sentBeforeThrow.diagnostics.map(item => item.detail.event), ['verified']);
+  const noConsole = fixture({consoleThrows: true}); noConsole.send(); await flush();
+  noConsole.renders[0].callback('LOCAL_NO_CONSOLE_TOKEN'); assert.equal(noConsole.nativePosts.length, 1);
+
   const allowed = ['lead_id', 'name', 'company', 'email', 'language', 'service_code', 'timeline', 'message',
     'privacy_consent', 'source_page', '_honey', 'cf-turnstile-response'].sort();
   for (const relative of ['index.html', 'zh/index.html']) {
@@ -174,5 +273,5 @@ const flush = async () => {await Promise.resolve(); await Promise.resolve(); awa
     assert.match(form, /action="https:\/\/anna-ai-studios\.pages\.dev\/api\/contact"/);
   }
   assert.doesNotMatch(code, /fetch\(|XMLHttpRequest|no-cors/);
-  console.log('PASS: offline native POST gating, CJK field preservation, cData reference binding, duplicate-click guard, stale/expired/error token reset, edited-field invalidation, BFCache, unavailable provider, 60-second silent-stall recovery, manual-challenge pause/resume, stale-timer isolation, exact backend field contract, placeholder and source-host blocking.');
+  console.log('PASS: offline native POST gating, CJK field preservation, cData reference binding, duplicate-click guard, stale/expired/error token reset, edited-field invalidation, BFCache, unavailable provider, 60-second silent-stall recovery, manual-challenge pause/resume, stale-timer isolation, private-data-free diagnostic boundaries, one-shot load failures and deliberate recovery, synchronous render/execute terminal callback isolation, exact backend field contract, placeholder and source-host blocking.');
 })().catch(error => {console.error(error); process.exitCode = 1;});
