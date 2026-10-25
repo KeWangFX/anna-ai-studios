@@ -22,7 +22,7 @@ class Node {
   focus() {this.focused = true;}
 }
 function fixture({language = 'ZH', placeholder = false, host = 'anna-ai-studios.pages.dev', missingApi = false,
-  renderHook, executeHook, visibilityState = 'visible', consoleThrows = false} = {}) {
+  missingRequestSubmit = false, renderHook, executeHook, visibilityState = 'visible', consoleThrows = false} = {}) {
   const form = new Node(), window = new Node(), status = new Node(), button = new Node(), label = new Node();
   label.textContent = language === 'ZH' ? '发送项目需求' : 'Send project brief';
   button.disabled = true;
@@ -85,7 +85,9 @@ function fixture({language = 'ZH', placeholder = false, host = 'anna-ai-studios.
       ...Object.fromEntries(Object.entries(controls).map(([key, node]) => [key, node.value]))});
     return prevented;
   };
-  form.requestSubmit = send;
+  if (!missingRequestSubmit) form.requestSubmit = send;
+  // Native submit-button activation still dispatches submit when requestSubmit is absent.
+  button.click = () => { if (!button.disabled) return send(); };
   vm.runInContext(code + '\ninitContactForms();', context);
   return {form, window, document, api, status, button, label, controls, original, token, lead, origin, honey,
     renders, executions, removals, nativePosts, createdScripts, diagnostics, timers, scheduledTimers, advance, send};
@@ -93,8 +95,9 @@ function fixture({language = 'ZH', placeholder = false, host = 'anna-ai-studios.
 const flush = async () => {await Promise.resolve(); await Promise.resolve(); await Promise.resolve();};
 (async () => {
   // These are offline mocks: there are no network calls, real tokens, or email submissions.
-  for (const language of ['EN', 'ZH']) for (const host of ['anna-ai-studios.pages.dev', 'kewangfx.github.io']) {
-    const f = fixture({language, host});
+  for (const language of ['EN', 'ZH']) for (const host of ['anna-ai-studios.pages.dev', 'kewangfx.github.io'])
+    for (const missingRequestSubmit of [false, true]) {
+    const f = fixture({language, host, missingRequestSubmit});
     assert.equal(f.button.disabled, false);
     assert.equal(f.send(), true); assert.ok(f.lead.value); assert.equal(f.nativePosts.length, 0);
     const idBeforeExecution = f.lead.value;
@@ -112,9 +115,20 @@ const flush = async () => {await Promise.resolve(); await Promise.resolve(); awa
     assert.equal(new URL(f.nativePosts[0].source_page).host, host);
     assert.equal(f.button.disabled, true);
     f.renders[0].callback('REPEATED_TOKEN'); assert.equal(f.nativePosts.length, 1);
+    f.send(); assert.equal(f.nativePosts.length, 1, 'A second submit must not reuse a spent token');
     f.window.emit('pagehide'); f.window.emit('pageshow');
     assert.equal(f.token.value, ''); assert.equal(f.lead.value, ''); assert.equal(f.button.disabled, false);
   }
+  // Autofill/native validity can change during verification without firing an input event.
+  // The legacy click path must revalidate instead of bypassing the guarded submit listener.
+  const legacyInvalid = fixture({missingRequestSubmit: true});
+  legacyInvalid.send(); await flush();
+  legacyInvalid.controls.email.validity = {valid: false, typeMismatch: true};
+  legacyInvalid.renders[0].callback('LOCAL_TEST_TOKEN');
+  assert.equal(legacyInvalid.nativePosts.length, 0);
+  assert.equal(legacyInvalid.controls.email.focused, true);
+  assert.equal(legacyInvalid.token.value, '');
+  assert.equal(legacyInvalid.button.disabled, false);
   for (const callbackName of ['expired-callback', 'timeout-callback', 'error-callback']) {
     const f = fixture(); f.send(); await flush(); const old = f.renders[0], lead = f.lead.value;
     old[callbackName](); assert.equal(f.token.value, ''); assert.equal(f.lead.value, ''); assert.equal(f.button.disabled, false);
@@ -273,5 +287,5 @@ const flush = async () => {await Promise.resolve(); await Promise.resolve(); awa
     assert.match(form, /action="https:\/\/anna-ai-studios\.pages\.dev\/api\/contact"/);
   }
   assert.doesNotMatch(code, /fetch\(|XMLHttpRequest|no-cors/);
-  console.log('PASS: offline native POST gating, CJK field preservation, cData reference binding, duplicate-click guard, stale/expired/error token reset, edited-field invalidation, BFCache, unavailable provider, 60-second silent-stall recovery, manual-challenge pause/resume, stale-timer isolation, private-data-free diagnostic boundaries, one-shot load failures and deliberate recovery, synchronous render/execute terminal callback isolation, exact backend field contract, placeholder and source-host blocking.');
+  console.log('PASS: offline native POST gating, legacy requestSubmit fallback and revalidation, CJK field preservation, cData reference binding, duplicate-click guard, stale/expired/error token reset, edited-field invalidation, BFCache, unavailable provider, 60-second silent-stall recovery, manual-challenge pause/resume, stale-timer isolation, private-data-free diagnostic boundaries, one-shot load failures and deliberate recovery, synchronous render/execute terminal callback isolation, exact backend field contract, placeholder and source-host blocking.');
 })().catch(error => {console.error(error); process.exitCode = 1;});

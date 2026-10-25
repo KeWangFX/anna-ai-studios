@@ -1313,7 +1313,7 @@ function initContactForms() {
     form.addEventListener("submit", (event) => {
       if (!configured) { event.preventDefault(); invalidate(); return; }
       if (phase === "ready" && tokenField.value) {
-        // requestSubmit re-runs validation and this listener, then uses the browser's native POST.
+        // Both requestSubmit and a submit-button click re-run this listener before native POST.
         if (!validate()) { event.preventDefault(); invalidate(messages.summary); return; }
         phase = "submitting";
         busy(true, messages.sending);
@@ -1352,7 +1352,10 @@ function initContactForms() {
             tokenField.value = token;
             phase = "ready";
             button.disabled = false;
-            form.requestSubmit();
+            // Older embedded WebKit browsers lack requestSubmit. Clicking the real button
+            // preserves validation and duplicate-send guards; form.submit() would bypass them.
+            if (typeof form.requestSubmit === "function") form.requestSubmit();
+            else button.click();
           },
           "before-interactive-callback": () => {
             if (attempt === generation && phase === "verifying") {
