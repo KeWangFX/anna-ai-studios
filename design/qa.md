@@ -1,12 +1,23 @@
 # Anna AI Studios — mainland China and WeChat release QA
 
-Date: 24 October 2026, Europe/London. Scope: mainland-network reachability, WeChat-oriented contact alternatives, bilingual consultation transport, free-service limits and preservation of the existing visual style. FrameFetch is excluded.
+Checkpoint: 25 October 2026, Europe/London. The 24 October mainland measurements below are historical samples and have not been repeated on 25 October. Scope: mainland-network reachability, WeChat-oriented contact alternatives, bilingual consultation transport, free-service limits and preservation of the existing visual style. FrameFetch is excluded.
 
 ## Current verdict
 
-**Partially verified; the new relay's real-mail delivery and a physical WeChat client are not closed.** The deployed relay snapshot `7e378e5` removes the visitor's direct Google connection and adds local WeChat/email copying. Published content, negative submission handling and sampled mainland HTTP reachability have evidence. The current marked real-mail attempt has not completed Turnstile and has not submitted an enquiry. No new inbox-delivery success is claimed.
+**Partially verified; the new relay's real-mail delivery and mobile WeChat usability are not closed.** Relay snapshot `7e378e5` removed the visitor's direct Google connection and added local WeChat/email copying. The subsequent production snapshot `b70e531defc715e8146091cc4ce32ddc95aa9151` adds local verification diagnostics and stale-callback guards. Published content, negative submission handling and sampled mainland HTTP reachability have evidence. Today's Chinese primary-site and English mirror tests have reached visible Cloudflare manual checkboxes, but those challenges have not been completed and no consultation POST has occurred. No new inbox-delivery success is claimed.
 
-This document records the deployed relay snapshot, not a final commit for the entire task. Additional verification-script diagnostics are being implemented separately and are not yet deployed at this checkpoint; they are not included in the passing production claims below.
+The current deployed checkpoint is [Cloudflare release 880c3829](https://880c3829.anna-ai-studios.pages.dev), with the same source successfully published by [GitHub Pages run 40183725039](https://github.com/KeWangFX/anna-ai-studios/actions/runs/40183725039). It is not a final acceptance verdict for the entire task. The two legacy thank-you pages still reference CSS version `20261023e` in this deployed snapshot; this source now corrects both to `20261024d`. The subsequent deployment and four-route verification are recorded in the saved 25 October acceptance-status report.
+
+## 25 October continuation checks
+
+- PASS: `npm run validate` and `git diff --check` completed after the diagnostic/guard changes. Coverage includes responsive runtime, nine 404 routes and CSP hashes, form lifecycle and diagnostic privacy boundaries, actual HTML/backend field contracts, 46 backend checks, bilingual local copying, 26 relay checks and validation of all 13 built HTML documents.
+- PASS: 32 production page/resource GETs across the primary host and GitHub mirror returned HTTP 200 and matched the saved `b70e531` source after text line-ending normalization. All 12 HTML documents that load the shared script, on each host, reference `script.js?v=20261024e`. The raw CSS files also match saved source. The four deployed thank-you-page responses (two routes on two hosts) retain the older CSS query noted above; the evidence records that version discrepancy rather than treating it as missing CSS content.
+- PASS: verification diagnostics and callback guards are deployed. Diagnostic output is confined to the local browser console: allowlisted event names, bounded elapsed time, page visibility and a strictly six-digit provider error code where supplied. It contains no consultation fields, token, reference, URL or exception text and introduces no remote collection or persistent storage. Script failures settle once; late events and synchronous terminal callbacks cannot restart or execute a stale attempt. CAPTCHA verification and deliberate retry remain enforced.
+- CONFIRMED: the current Cloudflare account UI again shows Workers **Free**, $0, with its shared daily allowance. This is a plan check, not a claim about the unused request balance.
+- PENDING: the two tests marked `ANNA-CHINA-RELAY-20261025` are at visible manual verification checkboxes. The browser operation rule requires action-time confirmation before completing them; they have not been solved or bypassed. The saved screenshots establish the current challenge state, not submission or email delivery.
+- BLOCKED AT NETWORK CHECK: the logged-in Windows WeChat client opened the owner's existing Anna URL in its actual built-in browser, then displayed a DNS error for `weixin110.qq.com`. A reload left the same `DNS_PROBE_POSSIBLE` page. This is a real desktop-WeChat attempt, not a phone test; it does not establish that Anna is blocked by WeChat or that Anna's page/form successfully loaded in that browser.
+
+Evidence in the 25 October directory: `published-content-check.json`, `workers-free-plan.txt`, `current-chinese-captcha.png`, `current-english-captcha.png`, `wechat-desktop-dns-error.png` and `wechat-desktop-dns-error.txt`.
 
 ## Deployed architecture and safe failure
 
@@ -18,7 +29,7 @@ This document records the deployed relay snapshot, not a final commit for the en
 
 Evidence: `deployed-backend-protocol.json` records an actual version 3 JSON `invalid_request` response to an incomplete payload, with no mail attempted. `production-relay-check.json` records production GET 405, incomplete POST 400, and invalid-Turnstile POST 503. None displays an accepted heading or a Google frame. These are safe rejection/transport checks, not evidence of a successful valid consultation.
 
-## Mainland HTTP sampling
+## 24 October mainland HTTP sampling — historical record
 
 The six mainland probes cover Guangzhou, Shanghai, Wuxi, Nanning, Nanjing and Guilin, with two points each labelled China Telecom, China Unicom and China Mobile. Two London probes are controls. Geography, ASN and access-network labels are supplied by Globalping; some probes share volunteer tags. These are sampled HTTP measurements, not a long-term availability rate or physical WeChat-device test.
 
@@ -30,18 +41,18 @@ The six mainland probes cover Guangzhou, Shanghai, Wuxi, Nanning, Nanjing and Gu
 | Earlier direct Google endpoint GET | 0/6; TCP timeouts | 2/2 HTTP 200 | The old visitor-to-Google dependency failed at every sampled mainland point |
 | Earlier actual Turnstile JavaScript | 6/6 HTTP 200 | 2/2 HTTP 200 | Script resource reachable; no conclusion about a completed challenge or token |
 
-Post-deployment measurements began around 11:51:50 London time. Expected 405 pages include both languages, the WeChat ID and contact return links. **405 is not consultation acceptance or mail delivery.** Comparing different paths/methods/times does not establish a strict performance-improvement percentage. Main-site, mirror and Turnstile accessibility can still vary between networks.
+Post-deployment measurements began on 24 October around 11:51:50 London time (BST), against relay snapshot `7e378e5`. They are not fresh network measurements of the 25 October diagnostic release. Expected 405 pages include both languages, the WeChat ID and contact return links. **405 is not consultation acceptance or mail delivery.** Comparing different paths/methods/times does not establish a strict performance-improvement percentage. Main-site, mirror and Turnstile accessibility can still vary between networks.
 
 Source: `post-deploy-network-results.md`, `post-deploy-network-results.json`, `network-results.md` and `network-summary-final.json`, with the original Globalping request/result files retained. An early incorrectly constructed Turnstile path returned 404 and is explicitly excluded from availability conclusions; the corrected redirect and actual script were checked separately.
 
-## Static, mobile and functional evidence
+## 24 October static, mobile and functional evidence
 
 - Published content checks match the saved source snapshot and expected CSP. Browser forms use the studio relay endpoint; external Google form/frame origins are no longer required in page CSP.
 - Local browser evidence covers the new Chinese fallback at a 375px viewport and English fallback at 320px. Available content widths were 360px and 305px respectively, with equal scroll widths: no horizontal overflow in those checked states. Both copy buttons have a 44px minimum height.
 - The Chinese copied draft preserves Chinese characters, traditional/simplified text, emoji and line breaks. The English empty-form draft remains usable, with visible labels and unfilled placeholders. Copy does not trigger native validation, Turnstile, POST or email.
 - Only the allowlisted visible name, company, email, project type, timing and brief are copied; option labels are localized. Hidden tokens, lead references and honeypot values are excluded. Clipboard rejection/unavailability exposes selectable readonly text, and the status explicitly says the enquiry has not been sent. Delayed clipboard results cannot overwrite a newer operation; edits clear obsolete previews.
 - WeChat instructions conditionally explain same-phone QR recognition, searching `kewangfx`, and using the top-right menu to open a page in the browser when needed. They do not detect an IP/UA and forcibly disable a working form. The full-size QR opens in the same tab.
-- Integrated offline validation reported a pass for the deployed relay snapshot: responsive runtime, 404/CSP, form delivery, actual HTML/backend contracts, backend validation/idempotency, local copying, Worker request/result boundaries and public builds. This statement does not include later in-progress diagnostic edits or invent a final test count.
+- Integrated offline validation reported a pass for the original relay snapshot: responsive runtime, 404/CSP, form delivery, actual HTML/backend contracts, backend validation/idempotency, local copying, Worker request/result boundaries and public builds. The separate 25 October validation above covers the subsequent diagnostic/guard changes.
 
 Evidence: `published-content-check.json`, `local-mobile-zh.json` / `.png`, `local-mobile-en.json` / `.png`, `fallback-implementation.md`, `cloudflare-bundle-manifest.json`, `static-bundle-manifest.json`, `preview-relay-check.json` and `production-relay-check.json`.
 
@@ -57,13 +68,15 @@ Evidence: `workers-free-plan.png`, `cloudflare-fail-closed.png`, the maintained 
 
 ## Current real-mail and WeChat boundary
 
-The current production test is marked `ANNA-CHINA-RELAY-20261024`. According to the active session's browser and mailbox check, Turnstile has blocked completion before a consultation POST. Gmail search for that marker returned zero messages. This is **not a demonstrated mail-loss incident**: there is no completed consultation in this attempt to match against an owner notification or receipt. The saved `live-verification-fallback.png` shows the live form/fallback state; it is not an inbox-delivery receipt.
+The previous production attempt was marked `ANNA-CHINA-RELAY-20261024`. Its verification did not finish before a consultation POST, and the earlier Gmail search for that marker returned zero messages. This is **not a demonstrated mail-loss incident**: there was no completed consultation in that attempt to match against an owner notification or receipt. The 24 October `live-verification-fallback.png` is not an inbox-delivery receipt.
 
-The new relay still needs a valid completed challenge and matching owner-notification plus automatic-receipt evidence before real-mail closure. Prior same-day messages cannot be reused as proof for the changed transport. Mainland probes do not exercise the WeChat application, and desktop mobile/UA testing is not physical iOS/Android WeChat certification. No real-WeChat success is claimed here.
+The current tests are marked `ANNA-CHINA-RELAY-20261025`: Chinese on the primary host and English on the GitHub mirror. Both have reached visible Cloudflare manual challenges and are awaiting the required action-time confirmation. Neither has submitted an enquiry at this checkpoint; no email result is inferred from the visible challenge or from the previous day's mailbox search.
+
+The new relay still needs valid completed challenges and matching owner-notification plus automatic-receipt evidence in both languages before real-mail closure. Prior direct-route messages cannot be reused as proof for the changed transport. Mainland probes do not exercise the WeChat application. The Windows WeChat attempt is blocked at the `weixin110.qq.com` DNS page before Anna's page or form can be validated; its error does not establish the cause beyond that observed failure. No successful WeChat page/form result or physical iOS/Android WeChat coverage is claimed here.
 
 ## Previous final-site audit — historical record
 
-The earlier same-day audit covered responsive English/Chinese pages at mobile and desktop widths, navigation/menu behaviour, required-field and email validation, service preselection, bilingual routes/content and a broad public-link/fragment audit. It repaired Chinese 404 recovery and typography, set the supported Chinese Turnstile language, and added bounded recovery for silent verification stalls while allowing time for manual challenges. Those historical findings remain useful regression coverage; they are not represented as newly repeated mainland or device tests.
+The earlier 24 October audit covered responsive English/Chinese pages at mobile and desktop widths, navigation/menu behaviour, required-field and email validation, service preselection, bilingual routes/content and a broad public-link/fragment audit. It repaired Chinese 404 recovery and typography, set the supported Chinese Turnstile language, and added bounded recovery for silent verification stalls while allowing time for manual challenges. Those historical findings remain useful regression coverage; they are not represented as newly repeated mainland or device tests.
 
 Earlier direct-POST mail tests read four Chinese/English owner notifications and localized receipts in the owner-controlled Gmail inbox, with original name/company/body comparisons passing. **The current release changes the submission transport and backend response format**, so those earlier messages only establish the previous route's delivery to that tested mailbox. The earlier report's readiness verdict, build counts and release details belong to its own snapshot in `outputs/anna-ai-studios-final-site-acceptance-2026-10-24/` and are not carried forward as current completion claims.
 
@@ -71,8 +84,10 @@ The existing copper/dark visual system is retained. This task adds contact fallb
 
 ## Evidence location and remaining closure
 
-Evidence directory: `C:\Users\kewang\Documents\Codex\2026-10-23\da-k\outputs\anna-ai-studios-mainland-wechat-2026-10-24`.
+Historical evidence directory: `C:\Users\kewang\Documents\Codex\2026-10-23\da-k\outputs\anna-ai-studios-mainland-wechat-2026-10-24`.
 
-Remaining: finish and separately validate any in-progress script diagnostics; complete a valid real-mail enquiry and verify both messages; record real WeChat-device coverage if available. Until then, report the deployed network/fallback improvements and these exact limitations rather than “full mainland/WeChat acceptance passed.”
+Continuation evidence directory: `C:\Users\kewang\Documents\Codex\2026-10-23\da-k\outputs\anna-ai-studios-mainland-wechat-2026-10-25`.
+
+Remaining: complete the two currently pending challenges after action-time confirmation, then verify each language's owner notification and automatic receipt; validate Anna's page/form in a working real WeChat environment and record mobile-device coverage when available. Until then, report the deployed network/fallback improvements and these exact limitations rather than “full mainland/WeChat acceptance passed.”
 
 Production URLs: [Chinese](https://anna-ai-studios.pages.dev/zh/) · [English](https://anna-ai-studios.pages.dev/) · [GitHub mirror](https://kewangfx.github.io/anna-ai-studios/).
