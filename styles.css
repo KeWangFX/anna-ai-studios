@@ -3670,11 +3670,17 @@ figure.product-directory__visual img {
   }
 
   .site-header {
+    /* Without a working menu controller, keep all links in normal document flow. */
+    position: relative;
     grid-template-columns: 1fr auto auto;
     padding-inline: 24px;
   }
 
-  .menu-toggle {
+  .site-header.is-nav-ready {
+    position: fixed;
+  }
+
+  .site-header.is-nav-ready .menu-toggle {
     display: block;
     grid-column: 2;
     grid-row: 1;
@@ -3687,16 +3693,28 @@ figure.product-directory__visual img {
   }
 
   .site-nav {
-    position: absolute;
-    top: calc(100% + 1px);
-    right: 0;
-    left: 0;
+    grid-column: 1 / -1;
+    grid-row: 2;
     display: grid;
     gap: 0;
     padding: 14px 24px 24px;
     border-bottom: 1px solid var(--line);
     background: rgba(6, 8, 7, 0.96);
     backdrop-filter: blur(18px);
+  }
+
+  .site-header.is-nav-ready .site-nav {
+    position: absolute;
+    top: calc(100% + 1px);
+    right: 0;
+    left: 0;
+    grid-column: auto;
+    grid-row: auto;
+    /* A bounded scroll area keeps the final links reachable in short viewports. */
+    max-height: calc(100vh - var(--header-height) - 1px);
+    max-height: calc(100dvh - var(--header-height) - 1px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
     opacity: 0;
     pointer-events: none;
     visibility: hidden;
@@ -3704,7 +3722,7 @@ figure.product-directory__visual img {
     transition: opacity 180ms ease, transform 260ms var(--ease), visibility 0s linear 260ms;
   }
 
-  .site-nav.is-open {
+  .site-header.is-nav-ready .site-nav.is-open {
     opacity: 1;
     pointer-events: auto;
     visibility: visible;
@@ -3857,9 +3875,12 @@ figure.product-directory__visual img {
 
   .site-nav {
     align-content: start;
-    min-height: calc(100dvh - var(--header-height));
-    overflow-y: auto;
     background: #060807;
+  }
+
+  .site-header.is-nav-ready .site-nav {
+    min-height: calc(100vh - var(--header-height) - 1px);
+    min-height: calc(100dvh - var(--header-height) - 1px);
   }
 
   .site-nav .mobile-project-link {

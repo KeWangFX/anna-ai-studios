@@ -15,20 +15,22 @@ function initHeader() {
   const menuCopy = isChinese
     ? { open: "打开导航", close: "关闭导航" }
     : { open: "Open navigation", close: "Close navigation" };
+  let navigationReady = false;
 
   const setHeaderState = () => {
     header.classList.toggle("is-scrolled", window.scrollY > 16);
   };
 
   const setMenuState = (open) => {
-    const expanded = Boolean(open && menuQuery.matches);
+    const enhanced = navigationReady && menuQuery.matches;
+    const expanded = Boolean(open && enhanced);
     menuButton.setAttribute("aria-expanded", String(expanded));
     nav.classList.toggle("is-open", expanded);
     header.classList.toggle("is-open", expanded);
     document.body.classList.toggle("is-menu-open", expanded);
     pageRegions.forEach((region) => region.toggleAttribute("inert", expanded));
-    nav.toggleAttribute("inert", menuQuery.matches && !expanded);
-    if (menuQuery.matches && !expanded) {
+    nav.toggleAttribute("inert", enhanced && !expanded);
+    if (enhanced && !expanded) {
       nav.setAttribute("aria-hidden", "true");
     } else {
       nav.removeAttribute("aria-hidden");
@@ -73,8 +75,18 @@ function initHeader() {
     if (!menuQuery.matches) setMenuState(false);
   });
   menuQuery.addEventListener?.("change", () => setMenuState(false));
-  setMenuState(false);
   setHeaderState();
+  // Keep the static navigation usable until its controls and initial state are ready.
+  try {
+    navigationReady = true;
+    setMenuState(false);
+    header.classList.add("is-nav-ready");
+  } catch (error) {
+    navigationReady = false;
+    nav.removeAttribute("inert");
+    nav.removeAttribute("aria-hidden");
+    throw error;
+  }
 }
 
 function initSectionNavigation() {

@@ -98,6 +98,99 @@ function environment({ mobile = false, reduced = false, saveData = false, observ
     flush() { const pending = [...frames]; frames.clear(); pending.forEach(([, callback]) => callback(116)); },
   };
 }
+const headerCode = extract('initHeader', 'initSectionNavigation');
+function headerEnvironment({ mobile = true, language = 'en' } = {}) {
+  const env = environment();
+  const header = new Node(), button = new Node(), nav = new Node(), label = new Node();
+  const main = new Node(), footer = new Node();
+  class Anchor extends Node { closest() { return this; } }
+  env.document.body = new Node();
+  env.document.documentElement.lang = language;
+  env.window.scrollY = 0;
+  env.query('(max-width: 1120px)').matches = mobile;
+  button.querySelector = selector => selector === '.sr-only' ? label : null;
+  button.focus = () => { env.document.activeElement = button; };
+  for (const [selector, node] of [['[data-header]', header], ['[data-menu-toggle]', button], ['[data-site-nav]', nav], ['main', main], ['footer', footer]]) {
+    env.selectors.set(selector, node);
+  }
+  Object.assign(env.context, { HTMLElement: Node, Element: Node, HTMLAnchorElement: Anchor });
+  return Object.assign(env, { header, button, nav, label, main, footer, Anchor,
+    start() { env.run(`${headerCode}\ninitHeader();`); },
+  });
+}
+const assertMenuUnlocked = env => {
+  assert.equal(env.document.body.classList.contains('is-menu-open'), false);
+  for (const region of [env.main, env.footer]) assert.equal(region.hasAttribute('inert'), false);
+};
+for (const [language, openLabel, closeLabel] of [['en', 'Open navigation', 'Close navigation'], ['zh-CN', '打开导航', '关闭导航']]) {
+  const menu = headerEnvironment({ language });
+  menu.start();
+  assert.equal(menu.header.classList.contains('is-nav-ready'), true);
+  assert.equal(menu.button.getAttribute('aria-expanded'), 'false');
+  assert.equal(menu.nav.hasAttribute('inert'), true);
+  assert.equal(menu.nav.getAttribute('aria-hidden'), 'true');
+  assert.equal(menu.label.textContent, openLabel);
+  assertMenuUnlocked(menu);
+  menu.button.emit('click');
+  assert.equal(menu.button.getAttribute('aria-expanded'), 'true');
+  assert.equal(menu.nav.hasAttribute('inert'), false);
+  assert.equal(menu.nav.hasAttribute('aria-hidden'), false);
+  assert.equal(menu.label.textContent, closeLabel);
+  assert.equal(menu.document.body.classList.contains('is-menu-open'), true);
+  for (const region of [menu.main, menu.footer]) assert.equal(region.hasAttribute('inert'), true);
+  menu.document.emit('keydown', { key: 'Escape' });
+  assert.equal(menu.document.activeElement, menu.button);
+  assert.equal(menu.button.getAttribute('aria-expanded'), 'false');
+  assertMenuUnlocked(menu);
+
+  // Returning to desktop must release both the page and the now-visible navigation.
+  menu.button.emit('click');
+  menu.query('(max-width: 1120px)').set(false);
+  assertMenuUnlocked(menu);
+  assert.equal(menu.nav.hasAttribute('inert'), false);
+  assert.equal(menu.nav.hasAttribute('aria-hidden'), false);
+  menu.query('(max-width: 1120px)').set(true);
+  assert.equal(menu.nav.hasAttribute('inert'), true);
+
+  // Keyboard anchor activation must leave focus outside the newly collapsed menu.
+  const link = new menu.Anchor(), heading = new Node(), section = new Node();
+  link.hash = '#contact';
+  section.matches = () => true;
+  section.querySelector = () => heading;
+  heading.focus = () => { menu.document.activeElement = heading; };
+  menu.selectors.set('#contact', section);
+  menu.button.emit('click');
+  menu.nav.emit('click', { target: link, detail: 0 });
+  menu.flush();
+  assertMenuUnlocked(menu);
+  assert.equal(menu.document.activeElement, heading);
+  assert.equal(heading.getAttribute('tabindex'), '-1');
+}
+const desktopMenu = headerEnvironment({ mobile: false });
+desktopMenu.start();
+assert.equal(desktopMenu.nav.hasAttribute('inert'), false);
+assert.equal(desktopMenu.nav.hasAttribute('aria-hidden'), false);
+assertMenuUnlocked(desktopMenu);
+for (const failure of ['missing-nav', 'listener', 'initial-state']) {
+  const menu = headerEnvironment();
+  if (failure === 'missing-nav') menu.selectors.delete('[data-site-nav]');
+  if (failure === 'listener') menu.document.addEventListener = () => { throw new Error('Listener unavailable'); };
+  if (failure === 'initial-state') {
+    menu.nav.setAttribute = () => { throw new Error('Initial state unavailable'); };
+  }
+  if (failure === 'missing-nav') menu.start();
+  else assert.throws(() => menu.start(), /unavailable/);
+  // A partial initialization must retain the accessible static CSS fallback.
+  assert.equal(menu.header.classList.contains('is-nav-ready'), false);
+  assert.equal(menu.nav.hasAttribute('inert'), false);
+  assert.equal(menu.nav.hasAttribute('aria-hidden'), false);
+  assertMenuUnlocked(menu);
+  // Any listeners registered before failure must not later disable the fallback links.
+  menu.query('(max-width: 1120px)').set(false);
+  menu.query('(max-width: 1120px)').set(true);
+  assert.equal(menu.nav.hasAttribute('inert'), false);
+  assert.equal(menu.nav.hasAttribute('aria-hidden'), false);
+}
 const journeyCode = extract('initJourney', 'createLeadId');
 const startJourney = env => env.run(`${journeyCode}\ninitJourney();`);
 const assertStatic = env => {
@@ -236,4 +329,4 @@ shaderEnv.window.emit('pagehide', { persisted: true }); assert.equal(shaderEnv.f
 shaderEnv.window.emit('pageshow', { persisted: true }); assert.equal(shaderEnv.frames.size, 1); assert.equal(renderers, 1);
 shaderEnv.window.emit('pagehide', { persisted: false }); assert.equal(shaderEnv.frames.size, 0); assert.equal(disposed, 1);
 shaderEnv.window.emit('pageshow'); assert.equal(shaderEnv.frames.size, 0);
-console.log('PASS: hero initial static modes, repeated breakpoint/reduced-motion/saveData transitions, scoped video sources, aria/inert, one observer/listener set, pending RAF cleanup, hidden/BFCache, no-observer fallback, optional shader guard/idle recheck, reveal failure fallback, shader stop/resume/renderer reuse.');
+console.log('PASS: bilingual navigation initialization/failure fallback, menu close/Escape/keyboard focus/breakpoint unlock, hero initial static modes, repeated breakpoint/reduced-motion/saveData transitions, scoped video sources, aria/inert, one observer/listener set, pending RAF cleanup, hidden/BFCache, no-observer fallback, optional shader guard/idle recheck, reveal failure fallback, shader stop/resume/renderer reuse.');
